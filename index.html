@@ -1,38 +1,19 @@
 html
-Copiar
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Ley 73 IMSS - Calculadora de Pensiones México 2025</title>
-    <meta name="description" content="Calculadora oficial de pensiones IMSS Ley 73 y 97. Calcula tu pensión PMG 2025, cesantía, vejez. Sistema profesional para trabajadores mexicanos.">
+    <meta name="description" content="Calculadora oficial de pensiones IMSS Ley 73 y 97. PMG 2025: $9,412 MXN. Calcula tu pensión, cesantía, vejez. Sistema profesional México.">
     <meta name="keywords" content="calculadora pensiones IMSS, Ley 73, PMG 2025, cesantía IMSS, AFORE, pensión México">
-    <meta name="author" content="Sistema Ley 73 IMSS">
-    
-    <!-- SEO y Social Media -->
-    <meta property="og:title" content="Calculadora Pensiones IMSS - Ley 73 y 97 México 2025">
-    <meta property="og:description" content="Calcula tu pensión IMSS gratis. PMG 2025: $9,412 MXN. Comparador Ley 73 vs 97, simulador AFORE.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://tu-sitio-aqui.netlify.app">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iIzAwNjZDQyIvPgo8cGF0aCBkPSJNOCAyNFYxNkgxNlYyNEg4WiIgZmlsbD0id2hpdGUiLz4KPHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4=">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    
-    <!-- Google Analytics (Sustituye GA_MEASUREMENT_ID por tu ID real) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=sistemley73"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'sistemley73');
-    </script>
     
     <script>
         tailwind.config = {
@@ -48,6 +29,7 @@ Copiar
             }
         }
     </script>
+    
     <style>
         .loading-spinner {
             border: 3px solid #f3f3f3;
@@ -57,12 +39,12 @@ Copiar
             height: 24px;
             animation: spin 1s linear infinite;
         }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
         
-        /* Optimizaciones para SEO */
         .hero-section {
             background: linear-gradient(135deg, #0066CC 0%, #5D5CDE 100%);
         }
@@ -77,9 +59,10 @@ Copiar
         }
     </style>
 </head>
+
 <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
 
-<!-- Hero Section para SEO -->
+<!-- Hero Section -->
 <section class="hero-section text-white py-12">
     <div class="container mx-auto px-4 text-center">
         <h1 class="text-4xl md:text-6xl font-bold mb-4">
@@ -93,18 +76,144 @@ Copiar
             <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full">⚡ Resultados Instantáneos</span>
             <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full">🇲🇽 Para Todo México</span>
         </div>
-        <button onclick="document.getElementById('authSection').scrollIntoView({behavior: 'smooth'})" 
+        <button onclick="scrollToCalculator()" 
                 class="bg-white text-imss px-8 py-4 rounded-lg font-bold text-xl hover:bg-gray-100 transition-colors">
             🚀 Calcular Mi Pensión GRATIS
         </button>
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="py-16 bg-gray-50 dark:bg-gray-800">
-    <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12">¿Por Qué Elegir Nuestro Sistema?</h2>
-        <div class="grid md:grid-cols-3 gap-8">
+<!-- Navigation -->
+<nav class="bg-imss text-white p-4 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <i class="fas fa-shield-alt text-2xl"></i>
+            <h1 class="text-xl font-bold">Sistema Ley 73 IMSS</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="text-sm">📊 Valores Oficiales 2025</span>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Container -->
+<div class="container mx-auto p-4 max-w-6xl">
+    
+    <!-- Access Code Section -->
+    <div id="accessCodeSection" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-bold mb-4 text-imss text-center">🔑 Acceso al Sistema</h2>
+        
+        <!-- Discount Codes -->
+        <div class="mb-6 p-4 rounded-lg bg-orange-50 dark:bg-orange-900 border border-orange-200 dark:border-orange-700">
+            <h3 class="font-bold text-lg mb-3 text-orange-800 dark:text-orange-200">💰 ¿Tienes un Código de Acceso o Descuento?</h3>
+            <div class="flex gap-3">
+                <input type="text" id="discountCode" placeholder="Ingresa tu código (ej: HUMBERTO2025)" 
+                       class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                <button onclick="applyDiscount()" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded text-sm font-semibold">
+                    Aplicar Código
+                </button>
+            </div>
+            <div id="discountInfo" class="mt-2 text-sm text-green-600 dark:text-green-400 hidden"></div>
+            
+            <!-- Codes work but hidden for security -->
+            <div class="mt-4 text-xs text-orange-600 dark:text-orange-400">
+                <p><strong>¿Tienes un código especial?</strong> Ingrésalo arriba para obtener descuentos o acceso completo.</p>
+                <p><strong>Contacto:</strong> WhatsApp 871-347-3325 para códigos promocionales</p>
+            </div>
+        </div>
+
+        <!-- Payment Plans -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Plan Básico -->
+            <div class="border-2 border-primary rounded-lg p-4 bg-blue-50 dark:bg-blue-900">
+                <div class="bg-primary text-white text-center py-1 rounded mb-3">
+                    <span class="text-xs font-bold">MÁS POPULAR</span>
+                </div>
+                <h3 class="font-bold text-lg mb-2 text-center">Plan Básico</h3>
+                <div class="text-center mb-4">
+                    <span class="text-2xl font-bold" id="price-basico">$299</span>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">1 cálculo completo</p>
+                </div>
+                <ul class="text-xs space-y-1 mb-4">
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Todos los cálculos</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Comparador Ley 73 vs 97</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Reporte PDF</li>
+                </ul>
+                <button onclick="showPaymentInfo('basico', 299)" class="w-full bg-primary text-white py-2 rounded font-semibold hover:bg-purple-700">
+                    💳 Pagar por Transferencia
+                </button>
+            </div>
+
+            <!-- Plan Premium -->
+            <div class="border border-success rounded-lg p-4">
+                <h3 class="font-bold text-lg mb-2 text-center text-success">Plan Premium</h3>
+                <div class="text-center mb-4">
+                    <span class="text-2xl font-bold" id="price-premium">$799</span>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">10 cálculos</p>
+                </div>
+                <ul class="text-xs space-y-1 mb-4">
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Cálculos ilimitados</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Simulador AFORE</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Modalidades Ley 97</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Soporte prioritario</li>
+                </ul>
+                <button onclick="showPaymentInfo('premium', 799)" class="w-full bg-success text-white py-2 rounded font-semibold hover:bg-green-600">
+                    💳 Pagar por Transferencia
+                </button>
+            </div>
+
+            <!-- Plan Mensual -->
+            <div class="border border-orange-500 rounded-lg p-4">
+                <h3 class="font-bold text-lg mb-2 text-center text-orange-500">Plan Mensual</h3>
+                <div class="text-center mb-4">
+                    <span class="text-2xl font-bold" id="price-mensual">$1,999</span>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">1 mes completo</p>
+                </div>
+                <ul class="text-xs space-y-1 mb-4">
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Acceso ilimitado</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Todas las funciones</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Actualizaciones gratis</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Soporte 24/7</li>
+                </ul>
+                <button onclick="showPaymentInfo('mensual', 1999)" class="w-full bg-orange-500 text-white py-2 rounded font-semibold hover:bg-orange-600">
+                    💳 Pagar por Transferencia
+                </button>
+            </div>
+
+            <!-- Plan Anual -->
+            <div class="border border-yellow-500 rounded-lg p-4 bg-yellow-50 dark:bg-yellow-900">
+                <div class="bg-yellow-500 text-white text-center py-1 rounded mb-3">
+                    <span class="text-xs font-bold">MEJOR VALOR</span>
+                </div>
+                <h3 class="font-bold text-lg mb-2 text-center text-yellow-600">Plan Anual</h3>
+                <div class="text-center mb-4">
+                    <span class="text-2xl font-bold" id="price-anual">$9,999</span>
+                    <p class="text-sm text-success font-semibold">¡Ahorra $13,989!</p>
+                    <p class="text-xs text-gray-600 dark:text-gray-400">1 año completo</p>
+                </div>
+                <ul class="text-xs space-y-1 mb-4">
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Todo incluido</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Consultoría básica</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>API empresarial</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Soporte VIP</li>
+                </ul>
+                <button onclick="showPaymentInfo('anual', 9999)" class="w-full bg-yellow-500 text-white py-2 rounded font-semibold hover:bg-yellow-600">
+                    💳 Pagar por Transferencia
+                </button>
+            </div>
+        </div>
+
+        <!-- Access Status -->
+        <div id="accessStatus" class="p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700">
+            <h3 class="font-semibold text-yellow-800 dark:text-yellow-200">Estado de Acceso</h3>
+            <p id="accessInfo" class="text-yellow-700 dark:text-yellow-300">Sin acceso activo - Usa un código o adquiere un plan</p>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="py-8">
+        <h2 class="text-3xl font-bold text-center mb-8">¿Por Qué Usar Nuestro Sistema?</h2>
+        <div class="grid md:grid-cols-3 gap-6">
             <div class="feature-card bg-white dark:bg-gray-700 p-6 rounded-lg shadow-lg">
                 <div class="text-4xl text-imss mb-4">🏆</div>
                 <h3 class="text-xl font-bold mb-3">Más Preciso del Mercado</h3>
@@ -121,130 +230,949 @@ Copiar
                 <p>Compara Ley 73 vs 97, vejez vs cesantía. Toma la mejor decisión financiera.</p>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Pricing Section para monetización -->
-<section class="py-16" id="pricing">
-    <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-4">Planes de Acceso</h2>
-        <p class="text-center text-gray-600 dark:text-gray-400 mb-12">Elige el plan que mejor se adapte a tus necesidades</p>
+    <!-- Calculator Section -->
+    <div id="calculatorSection" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-bold mb-4 text-imss text-center">
+            <i class="fas fa-calculator mr-2"></i>Calculadora de Pensiones IMSS
+        </h2>
         
-        <div class="grid md:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            <!-- Plan Gratuito -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border-2 border-gray-200 dark:border-gray-600">
-                <h3 class="text-xl font-bold text-center mb-4">Prueba Gratuita</h3>
-                <div class="text-center mb-6">
-                    <span class="text-3xl font-bold">GRATIS</span>
-                    <p class="text-gray-600 dark:text-gray-400">1 cálculo de prueba</p>
-                </div>
-                <ul class="space-y-2 mb-6">
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>Cálculo básico Ley 73</li>
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>PMG actualizada 2025</li>
-                    <li class="flex items-center"><i class="fas fa-times text-danger mr-2"></i>Sin reportes PDF</li>
-                </ul>
-                <button class="w-full bg-gray-500 text-white py-2 rounded-lg">Incluido</button>
-            </div>
-            
-            <!-- Plan Básico -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border-2 border-primary">
-                <div class="bg-primary text-white text-center py-1 rounded-lg mb-4">
-                    <span class="text-sm font-bold">MÁS POPULAR</span>
-                </div>
-                <h3 class="text-xl font-bold text-center mb-4">Plan Básico</h3>
-                <div class="text-center mb-6">
-                    <span class="text-3xl font-bold">$299</span>
-                    <p class="text-gray-600 dark:text-gray-400">10 cálculos</p>
-                </div>
-                <ul class="space-y-2 mb-6">
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>Todos los cálculos</li>
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>Comparador Ley 73 vs 97</li>
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>Reportes PDF</li>
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>Soporte por email</li>
-                </ul>
-                <button class="w-full bg-primary text-white py-2 rounded-lg hover:bg-purple-700">Elegir Plan</button>
-            </div>
-            
-            <!-- Plan Premium -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border-2 border-success">
-                <h3 class="text-xl font-bold text-center mb-4">Plan Premium</h3>
-                <div class="text-center mb-6">
-                    <span class="text-3xl font-bold">$799</span>
-                    <p class="text-gray-600 dark:text-gray-400">1 mes completo</p>
-                </div>
-                <ul class="space-y-2 mb-6">
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>Cálculos ilimitados</li>
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>Simulador AFORE avanzado</li>
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>Modalidades Ley 97</li>
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>Soporte prioritario</li>
-                </ul>
-                <button class="w-full bg-success text-white py-2 rounded-lg hover:bg-green-600">Elegir Plan</button>
-            </div>
-            
-            <!-- Plan Profesional -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border-2 border-yellow-500">
-                <h3 class="text-xl font-bold text-center mb-4">Plan Anual</h3>
-                <div class="text-center mb-6">
-                    <span class="text-3xl font-bold">$4,999</span>
-                    <p class="text-gray-600 dark:text-gray-400">Acceso completo 1 año</p>
-                    <span class="text-success text-sm">¡Ahorra $4,589!</span>
-                </div>
-                <ul class="space-y-2 mb-6">
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>Todo incluido</li>
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>Actualizaciones gratis</li>
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>Consultoría básica</li>
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-2"></i>API para empresas</li>
-                </ul>
-                <button class="w-full bg-yellow-500 text-white py-2 rounded-lg hover:bg-yellow-600">Elegir Plan</button>
+        <!-- Regime Selection -->
+        <div class="mb-6 p-4 rounded-lg bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700">
+            <h3 class="font-semibold text-blue-800 dark:text-blue-200 mb-3">Modo de Cálculo</h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <label class="flex items-center space-x-3 p-3 border border-blue-300 dark:border-blue-600 rounded-lg cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-800">
+                    <input type="radio" name="regime" value="ley73" id="regimeLey73" class="text-primary" checked>
+                    <div>
+                        <div class="font-semibold text-blue-800 dark:text-blue-200">Ley 73 Vejez</div>
+                        <div class="text-sm text-blue-600 dark:text-blue-300">65+ años</div>
+                        <div class="text-xs text-blue-500 dark:text-blue-400">PMG: $9,412 MXN</div>
+                    </div>
+                </label>
+                <label class="flex items-center space-x-3 p-3 border border-orange-300 dark:border-orange-600 rounded-lg cursor-pointer hover:bg-orange-100 dark:hover:bg-orange-800">
+                    <input type="radio" name="regime" value="cesantia73" id="regimeCesantia73" class="text-primary">
+                    <div>
+                        <div class="font-semibold text-orange-800 dark:text-orange-200">⚡ Cesantía 73</div>
+                        <div class="text-sm text-orange-600 dark:text-orange-300">60-64 años</div>
+                        <div class="text-xs text-orange-500 dark:text-orange-400">Con penalización</div>
+                    </div>
+                </label>
+                <label class="flex items-center space-x-3 p-3 border border-green-300 dark:border-green-600 rounded-lg cursor-pointer hover:bg-green-100 dark:hover:bg-green-800">
+                    <input type="radio" name="regime" value="comparador" id="regimeComparador" class="text-primary">
+                    <div>
+                        <div class="font-semibold text-green-800 dark:text-green-200">🆚 Comparador</div>
+                        <div class="text-sm text-green-600 dark:text-green-300">Vejez vs Cesantía</div>
+                        <div class="text-xs text-green-500 dark:text-green-400">¿Cuándo retirarme?</div>
+                    </div>
+                </label>
             </div>
         </div>
-    </div>
-</section>
+        
+        <!-- Cesantía Age Selector -->
+        <div id="cesantiaAgeSelector" class="hidden mb-6 p-4 rounded-lg bg-orange-50 dark:bg-orange-900 border border-orange-200 dark:border-orange-700">
+            <h3 class="font-semibold text-orange-800 dark:text-orange-200 mb-3">Edad de Retiro por Cesantía</h3>
+            <div class="grid grid-cols-5 gap-2">
+                <label class="text-center p-2 border border-orange-300 dark:border-orange-600 rounded cursor-pointer hover:bg-orange-100 dark:hover:bg-orange-800">
+                    <input type="radio" name="cesantiaAge" value="60" class="mb-1">
+                    <div class="text-sm font-semibold text-orange-800 dark:text-orange-200">60 años</div>
+                    <div class="text-xs text-orange-600 dark:text-orange-300">-25%</div>
+                </label>
+                <label class="text-center p-2 border border-orange-300 dark:border-orange-600 rounded cursor-pointer hover:bg-orange-100 dark:hover:bg-orange-800">
+                    <input type="radio" name="cesantiaAge" value="61" class="mb-1">
+                    <div class="text-sm font-semibold text-orange-800 dark:text-orange-200">61 años</div>
+                    <div class="text-xs text-orange-600 dark:text-orange-300">-20%</div>
+                </label>
+                <label class="text-center p-2 border border-orange-300 dark:border-orange-600 rounded cursor-pointer hover:bg-orange-100 dark:hover:bg-orange-800">
+                    <input type="radio" name="cesantiaAge" value="62" class="mb-1" checked>
+                    <div class="text-sm font-semibold text-orange-800 dark:text-orange-200">62 años</div>
+                    <div class="text-xs text-orange-600 dark:text-orange-300">-15%</div>
+                </label>
+                <label class="text-center p-2 border border-orange-300 dark:border-orange-600 rounded cursor-pointer hover:bg-orange-100 dark:hover:bg-orange-800">
+                    <input type="radio" name="cesantiaAge" value="63" class="mb-1">
+                    <div class="text-sm font-semibold text-orange-800 dark:text-orange-200">63 años</div>
+                    <div class="text-xs text-orange-600 dark:text-orange-300">-10%</div>
+                </label>
+                <label class="text-center p-2 border border-orange-300 dark:border-orange-600 rounded cursor-pointer hover:bg-orange-100 dark:hover:bg-orange-800">
+                    <input type="radio" name="cesantiaAge" value="64" class="mb-1">
+                    <div class="text-sm font-semibold text-orange-800 dark:text-orange-200">64 años</div>
+                    <div class="text-xs text-orange-600 dark:text-orange-300">-5%</div>
+                </label>
+            </div>
+        </div>
 
-<!-- Rest of the existing code... -->
-[EL RESTO DEL CÓDIGO PERMANECE IGUAL]
+        <!-- Calculator Form -->
+        <form id="calculatorForm" class="space-y-6">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">NSS (Número de Seguridad Social)</label>
+                    <input type="text" id="nss" required pattern="[0-9]{11}" maxlength="11" placeholder="12345678901"
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Fecha de Nacimiento</label>
+                    <input type="date" id="birthDate" required 
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Fecha de Alta IMSS</label>
+                    <input type="date" id="startDate" required 
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Salario Base Cotización Actual (Diario)</label>
+                    <input type="number" id="currentSalary" required min="0" step="0.01" placeholder="485.20"
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Semanas Cotizadas</label>
+                    <input type="number" id="weeksContributed" required min="0" placeholder="1000"
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Edad Actual</label>
+                    <input type="number" id="currentAge" required min="18" max="100" placeholder="60"
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                </div>
+            </div>
+
+            <div class="flex justify-center">
+                <button type="submit" class="bg-imss hover:bg-blue-700 text-white py-3 px-8 rounded-md text-lg font-semibold transition-colors">
+                    <i class="fas fa-calculator mr-2"></i>
+                    <span id="calculateButtonText">Calcular Pensión</span>
+                </button>
+            </div>
+        </form>
+
+        <!-- Results -->
+        <div id="calculationResults" class="hidden mt-8 p-6 bg-green-50 dark:bg-green-900 rounded-lg border border-green-200 dark:border-green-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-green-800 dark:text-green-200">Resultados del Cálculo</h3>
+                <button onclick="generatePDF()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-semibold flex items-center">
+                    <i class="fas fa-file-pdf mr-2"></i>
+                    Generar PDF
+                </button>
+            </div>
+            <div id="resultsContent" class="space-y-3"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Info Modal -->
+<div id="paymentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="font-bold text-lg text-imss">💳 Información de Pago</h3>
+            <button onclick="closePaymentModal()" class="text-gray-500 hover:text-gray-700 text-xl font-bold">×</button>
+        </div>
+        
+        <div id="paymentContent" class="space-y-3"></div>
+        
+        <div class="mt-4 flex justify-end space-x-2">
+            <button onclick="closePaymentModal()" class="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                Cancelar
+            </button>
+            <button onclick="confirmPayment()" class="px-3 py-2 text-sm bg-imss text-white hover:bg-blue-700 rounded">
+                Entendido
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+        <div class="flex items-center space-x-3">
+            <div class="loading-spinner"></div>
+            <span>Calculando pensión...</span>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Alert Modal -->
+<div id="alertModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+        <h3 id="alertTitle" class="font-bold text-lg mb-3"></h3>
+        <p id="alertMessage" class="text-gray-700 dark:text-gray-300 mb-4"></p>
+        <div class="flex justify-end">
+            <button onclick="closeAlert()" class="px-4 py-2 bg-primary text-white rounded hover:bg-purple-700">
+                Aceptar
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- Footer -->
-<footer class="bg-imss text-white py-12">
+<footer class="bg-imss text-white py-8 mt-12">
     <div class="container mx-auto px-4">
-        <div class="grid md:grid-cols-4 gap-8">
+        <div class="grid md:grid-cols-3 gap-8">
             <div>
                 <h3 class="text-xl font-bold mb-4">Sistema Ley 73 IMSS</h3>
                 <p>La calculadora de pensiones más precisa de México. Valores oficiales IMSS 2025.</p>
             </div>
             <div>
-                <h4 class="font-bold mb-4">Servicios</h4>
-                <ul class="space-y-2">
-                    <li>Calculadora Ley 73</li>
-                    <li>Simulador AFORE</li>
-                    <li>Comparador Modalidades</li>
-                    <li>Reportes PDF</li>
+                <h4 class="font-bold mb-4">Información Legal</h4>
+                <ul class="space-y-2 text-sm">
+                    <li>PMG 2025: $9,412 MXN mensuales</li>
+                    <li>Tope máximo: $82,296 MXN (25 UMAs)</li>
+                    <li>Valores oficiales IMSS</li>
+                    <li>Cálculos estimativos</li>
                 </ul>
             </div>
             <div>
-                <h4 class="font-bold mb-4">Legal</h4>
-                <ul class="space-y-2">
-                    <li>Términos de Uso</li>
-                    <li>Política de Privacidad</li>
-                    <li>Aviso Legal</li>
-                    <li>Contacto</li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="font-bold mb-4">Contacto</h4>
-                <p>📧 info@sistemley73.com o hgaguilerae@icloud.com</p>
-                <p>📱 WhatsApp: +52 871 347 3325</p>
-                <p>🇲🇽 México, CDMX</p>
+                <h4 class="font-bold mb-4">Contacto y Pagos</h4>
+                <p class="text-sm">📧 hgaguilerae@hotmail.com</p>
+                <p class="text-sm">📱 WhatsApp: 871-347-3325</p>
+                <p class="text-sm">🏦 Pagos por transferencia SPEI</p>
+                <p class="text-sm">🇲🇽 México</p>
             </div>
         </div>
-        <div class="border-t border-blue-700 mt-8 pt-8 text-center">
+        <div class="border-t border-blue-700 mt-8 pt-8 text-center text-sm">
             <p>&copy; 2025 Sistema Ley 73 IMSS. Todos los derechos reservados.</p>
+            <p class="mt-2">Los cálculos son estimaciones. Para información oficial consulte directamente con el IMSS.</p>
         </div>
     </div>
 </footer>
 
-<!-- El resto del JavaScript permanece igual -->
+<script>
+// Global variables
+let currentCalculation = null;
+let userAccess = { type: null, remaining: 0, expiry: null };
+let appliedDiscount = 0;
+let selectedPlan = null;
+let originalPrice = 0;
+
+// Dark mode support
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    document.documentElement.classList.add('dark');
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+    if (event.matches) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+});
+
+// Initialize system
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSystem();
+});
+
+function initializeSystem() {
+    // Set up event listeners
+    document.getElementById('calculatorForm').addEventListener('submit', handleCalculation);
+    
+    // Auto-fill birth date calculation
+    document.getElementById('birthDate').addEventListener('change', calculateAge);
+    
+    // Auto-detect regime based on start date
+    document.getElementById('startDate').addEventListener('change', detectRegime);
+    
+    // Update button text based on selected regime
+    document.querySelectorAll('input[name="regime"]').forEach(radio => {
+        radio.addEventListener('change', updateButtonText);
+    });
+    
+    // Update button text when cesantía age changes
+    document.querySelectorAll('input[name="cesantiaAge"]').forEach(radio => {
+        radio.addEventListener('change', updateButtonText);
+    });
+    
+    updateButtonText(); // Initialize button text
+    updateAccessStatus();
+}
+
+// Apply discount codes
+function applyDiscount() {
+    const code = document.getElementById('discountCode').value.toUpperCase();
+    
+    const discountCodes = {
+        'DESC10': 10,
+        'DESC20': 20,
+        'NAVIDAD25': 25,
+        'NEWYEAR30': 30,
+        'VIP50': 50,
+        // Códigos especiales de administrador
+        'ADMIN100': 100, // Acceso gratuito total para admin
+        'DEVELOPER': 100, // Acceso para desarrollador
+        'HUMBERTO2025': 100, // Tu código personal
+        'MASTER': 100, // Código maestro
+        'OWNER': 100 // Código propietario
+    };
+    
+    if (discountCodes[code]) {
+        appliedDiscount = discountCodes[code];
+        
+        if (appliedDiscount === 100) {
+            // Acceso gratuito completo
+            userAccess.type = 'tiempo';
+            userAccess.remaining = null;
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 365); // 1 año gratis para admin
+            userAccess.expiry = expiryDate.toISOString();
+            
+            updateAccessStatus();
+            document.getElementById('discountInfo').textContent = '¡Acceso ADMINISTRADOR activado por 1 año completo!';
+            document.getElementById('discountInfo').classList.remove('hidden');
+            showAlert('Código Administrador', '¡Felicidades! Has obtenido acceso completo de administrador por 1 año.');
+            
+            // Ocultar sección de pagos
+            document.getElementById('accessCodeSection').style.display = 'none';
+        } else {
+            document.getElementById('discountInfo').textContent = `Descuento del ${appliedDiscount}% aplicado a tu próximo pago`;
+            document.getElementById('discountInfo').classList.remove('hidden');
+            showAlert('Descuento Aplicado', `Se ha aplicado un descuento del ${appliedDiscount}%`);
+            updatePricesWithDiscount();
+        }
+        
+        // Limpiar campo
+        document.getElementById('discountCode').value = '';
+    } else {
+        showAlert('Código Inválido', 'El código de descuento ingresado no es válido.');
+    }
+}
+
+// Update prices with discount
+function updatePricesWithDiscount() {
+    const plans = ['basico', 'premium', 'mensual', 'anual'];
+    const originalPrices = [299, 799, 1999, 9999];
+    
+    plans.forEach((plan, index) => {
+        const originalPrice = originalPrices[index];
+        const discountedPrice = originalPrice * (1 - appliedDiscount / 100);
+        document.getElementById(`price-${plan}`).innerHTML = `
+            <span class="line-through text-gray-500 text-lg">$${originalPrice}</span><br>
+            <span class="text-green-600">$${Math.round(discountedPrice)}</span>
+        `;
+    });
+}
+
+// Show payment information
+function showPaymentInfo(plan, price) {
+    selectedPlan = plan;
+    originalPrice = price;
+    
+    const finalPrice = appliedDiscount > 0 ? Math.round(price * (1 - appliedDiscount / 100)) : price;
+    
+    const planNames = {
+        'basico': 'Plan Básico',
+        'premium': 'Plan Premium',
+        'mensual': 'Plan Mensual',
+        'anual': 'Plan Anual'
+    };
+    
+    document.getElementById('paymentContent').innerHTML = `
+        <div class="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg mb-4">
+            <h4 class="font-bold text-blue-800 dark:text-blue-200 mb-2">${planNames[plan]}</h4>
+            <p class="text-blue-700 dark:text-blue-300">
+                ${appliedDiscount > 0 ? 
+                    `Precio original: $${price} MXN<br>Descuento aplicado: ${appliedDiscount}%<br><strong>Total a pagar: $${finalPrice} MXN</strong>` :
+                    `Total a pagar: <strong>$${finalPrice} MXN</strong>`
+                }
+            </p>
+        </div>
+        
+        <div class="bg-green-50 dark:bg-green-900 p-4 rounded-lg">
+            <h4 class="font-bold text-green-800 dark:text-green-200 mb-3">💳 Información para Transferencia SPEI</h4>
+            <div class="space-y-2 text-sm text-green-700 dark:text-green-300">
+                <p><strong>Banco:</strong> BBVA México</p>
+                <p><strong>CLABE:</strong> 012060015651993330</p>
+                <p><strong>Titular:</strong> Humberto Aguilera</p>
+                <p><strong>Celular vinculado:</strong> 871-347-3325</p>
+                <p><strong>Concepto:</strong> Sistema Ley 73 - ${planNames[plan]}</p>
+                <p><strong>Monto exacto:</strong> $${finalPrice}.00 MXN</p>
+            </div>
+            <div class="mt-3 p-2 bg-blue-100 dark:bg-blue-800 rounded">
+                <p class="text-xs text-blue-700 dark:text-blue-300">
+                    <strong>💡 Tip:</strong> También puedes depositar directo en la tarjeta BBVA: 4152 3138 4046 4247
+                </p>
+            </div>
+        </div>
+        
+        <div class="bg-yellow-50 dark:bg-yellow-900 p-4 rounded-lg">
+            <h4 class="font-bold text-yellow-800 dark:text-yellow-200 mb-2">📱 Confirmación de Pago</h4>
+            <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                Una vez realizada la transferencia, envía tu comprobante por WhatsApp al 
+                <strong>871-347-3325</strong> junto con tu email. Activaremos tu acceso en menos de 1 hora.
+            </p>
+        </div>
+        
+        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+            <h4 class="font-bold text-gray-800 dark:text-gray-200 mb-2">📧 Soporte</h4>
+            <p class="text-sm text-gray-700 dark:text-gray-300">
+                <strong>Email:</strong> hgaguilerae@hotmail.com<br>
+                <strong>WhatsApp:</strong> 871-347-3325<br>
+                <strong>Horario:</strong> Lunes a Domingo 8:00 AM - 8:00 PM
+            </p>
+        </div>
+    `;
+    
+    document.getElementById('paymentModal').classList.remove('hidden');
+}
+
+// Close payment modal
+function closePaymentModal() {
+    document.getElementById('paymentModal').classList.add('hidden');
+}
+
+// Confirm payment (placeholder)
+function confirmPayment() {
+    closePaymentModal();
+    showAlert('Información Guardada', 'Realiza tu transferencia y envía el comprobante por WhatsApp al 871-347-3325 para activar tu acceso.');
+}
+
+// Update access status
+function updateAccessStatus() {
+    let statusText = '';
+    let statusClass = '';
+    
+    if (userAccess.type === 'uso' && userAccess.remaining > 0) {
+        statusText = `✅ Tienes ${userAccess.remaining} cálculos disponibles`;
+        statusClass = 'bg-green-50 dark:bg-green-900 border-green-200 dark:border-green-700';
+        
+        // Show calculator if has access
+        document.getElementById('calculatorSection').classList.remove('hidden');
+    } else if (userAccess.type === 'tiempo' && userAccess.expiry) {
+        const expiryDate = new Date(userAccess.expiry);
+        const now = new Date();
+        if (expiryDate > now) {
+            statusText = `✅ Acceso ADMINISTRADOR válido hasta ${expiryDate.toLocaleDateString('es-ES')}`;
+            statusClass = 'bg-green-50 dark:bg-green-900 border-green-200 dark:border-green-700';
+            
+            // Show calculator if has access
+            document.getElementById('calculatorSection').classList.remove('hidden');
+        } else {
+            statusText = '❌ Acceso expirado - Usa un código válido o adquiere un plan';
+            statusClass = 'bg-red-50 dark:bg-red-900 border-red-200 dark:border-red-700';
+        }
+    } else {
+        statusText = '💳 Sin acceso activo - Usa un código o adquiere un plan';
+        statusClass = 'bg-yellow-50 dark:bg-yellow-900 border-yellow-200 dark:border-yellow-700';
+    }
+    
+    const accessStatus = document.getElementById('accessStatus');
+    accessStatus.className = `p-4 rounded-lg ${statusClass}`;
+    document.getElementById('accessInfo').textContent = statusText;
+}
+
+// Scroll to calculator
+function scrollToCalculator() {
+    document.getElementById('calculatorSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Detect regime based on start date
+function detectRegime() {
+    const startDate = new Date(document.getElementById('startDate').value);
+    const ley97Date = new Date('1997-07-01');
+    
+    if (startDate && startDate < ley97Date) {
+        document.getElementById('regimeLey73').checked = true;
+        showAlert('Régimen Detectado', 'Tu fecha de alta indica que perteneces a la Ley 73 (Beneficio Definido)');
+    }
+    updateButtonText();
+}
+
+// Update button text based on selected regime
+function updateButtonText() {
+    const isLey73 = document.getElementById('regimeLey73').checked;
+    const isCesantia73 = document.getElementById('regimeCesantia73').checked;
+    const isComparador = document.getElementById('regimeComparador').checked;
+    const buttonText = document.getElementById('calculateButtonText');
+    
+    // Show/hide cesantía age selector
+    const cesantiaSelector = document.getElementById('cesantiaAgeSelector');
+    if (isCesantia73 || isComparador) {
+        cesantiaSelector.classList.remove('hidden');
+    } else {
+        cesantiaSelector.classList.add('hidden');
+    }
+    
+    if (isLey73) {
+        buttonText.textContent = 'Calcular Pensión Ley 73 Vejez';
+    } else if (isCesantia73) {
+        const selectedAge = document.querySelector('input[name="cesantiaAge"]:checked')?.value || '62';
+        buttonText.textContent = `⚡ Calcular Cesantía ${selectedAge} años`;
+    } else if (isComparador) {
+        buttonText.textContent = '🆚 Comparar Vejez vs Cesantía';
+    }
+}
+
+// Calculate age from birth date
+function calculateAge() {
+    const birthDate = new Date(document.getElementById('birthDate').value);
+    const today = new Date();
+    const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
+    document.getElementById('currentAge').value = age;
+}
+
+// Handle calculation
+function handleCalculation(e) {
+    e.preventDefault();
+    
+    // Check if user has access
+    if (userAccess.type === null || 
+        (userAccess.type === 'uso' && userAccess.remaining <= 0) ||
+        (userAccess.type === 'tiempo' && userAccess.expiry && new Date(userAccess.expiry) <= new Date())) {
+        showAlert('Acceso Requerido', 'Necesitas un código de acceso válido o adquirir un plan para usar la calculadora.');
+        return;
+    }
+    
+    const formData = {
+        nss: document.getElementById('nss').value,
+        birthDate: document.getElementById('birthDate').value,
+        startDate: document.getElementById('startDate').value,
+        currentSalary: parseFloat(document.getElementById('currentSalary').value),
+        weeksContributed: parseInt(document.getElementById('weeksContributed').value),
+        currentAge: parseInt(document.getElementById('currentAge').value)
+    };
+    
+    // Validate NSS
+    if (!/^\d{11}$/.test(formData.nss)) {
+        showAlert('Error', 'El NSS debe tener exactamente 11 dígitos');
+        return;
+    }
+    
+    const isLey73 = document.getElementById('regimeLey73').checked;
+    const isCesantia73 = document.getElementById('regimeCesantia73').checked;
+    const isComparador = document.getElementById('regimeComparador').checked;
+    
+    // Get cesantía age if applicable
+    let cesantiaAge = null;
+    if (isCesantia73 || isComparador) {
+        const cesantiaAgeElement = document.querySelector('input[name="cesantiaAge"]:checked');
+        cesantiaAge = cesantiaAgeElement ? parseInt(cesantiaAgeElement.value) : 62;
+    }
+    
+    // Validate minimum requirements
+    if (isLey73) {
+        if (formData.weeksContributed < 500) {
+            showAlert('Error', 'Para Ley 73 se requieren mínimo 500 semanas cotizadas');
+            return;
+        }
+    } else if (isCesantia73) {
+        if (formData.weeksContributed < 1250) {
+            // No alcanza las 1,250 semanas - Proponer PMG y mostrar semanas faltantes
+            const semanasFaltantes = 1250 - formData.weeksContributed;
+            const anosEquivalentes = (semanasFaltantes / 52).toFixed(1);
+            
+            showAlert('Semanas Insuficientes para Cesantía', 
+                `Para cesantía necesitas 1,250 semanas. Te faltan ${semanasFaltantes} semanas (${anosEquivalentes} años). Sin embargo, puedes acceder a la PMG (Pensión Mínima Garantizada) de $9,412 MXN mensuales si tienes al menos 500 semanas cotizadas.`);
+            
+            // Si tiene al menos 500 semanas, calcular con PMG
+            if (formData.weeksContributed >= 500) {
+                setTimeout(() => {
+                    hideLoadingModal();
+                    const resultsPMG = calculatePMGCesantia(formData, cesantiaAge);
+                    displayPMGCesantiaResults(resultsPMG, cesantiaAge, semanasFaltantes);
+                }, 1500);
+                return;
+            } else {
+                return;
+            }
+        }
+        if (cesantiaAge < 60 || cesantiaAge > 64) {
+            showAlert('Error', 'La cesantía en edad avanzada es solo para edades de 60 a 64 años');
+            return;
+        }
+    } else if (isComparador) {
+        if (formData.weeksContributed < 500) {
+            showAlert('Error', 'Para usar el comparador se requieren mínimo 500 semanas cotizadas');
+            return;
+        }
+    }
+    
+    showLoadingModal();
+    
+    // Deduct usage if not admin
+    if (userAccess.type === 'uso') {
+        userAccess.remaining--;
+        updateAccessStatus();
+    }
+    
+    // Simulate calculation processing
+    setTimeout(() => {
+        hideLoadingModal();
+        
+        if (isComparador) {
+            // Calcular vejez Ley 73 vs cesantía Ley 73
+            const resultsVejez = calculateLey73Pension(formData);
+            const resultsCesantia = calculateCesantia73(formData, cesantiaAge);
+            displayCesantiaComparison(resultsVejez, resultsCesantia, cesantiaAge);
+        } else if (isCesantia73) {
+            // Calcular solo cesantía
+            const results = calculateCesantia73(formData, cesantiaAge);
+            displayCesantiaResults(results, cesantiaAge);
+        } else {
+            // Calcular Ley 73 normal
+            const results = calculateLey73Pension(formData);
+            displayResults(results);
+        }
+    }, 1500);
+}
+
+// Calculate Ley 73 pension
+function calculateLey73Pension(data) {
+    // VALORES VIGENTES 2025
+    const SALARIO_MINIMO_VIGENTE_2025 = 278.80; // Salario mínimo general vigente 2025
+    const PMG_LEY73_2025 = 9412; // PMG oficial IMSS 2025: $9,412 MXN mensuales
+    const SEMANAS_MINIMAS_PMG = 500; // Requisito mínimo para PMG Ley 73
+    
+    // TOPE MÁXIMO DE PENSIÓN LEY 73 (25 UMAs)
+    const UMA_2025 = 108.57; // UMA diaria 2025
+    const TOPE_MAXIMO_DIARIO = UMA_2025 * 25; // 25 UMAs = $2,714.25 diarios
+    const TOPE_MAXIMO_MENSUAL = 82296.16; // 25 × $108.57 × 30.4 = $82,296.16 pesos mensuales
+    
+    // Promedio salarial de las últimas 250 semanas (5 años)
+    const promedioSalarial = data.currentSalary;
+    
+    // Cálculo de la cuantía básica CON VALORES VIGENTES 2025
+    let cuantiaBasica = 0;
+    
+    if (promedioSalarial <= SALARIO_MINIMO_VIGENTE_2025) {
+        cuantiaBasica = promedioSalarial;
+    } else if (promedioSalarial <= SALARIO_MINIMO_VIGENTE_2025 * 3) {
+        cuantiaBasica = SALARIO_MINIMO_VIGENTE_2025 + (promedioSalarial - SALARIO_MINIMO_VIGENTE_2025) * 0.9;
+    } else {
+        const excedente = promedioSalarial - (SALARIO_MINIMO_VIGENTE_2025 * 3);
+        cuantiaBasica = SALARIO_MINIMO_VIGENTE_2025 + (SALARIO_MINIMO_VIGENTE_2025 * 2 * 0.9) + (excedente * 0.8);
+    }
+    
+    // Incrementos por años de cotización
+    const anosDeServicio = Math.floor(data.weeksContributed / 52);
+    let incrementoAnual = 0;
+    
+    if (anosDeServicio > 10) {
+        const anosAdicionales = anosDeServicio - 10;
+        incrementoAnual = cuantiaBasica * 0.02 * anosAdicionales; // 2% por cada año adicional a 10
+    }
+    
+    // Asignaciones familiares (15% por esposa)
+    const asignacionesFamiliares = cuantiaBasica * 0.15;
+    
+    // Pensión total diaria y mensual
+    const pensionDiaria = cuantiaBasica + incrementoAnual + asignacionesFamiliares;
+    const pensionMensual = pensionDiaria * 30.4;
+    
+    // Aplicar lógica de PMG
+    let pensionFinal = data.weeksContributed >= SEMANAS_MINIMAS_PMG ? 
+                        Math.max(pensionMensual, PMG_LEY73_2025) : pensionMensual;
+    
+    // Aplicar tope máximo de pensión Ley 73 (25 UMAs)
+    let topeAplicado = false;
+    if (pensionFinal > TOPE_MAXIMO_MENSUAL) {
+        pensionFinal = TOPE_MAXIMO_MENSUAL;
+        topeAplicado = true;
+    }
+    
+    return {
+        cuantiaBasica: cuantiaBasica,
+        incrementoAnual: incrementoAnual,
+        asignacionesFamiliares: asignacionesFamiliares,
+        pensionMensual: pensionMensual,
+        pensionMinima: PMG_LEY73_2025,
+        pensionFinal: pensionFinal,
+        topeMaximo: TOPE_MAXIMO_MENSUAL,
+        semanasCotizadas: data.weeksContributed,
+        anosDeServicio: anosDeServicio,
+        promedioSalarial: promedioSalarial,
+        porcentajeReemplazo: (pensionFinal / (data.currentSalary * 30.4) * 100).toFixed(2),
+        regime: 'Ley 73',
+        aplicaPMG: pensionFinal === PMG_LEY73_2025,
+        topeAplicado: topeAplicado
+    };
+}
+
+// Calculate cesantía Ley 73
+function calculateCesantia73(data, cesantiaAge) {
+    // Primero calculamos la pensión base de Ley 73
+    const basePension = calculateLey73Pension(data);
+    
+    // Factores de reducción por cesantía en edad avanzada
+    const factoresReduccion = {
+        60: 0.75, // -25%
+        61: 0.80, // -20%
+        62: 0.85, // -15%
+        63: 0.90, // -10%
+        64: 0.95  // -5%
+    };
+    
+    const factorReduccion = factoresReduccion[cesantiaAge] || 0.85;
+    const porcentajePenalizacion = (1 - factorReduccion) * 100;
+    
+    // Aplicar penalización SOLO a la pensión calculada
+    const pensionConPenalizacion = basePension.pensionMensual * factorReduccion;
+    
+    // CORRECCIÓN: La PMG NO se penaliza en cesantía
+    const PMG_SIN_PENALIZAR = 9412; // PMG mantiene su valor completo
+    
+    // La pensión final es la mayor entre la calculada con penalización y la PMG sin penalizar
+    const pensionFinal = Math.max(pensionConPenalizacion, PMG_SIN_PENALIZAR);
+    
+    return {
+        ...basePension,
+        cesantiaAge: cesantiaAge,
+        factorReduccion: factorReduccion,
+        porcentajePenalizacion: porcentajePenalizacion,
+        pensionMensualSinPenalizacion: basePension.pensionMensual,
+        pensionMinimaSinPenalizacion: basePension.pensionMinima,
+        pensionMensualConPenalizacion: pensionConPenalizacion,
+        pensionMinimaGarantizada: PMG_SIN_PENALIZAR,
+        pensionFinal: pensionFinal,
+        porcentajeReemplazo: (pensionFinal / (data.currentSalary * 30.4) * 100).toFixed(2),
+        regime: 'Cesantía Ley 73'
+    };
+}
+
+// Display results (same as before)
+function displayResults(results) {
+    currentCalculation = results;
+    
+    const resultsContent = document.getElementById('resultsContent');
+    
+    resultsContent.innerHTML = `
+        <div class="mb-4 p-3 bg-blue-100 dark:bg-blue-800 rounded-lg">
+            <h4 class="font-bold text-blue-800 dark:text-blue-200">Régimen: ${results.regime}</h4>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+                <h4 class="font-semibold text-green-800 dark:text-green-200">Datos de Cotización</h4>
+                <p><strong>Semanas cotizadas:</strong> ${results.semanasCotizadas.toLocaleString()}</p>
+                <p><strong>Años de servicio:</strong> ${results.anosDeServicio}</p>
+                <p><strong>Promedio salarial:</strong> $${results.promedioSalarial.toLocaleString()} MXN diarios</p>
+            </div>
+            <div class="space-y-2">
+                <h4 class="font-semibold text-green-800 dark:text-green-200">Cálculo de Pensión</h4>
+                <p><strong>Cuantía básica:</strong> $${results.cuantiaBasica.toFixed(2).toLocaleString()} MXN</p>
+                <p><strong>Incremento anual:</strong> $${results.incrementoAnual.toFixed(2).toLocaleString()} MXN</p>
+                <p><strong>Asignaciones familiares:</strong> $${results.asignacionesFamiliares.toFixed(2).toLocaleString()} MXN</p>
+            </div>
+        </div>
+        
+        <div class="mt-4 p-4 bg-green-100 dark:bg-green-800 rounded-lg">
+            <h4 class="font-bold text-xl text-green-800 dark:text-green-200 mb-2">Resultado Final</h4>
+            <p class="text-lg"><strong>Pensión mensual calculada:</strong> $${results.pensionMensual.toFixed(2).toLocaleString()} MXN</p>
+            <p class="text-lg"><strong>Pensión mínima garantizada:</strong> $${results.pensionMinima.toFixed(2).toLocaleString()} MXN</p>
+            <p class="text-xl font-bold text-green-900 dark:text-green-100 mt-2">
+                <strong>Pensión final (la mayor):</strong> $${results.pensionFinal.toFixed(2).toLocaleString()} MXN
+            </p>
+            <p class="text-sm text-green-700 dark:text-green-300 mt-2">
+                Porcentaje de reemplazo: ${results.porcentajeReemplazo}% del salario mensual actual
+            </p>
+            ${results.aplicaPMG ? 
+                '<p class="text-sm text-blue-700 dark:text-blue-300 mt-1"><i class="fas fa-shield-alt mr-1"></i>Se aplica PMG por ser mayor a la pensión calculada</p>' : 
+                '<p class="text-sm text-green-700 dark:text-green-300 mt-1"><i class="fas fa-check mr-1"></i>Tu pensión calculada es mayor a la PMG</p>'
+            }
+            ${results.topeAplicado ? 
+                '<p class="text-sm text-red-700 dark:text-red-300 mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>Se aplicó tope máximo Ley 73: $82,296 MXN (25 UMAs)</p>' : 
+                ''
+            }
+        </div>
+        
+        <div class="mt-4 p-3 bg-yellow-100 dark:bg-yellow-800 rounded-lg">
+            <p class="text-sm text-yellow-800 dark:text-yellow-200">
+                <strong>Nota:</strong> Este cálculo es una estimación basada en la Ley 73 del IMSS con valores oficiales 2025. 
+                Para un cálculo oficial, consulte directamente con el IMSS.
+            </p>
+        </div>
+    `;
+    
+    document.getElementById('calculationResults').classList.remove('hidden');
+    document.getElementById('calculationResults').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Display cesantía results (same structure as displayResults)
+function displayCesantiaResults(results, cesantiaAge) {
+    // Similar implementation as displayResults but for cesantía
+    currentCalculation = results;
+    
+    const resultsContent = document.getElementById('resultsContent');
+    
+    resultsContent.innerHTML = `
+        <div class="mb-4 p-3 bg-orange-100 dark:bg-orange-800 rounded-lg">
+            <h4 class="font-bold text-orange-800 dark:text-orange-200">⚡ Cesantía en Edad Avanzada - Ley 73 (${cesantiaAge} años)</h4>
+        </div>
+        
+        <div class="mt-4 p-4 bg-orange-50 dark:bg-orange-900 rounded-lg border border-orange-200 dark:border-orange-700">
+            <h4 class="font-bold text-xl text-orange-800 dark:text-orange-200 mb-2">Resultado Final - Cesantía Ley 73</h4>
+            <p class="text-xl font-bold text-orange-900 dark:text-orange-100">
+                <strong>Pensión final:</strong> $${results.pensionFinal.toFixed(2).toLocaleString()} MXN mensuales
+            </p>
+            <p class="text-sm text-orange-700 dark:text-orange-300 mt-2">
+                Porcentaje de reemplazo: ${results.porcentajeReemplazo}% del salario mensual actual
+            </p>
+        </div>
+    `;
+    
+    document.getElementById('calculationResults').classList.remove('hidden');
+    document.getElementById('calculationResults').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Display cesantía comparison (same structure as displayResults)
+function displayCesantiaComparison(resultsVejez, resultsCesantia, cesantiaAge) {
+    currentCalculation = { vejez: resultsVejez, cesantia: resultsCesantia };
+    
+    const mejor = resultsVejez.pensionFinal > resultsCesantia.pensionFinal ? 'vejez' : 'cesantia';
+    const diferencia = Math.abs(resultsVejez.pensionFinal - resultsCesantia.pensionFinal);
+    
+    const resultsContent = document.getElementById('resultsContent');
+    
+    resultsContent.innerHTML = `
+        <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-orange-50 dark:from-blue-900 dark:to-orange-900 rounded-lg border border-blue-200 dark:border-blue-700">
+            <h4 class="font-bold text-xl text-blue-800 dark:text-blue-200 mb-2">🆚 Comparación: Vejez vs Cesantía (Ley 73)</h4>
+            <p class="text-blue-700 dark:text-blue-300">
+                <strong>Mejor opción:</strong> <span class="${mejor === 'vejez' ? 'text-green-600 font-bold' : 'text-orange-600 font-bold'}">${mejor === 'vejez' ? 'Vejez (65 años)' : `Cesantía (${cesantiaAge} años)`}</span>
+            </p>
+            <p class="text-blue-700 dark:text-blue-300">
+                <strong>Diferencia:</strong> $${diferencia.toFixed(2).toLocaleString()} MXN
+            </p>
+        </div>
+    `;
+    
+    document.getElementById('calculationResults').classList.remove('hidden');
+    document.getElementById('calculationResults').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Calculate PMG for cesantía when insufficient weeks
+function calculatePMGCesantia(data, cesantiaAge) {
+    const PMG_LEY73_2025 = 9412; // PMG oficial IMSS 2025: $9,412 MXN mensuales
+    
+    return {
+        semanasCotizadas: data.weeksContributed,
+        anosDeServicio: Math.floor(data.weeksContributed / 52),
+        promedioSalarial: data.currentSalary,
+        cesantiaAge: cesantiaAge,
+        pensionFinal: PMG_LEY73_2025, // Solo PMG
+        porcentajeReemplazo: (PMG_LEY73_2025 / (data.currentSalary * 30.4) * 100).toFixed(2),
+        regime: 'Cesantía Ley 73 - PMG',
+        esPMG: true
+    };
+}
+
+// Display PMG cesantía results
+function displayPMGCesantiaResults(results, cesantiaAge, semanasFaltantes) {
+    currentCalculation = results;
+    
+    const resultsContent = document.getElementById('resultsContent');
+    
+    resultsContent.innerHTML = `
+        <div class="mb-4 p-3 bg-orange-100 dark:bg-orange-800 rounded-lg">
+            <h4 class="font-bold text-orange-800 dark:text-orange-200">⚡ Cesantía Ley 73 - PMG (${cesantiaAge} años)</h4>
+        </div>
+        
+        <div class="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900 rounded-lg border border-yellow-200 dark:border-yellow-700">
+            <h4 class="font-bold text-yellow-800 dark:text-yellow-200 mb-2">📊 Situación Actual</h4>
+            <p class="text-yellow-700 dark:text-yellow-300 mb-2">
+                <strong>Semanas cotizadas:</strong> ${results.semanasCotizadas.toLocaleString()}
+            </p>
+            <p class="text-yellow-700 dark:text-yellow-300 mb-2">
+                <strong>Te faltan para cesantía completa:</strong> ${semanasFaltantes} semanas (${(semanasFaltantes / 52).toFixed(1)} años)
+            </p>
+            <p class="text-yellow-700 dark:text-yellow-300">
+                <strong>Opción disponible:</strong> PMG (Pensión Mínima Garantizada) por tener más de 500 semanas cotizadas
+            </p>
+        </div>
+        
+        <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg border border-blue-200 dark:border-blue-700">
+            <h4 class="font-bold text-xl text-blue-800 dark:text-blue-200 mb-2">Resultado - PMG Cesantía Ley 73</h4>
+            <p class="text-xl font-bold text-blue-900 dark:text-blue-100">
+                <strong>Pensión garantizada:</strong> $${results.pensionFinal.toFixed(2).toLocaleString()} MXN mensuales
+            </p>
+            <p class="text-sm text-blue-700 dark:text-blue-300 mt-2">
+                Porcentaje de reemplazo: ${results.porcentajeReemplazo}% del salario mensual actual
+            </p>
+            <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                <i class="fas fa-shield-alt mr-1"></i>Esta es la Pensión Mínima Garantizada que no se reduce por cesantía
+            </p>
+        </div>
+        
+        <div class="mt-4 p-4 bg-green-50 dark:bg-green-900 rounded-lg border border-green-200 dark:border-green-700">
+            <h4 class="font-bold text-green-800 dark:text-green-200 mb-2">💡 Recomendaciones</h4>
+            <ul class="text-sm text-green-700 dark:text-green-300 space-y-1">
+                <li><strong>Opción 1:</strong> Jubilarte ahora con PMG de $9,412 MXN mensuales</li>
+                <li><strong>Opción 2:</strong> Continuar trabajando ${(semanasFaltantes / 52).toFixed(1)} años más para cesantía completa</li>
+                <li><strong>Opción 3:</strong> Esperar hasta los 65 años para vejez con PMG (mismo monto)</li>
+            </ul>
+        </div>
+        
+        <div class="mt-4 p-3 bg-yellow-100 dark:bg-yellow-800 rounded-lg">
+            <p class="text-sm text-yellow-800 dark:text-yellow-200">
+                <strong>Nota:</strong> Este cálculo es una estimación basada en la Ley 73 del IMSS con valores oficiales 2025. 
+                La PMG se garantiza sin penalizaciones por cesantía.
+            </p>
+        </div>
+    `;
+    
+    document.getElementById('calculationResults').classList.remove('hidden');
+    document.getElementById('calculationResults').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Generate PDF
+function generatePDF() {
+    if (!currentCalculation) {
+        showAlert('Error', 'No hay resultados para generar PDF');
+        return;
+    }
+
+    showLoadingModal();
+    
+    // Initialize jsPDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Add content
+    doc.setFontSize(20);
+    doc.text('REPORTE DE PENSIÓN IMSS', 105, 20, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, 20, 40);
+    
+    if (currentCalculation.vejez) {
+        // Comparison report
+        doc.text('COMPARACIÓN VEJEZ VS CESANTÍA', 20, 60);
+        doc.text(`Vejez: $${currentCalculation.vejez.pensionFinal.toFixed(2)} MXN`, 20, 80);
+        doc.text(`Cesantía: $${currentCalculation.cesantia.pensionFinal.toFixed(2)} MXN`, 20, 100);
+    } else {
+        // Single calculation report
+        doc.text(`RÉGIMEN: ${currentCalculation.regime}`, 20, 60);
+        doc.text(`Pensión Final: $${currentCalculation.pensionFinal.toFixed(2)} MXN`, 20, 80);
+        doc.text(`Semanas Cotizadas: ${currentCalculation.semanasCotizadas}`, 20, 100);
+    }
+    
+    // Save PDF
+    doc.save(`Reporte_Pension_IMSS_${new Date().toISOString().split('T')[0]}.pdf`);
+    
+    hideLoadingModal();
+    showAlert('PDF Generado', 'El reporte ha sido descargado exitosamente');
+}
+
+// Utility functions
+function showAlert(title, message) {
+    document.getElementById('alertTitle').textContent = title;
+    document.getElementById('alertMessage').textContent = message;
+    document.getElementById('alertModal').classList.remove('hidden');
+}
+
+function closeAlert() {
+    document.getElementById('alertModal').classList.add('hidden');
+}
+
+function showLoadingModal() {
+    document.getElementById('loadingModal').classList.remove('hidden');
+}
+
+function hideLoadingModal() {
+    document.getElementById('loadingModal').classList.add('hidden');
+}
+
+</script>
 
 </body>
-
 </html>
