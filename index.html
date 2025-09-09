@@ -76,6 +76,20 @@ html
             <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full">⚡ Resultados Instantáneos</span>
             <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full">🇲🇽 Para Todo México</span>
         </div>
+        
+        <!-- Banner Mes Patrio -->
+        <div class="bg-green-600 text-white px-6 py-3 rounded-lg mb-8 animate-pulse border-2 border-red-600">
+            <div class="text-center">
+                <h3 class="text-xl font-bold">🇲🇽 OFERTA MES PATRIO SEPTIEMBRE 2025 🇲🇽</h3>
+                <p class="text-lg">65% DESCUENTO + DOBLE BENEFICIO</p>
+                <p class="text-sm">Códigos: SEPTIEMBRE65 | INDEPENDENCIA2025 | PATRIAMX</p>
+                <div class="flex justify-center gap-4 mt-2 text-sm">
+                    <span>Plan Básico: 2 cálculos por $105</span>
+                    <span>Plan Premium: 20 cálculos por $280</span>
+                    <span>Plan Anual: 2 años por $3,500</span>
+                </div>
+            </div>
+        </div>
         <button onclick="scrollToCalculator()" 
                 class="bg-white text-imss px-8 py-4 rounded-lg font-bold text-xl hover:bg-gray-100 transition-colors">
             🚀 Calcular Mi Pensión GRATIS
@@ -499,6 +513,11 @@ function applyDiscount() {
         'NAVIDAD25': 25,
         'NEWYEAR30': 30,
         'VIP50': 50,
+        // CÓDIGOS ESPECIALES SEPTIEMBRE - MES PATRIO 🇲🇽
+        'SEPTIEMBRE65': { descuento: 65, doble: true, nombre: 'Mes Patrio México' },
+        'INDEPENDENCIA2025': { descuento: 65, doble: true, nombre: 'Independencia' },
+        'PATRIAMX': { descuento: 65, doble: true, nombre: 'Patria Mexicana' },
+        'MEXICO2025': { descuento: 65, doble: true, nombre: 'Viva México' },
         // Códigos especiales de administrador
         'ADMIN100': 100, // Acceso gratuito total para admin
         'DEVELOPER': 100, // Acceso para desarrollador
@@ -508,10 +527,35 @@ function applyDiscount() {
     };
     
     if (discountCodes[code]) {
-        appliedDiscount = discountCodes[code];
+        const codeData = discountCodes[code];
         
-        if (appliedDiscount === 100) {
-            // Acceso gratuito completo
+        // Verificar si es código especial con estructura de objeto
+        if (typeof codeData === 'object' && codeData.descuento) {
+            appliedDiscount = codeData.descuento;
+            
+            // CÓDIGOS ESPECIALES SEPTIEMBRE CON DOBLE BENEFICIO
+            if (codeData.doble) {
+                document.getElementById('discountInfo').innerHTML = `
+                    🇲🇽 <strong>${codeData.nombre}</strong>: ${appliedDiscount}% DESC + DOBLE BENEFICIO<br>
+                    ✅ Plan Básico: 2 cálculos por $105<br>
+                    ✅ Plan Premium: 20 cálculos por $280<br>
+                    ✅ Plan Mensual: 2 meses por $700<br>
+                    ✅ Plan Anual: 2 años por $3,500
+                `;
+                document.getElementById('discountInfo').classList.remove('hidden');
+                showAlert('🇲🇽 Código Mes Patrio Activado', 
+                    `¡Felicidades! Código ${codeData.nombre}: ${appliedDiscount}% de descuento + DOBLE beneficio en todos los planes.`);
+                updatePricesWithDiscount();
+                updatePricesWithDoubleBonus();
+            } else {
+                document.getElementById('discountInfo').textContent = `Descuento del ${appliedDiscount}% aplicado a tu próximo pago`;
+                document.getElementById('discountInfo').classList.remove('hidden');
+                showAlert('Descuento Aplicado', `Se ha aplicado un descuento del ${appliedDiscount}%`);
+                updatePricesWithDiscount();
+            }
+        } else if (codeData === 100) {
+            // Códigos de administrador (acceso completo)
+            appliedDiscount = codeData;
             userAccess.type = 'tiempo';
             userAccess.remaining = null;
             const expiryDate = new Date();
@@ -526,6 +570,8 @@ function applyDiscount() {
             // Ocultar sección de pagos
             document.getElementById('accessCodeSection').style.display = 'none';
         } else {
+            // Códigos de descuento simples
+            appliedDiscount = codeData;
             document.getElementById('discountInfo').textContent = `Descuento del ${appliedDiscount}% aplicado a tu próximo pago`;
             document.getElementById('discountInfo').classList.remove('hidden');
             showAlert('Descuento Aplicado', `Se ha aplicado un descuento del ${appliedDiscount}%`);
@@ -554,6 +600,35 @@ function updatePricesWithDiscount() {
     });
 }
 
+// Update prices with double bonus (for September codes)
+function updatePricesWithDoubleBonus() {
+    const plans = ['basico', 'premium', 'mensual', 'anual'];
+    const originalPrices = [299, 799, 1999, 9999];
+    const descriptions = ['1 cálculo', '10 cálculos', '1 mes', '1 año'];
+    const doubleBenefits = ['2 cálculos', '20 cálculos', '2 meses', '2 años'];
+    
+    plans.forEach((plan, index) => {
+        const originalPrice = originalPrices[index];
+        const discountedPrice = originalPrice * (1 - appliedDiscount / 100);
+        
+        // Update price and description
+        document.getElementById(`price-${plan}`).innerHTML = `
+            <span class="line-through text-gray-500 text-lg">$${originalPrice}</span><br>
+            <span class="text-green-600 font-bold">$${Math.round(discountedPrice)}</span>
+        `;
+        
+        // Update description to show double benefit
+        const priceContainer = document.getElementById(`price-${plan}`).parentElement;
+        const descriptionElement = priceContainer.querySelector('.text-gray-600');
+        if (descriptionElement) {
+            descriptionElement.innerHTML = `
+                <span class="line-through">${descriptions[index]}</span><br>
+                <span class="text-green-600 font-bold">🇲🇽 ${doubleBenefits[index]} (DOBLE)</span>
+            `;
+        }
+    });
+}
+
 // Show payment information
 function showPaymentInfo(plan, price) {
     selectedPlan = plan;
@@ -568,12 +643,16 @@ function showPaymentInfo(plan, price) {
         'anual': 'Plan Anual'
     };
     
+    // Verificar si es código especial con doble beneficio
+    const isDoubleBonus = appliedDiscount === 65; // Códigos de septiembre
+    
     document.getElementById('paymentContent').innerHTML = `
         <div class="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg mb-4">
             <h4 class="font-bold text-blue-800 dark:text-blue-200 mb-2">${planNames[plan]}</h4>
             <p class="text-blue-700 dark:text-blue-300">
                 ${appliedDiscount > 0 ? 
-                    `Precio original: $${price} MXN<br>Descuento aplicado: ${appliedDiscount}%<br><strong>Total a pagar: $${finalPrice} MXN</strong>` :
+                    `Precio original: $${price} MXN<br>Descuento aplicado: ${appliedDiscount}%<br><strong>Total a pagar: $${finalPrice} MXN</strong>
+                    ${isDoubleBonus ? '<br><span class="text-green-600 font-bold">🇲🇽 ¡INCLUYE DOBLE BENEFICIO!</span>' : ''}` :
                     `Total a pagar: <strong>$${finalPrice} MXN</strong>`
                 }
             </p>
@@ -1127,30 +1206,198 @@ function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     
-    // Add content
-    doc.setFontSize(20);
-    doc.text('REPORTE DE PENSIÓN IMSS', 105, 20, { align: 'center' });
+    // Obtener datos del formulario para los cálculos
+    const formData = {
+        nss: document.getElementById('nss').value,
+        birthDate: document.getElementById('birthDate').value,
+        startDate: document.getElementById('startDate').value,
+        currentSalary: parseFloat(document.getElementById('currentSalary').value) || 0,
+        weeksContributed: parseInt(document.getElementById('weeksContributed').value) || 0,
+        currentAge: parseInt(document.getElementById('currentAge').value) || 0
+    };
     
+    // Título principal
+    doc.setFontSize(18);
+    doc.setTextColor(0, 102, 204); // Color azul IMSS
+    doc.text('REPORTE COMPLETO DE PENSIÓN IMSS', 105, 20, { align: 'center' });
+    
+    // Información básica
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, 20, 35);
+    doc.text(`NSS: ${formData.nss}`, 20, 42);
+    doc.text(`Semanas cotizadas: ${formData.weeksContributed.toLocaleString()}`, 120, 42);
+    doc.text(`Salario diario: $${formData.currentSalary.toLocaleString()} MXN`, 20, 49);
+    
+    // Resultado actual
     doc.setFontSize(12);
-    doc.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, 20, 40);
+    doc.setTextColor(0, 102, 204);
+    doc.text('RESULTADO ACTUAL:', 20, 65);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
     
     if (currentCalculation.vejez) {
         // Comparison report
-        doc.text('COMPARACIÓN VEJEZ VS CESANTÍA', 20, 60);
-        doc.text(`Vejez: $${currentCalculation.vejez.pensionFinal.toFixed(2)} MXN`, 20, 80);
-        doc.text(`Cesantía: $${currentCalculation.cesantia.pensionFinal.toFixed(2)} MXN`, 20, 100);
+        doc.text(`Vejez (65 años): $${currentCalculation.vejez.pensionFinal.toFixed(0).toLocaleString()} MXN mensuales`, 20, 75);
+        doc.text(`Cesantía (${currentCalculation.cesantia.cesantiaAge} años): $${currentCalculation.cesantia.pensionFinal.toFixed(0).toLocaleString()} MXN mensuales`, 20, 82);
     } else {
-        // Single calculation report
-        doc.text(`RÉGIMEN: ${currentCalculation.regime}`, 20, 60);
-        doc.text(`Pensión Final: $${currentCalculation.pensionFinal.toFixed(2)} MXN`, 20, 80);
-        doc.text(`Semanas Cotizadas: ${currentCalculation.semanasCotizadas}`, 20, 100);
+        doc.text(`${currentCalculation.regime}: $${currentCalculation.pensionFinal.toFixed(0).toLocaleString()} MXN mensuales`, 20, 75);
     }
     
+    // TABLA COMPARATIVA DE EXPECTATIVA DE VIDA
+    doc.setFontSize(12);
+    doc.setTextColor(0, 102, 204);
+    doc.text('ANÁLISIS DE INGRESOS TOTALES POR EXPECTATIVA DE VIDA', 20, 100);
+    
+    // Calcular pensiones para diferentes edades
+    const pensionData = calculateAllRetirementOptions(formData);
+    
+    // Crear tabla
+    const tableData = [];
+    const headers = ['Edad Retiro', 'Tipo', 'Pensión Mensual', 'Total hasta 75 años', 'Total hasta 80 años', 'Total hasta 85 años'];
+    
+    pensionData.forEach(pension => {
+        const total75 = pension.monthlyAmount * 12 * Math.max(0, 75 - pension.retirementAge);
+        const total80 = pension.monthlyAmount * 12 * Math.max(0, 80 - pension.retirementAge);
+        const total85 = pension.monthlyAmount * 12 * Math.max(0, 85 - pension.retirementAge);
+        
+        tableData.push([
+            `${pension.retirementAge} años`,
+            pension.type,
+            `$${pension.monthlyAmount.toFixed(0).toLocaleString()}`,
+            `$${total75.toFixed(0).toLocaleString()}`,
+            `$${total80.toFixed(0).toLocaleString()}`,
+            `$${total85.toFixed(0).toLocaleString()}`
+        ]);
+    });
+    
+    // Usar autoTable para crear la tabla
+    doc.autoTable({
+        startY: 110,
+        head: [headers],
+        body: tableData,
+        styles: {
+            fontSize: 8,
+            cellPadding: 2,
+            overflow: 'linebreak'
+        },
+        headStyles: {
+            fillColor: [0, 102, 204],
+            textColor: [255, 255, 255],
+            fontSize: 8,
+            fontStyle: 'bold'
+        },
+        alternateRowStyles: {
+            fillColor: [245, 245, 245]
+        },
+        columnStyles: {
+            0: { halign: 'center' },
+            1: { halign: 'center' },
+            2: { halign: 'right' },
+            3: { halign: 'right' },
+            4: { halign: 'right' },
+            5: { halign: 'right' }
+        }
+    });
+    
+    // Recomendaciones
+    const finalY = doc.lastAutoTable.finalY + 15;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 102, 204);
+    doc.text('RECOMENDACIONES CLAVE:', 20, finalY);
+    
+    doc.setFontSize(9);
+    doc.setTextColor(0, 0, 0);
+    
+    // Encontrar la mejor opción
+    const bestOption = findBestRetirementOption(pensionData);
+    
+    const recommendations = [
+        `• Mejor opción financiera: Retirarse a los ${bestOption.age} años (${bestOption.type})`,
+        `• La PMG garantiza $9,412 MXN mensuales sin importar el cálculo individual`,
+        `• Cesantía tiene penalización pero permite retiro anticipado`,
+        `• A mayor expectativa de vida, más conveniente es el retiro tardío`,
+        `• PMG 2025: $9,412 MXN | Tope máximo: $82,296 MXN (25 UMAs)`
+    ];
+    
+    recommendations.forEach((rec, index) => {
+        doc.text(rec, 20, finalY + 10 + (index * 7));
+    });
+    
+    // Disclaimer
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text('IMPORTANTE: Este reporte es una estimación basada en valores oficiales IMSS 2025.', 20, finalY + 50);
+    doc.text('Para información oficial consulte directamente con el IMSS. Cálculos: Sistema Ley 73 IMSS.', 20, finalY + 57);
+    
     // Save PDF
-    doc.save(`Reporte_Pension_IMSS_${new Date().toISOString().split('T')[0]}.pdf`);
+    doc.save(`Reporte_Completo_Pension_IMSS_${new Date().toISOString().split('T')[0]}.pdf`);
     
     hideLoadingModal();
-    showAlert('PDF Generado', 'El reporte ha sido descargado exitosamente');
+    showAlert('PDF Generado', 'El reporte completo con análisis de expectativa de vida ha sido descargado exitosamente');
+}
+
+// Calculate all retirement options for the table
+function calculateAllRetirementOptions(formData) {
+    const options = [];
+    const PMG = 9412; // PMG 2025
+    
+    // Calcular pensión base de Ley 73
+    const basePension = calculateLey73Pension(formData);
+    
+    // Cesantía 61-64 años
+    const cesantiaAges = [61, 62, 63, 64];
+    const cesantiaFactors = {61: 0.80, 62: 0.85, 63: 0.90, 64: 0.95};
+    
+    cesantiaAges.forEach(age => {
+        let pensionAmount;
+        
+        if (formData.weeksContributed >= 1250) {
+            // Cesantía completa con penalización
+            const reducedPension = basePension.pensionMensual * cesantiaFactors[age];
+            pensionAmount = Math.max(reducedPension, PMG);
+        } else {
+            // Solo PMG
+            pensionAmount = PMG;
+        }
+        
+        options.push({
+            retirementAge: age,
+            type: 'Cesantía',
+            monthlyAmount: pensionAmount
+        });
+    });
+    
+    // Vejez 65 años
+    options.push({
+        retirementAge: 65,
+        type: 'Vejez',
+        monthlyAmount: basePension.pensionFinal
+    });
+    
+    return options;
+}
+
+// Find best retirement option
+function findBestRetirementOption(pensionData) {
+    // Calcular el valor presente neto considerando 80 años de expectativa de vida promedio
+    let bestOption = { value: 0, age: 65, type: 'Vejez' };
+    
+    pensionData.forEach(option => {
+        const yearsOfPayment = Math.max(0, 80 - option.retirementAge);
+        const totalValue = option.monthlyAmount * 12 * yearsOfPayment;
+        
+        if (totalValue > bestOption.value) {
+            bestOption = {
+                value: totalValue,
+                age: option.retirementAge,
+                type: option.type
+            };
+        }
+    });
+    
+    return bestOption;
 }
 
 // Utility functions
@@ -1176,4 +1423,3 @@ function hideLoadingModal() {
 
 </body>
 </html>
-
