@@ -1,8 +1,4 @@
-html
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
+<!DOCTYPE html><html lang="es"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Ley 73 IMSS - Calculadora de Pensiones México 2025</title>
@@ -58,7 +54,7 @@ html
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
     </style>
-</head>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.bd4eeeb8e8e02052ee92.js"></script></head>
 
 <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
 
@@ -90,8 +86,7 @@ html
                 </div>
             </div>
         </div>
-        <button onclick="scrollToCalculator()" 
-                class="bg-white text-imss px-8 py-4 rounded-lg font-bold text-xl hover:bg-gray-100 transition-colors">
+        <button onclick="scrollToCalculator()" class="bg-white text-imss px-8 py-4 rounded-lg font-bold text-xl hover:bg-gray-100 transition-colors">
             🚀 Calcular Mi Pensión GRATIS
         </button>
     </div>
@@ -121,8 +116,7 @@ html
         <div class="mb-6 p-4 rounded-lg bg-orange-50 dark:bg-orange-900 border border-orange-200 dark:border-orange-700">
             <h3 class="font-bold text-lg mb-3 text-orange-800 dark:text-orange-200">💰 ¿Tienes un Código de Acceso o Descuento?</h3>
             <div class="flex gap-3">
-                <input type="text" id="discountCode" placeholder="Ingresa tu código (ej: DESC10)" 
-                       class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                <input type="text" id="discountCode" placeholder="Ingresa tu código (ej: DESC10)" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
                 <button onclick="applyDiscount()" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded text-sm font-semibold">
                     Aplicar Código
                 </button>
@@ -257,7 +251,7 @@ html
             <h3 class="font-semibold text-blue-800 dark:text-blue-200 mb-3">Modo de Cálculo</h3>
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <label class="flex items-center space-x-3 p-3 border border-blue-300 dark:border-blue-600 rounded-lg cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-800">
-                    <input type="radio" name="regime" value="ley73" id="regimeLey73" class="text-primary" checked>
+                    <input type="radio" name="regime" value="ley73" id="regimeLey73" class="text-primary" checked="">
                     <div>
                         <div class="font-semibold text-blue-800 dark:text-blue-200">Ley 73 Vejez</div>
                         <div class="text-sm text-blue-600 dark:text-blue-300">65+ años</div>
@@ -298,7 +292,7 @@ html
                     <div class="text-xs text-orange-600 dark:text-orange-300">-20%</div>
                 </label>
                 <label class="text-center p-2 border border-orange-300 dark:border-orange-600 rounded cursor-pointer hover:bg-orange-100 dark:hover:bg-orange-800">
-                    <input type="radio" name="cesantiaAge" value="62" class="mb-1" checked>
+                    <input type="radio" name="cesantiaAge" value="62" class="mb-1" checked="">
                     <div class="text-sm font-semibold text-orange-800 dark:text-orange-200">62 años</div>
                     <div class="text-xs text-orange-600 dark:text-orange-300">-15%</div>
                 </label>
@@ -320,38 +314,32 @@ html
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-sm font-medium mb-2">NSS (Número de Seguridad Social)</label>
-                    <input type="text" id="nss" required pattern="[0-9]{11}" maxlength="11" placeholder="12345678901"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                    <input type="text" id="nss" required="" pattern="[0-9]{11}" maxlength="11" placeholder="12345678901" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium mb-2">Fecha de Nacimiento</label>
-                    <input type="date" id="birthDate" required 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                    <input type="date" id="birthDate" required="" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium mb-2">Fecha de Alta IMSS</label>
-                    <input type="date" id="startDate" required 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                    <input type="date" id="startDate" required="" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium mb-2">Salario Base Cotización Actual (Diario)</label>
-                    <input type="number" id="currentSalary" required min="0" step="0.01" placeholder="485.20"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                    <input type="number" id="currentSalary" required="" min="0" step="0.01" placeholder="485.20" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium mb-2">Semanas Cotizadas</label>
-                    <input type="number" id="weeksContributed" required min="0" placeholder="1000"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                    <input type="number" id="weeksContributed" required="" min="0" placeholder="1000" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium mb-2">Edad Actual</label>
-                    <input type="number" id="currentAge" required min="18" max="100" placeholder="60"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                    <input type="number" id="currentAge" required="" min="18" max="100" placeholder="60" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
                 </div>
             </div>
 
@@ -447,7 +435,7 @@ html
             </div>
         </div>
         <div class="border-t border-blue-700 mt-8 pt-8 text-center text-sm">
-            <p>&copy; 2025 Sistema Ley 73 IMSS. Todos los derechos reservados.</p>
+            <p>© 2025 Sistema Ley 73 IMSS. Todos los derechos reservados.</p>
             <p class="mt-2">Los cálculos son estimaciones. Para información oficial consulte directamente con el IMSS.</p>
         </div>
     </div>
@@ -518,6 +506,17 @@ function applyDiscount() {
         'INDEPENDENCIA2025': { descuento: 65, doble: true, nombre: 'Independencia' },
         'PATRIAMX': { descuento: 65, doble: true, nombre: 'Patria Mexicana' },
         'MEXICO2025': { descuento: 65, doble: true, nombre: 'Viva México' },
+        // CÓDIGOS GRATUITOS DE UN SOLO USO - 10 códigos
+        'PROMO2025FREE': { acceso: 'gratuito', unico: true, usado: false, nombre: 'Promoción 2025 Gratuita' },
+        'IMSSGRATIS': { acceso: 'gratuito', unico: true, usado: false, nombre: 'IMSS Gratis Especial' },
+        'PENSIONFREE': { acceso: 'gratuito', unico: true, usado: false, nombre: 'Pensión Free Premium' },
+        'ACCESOVIP': { acceso: 'gratuito', unico: true, usado: false, nombre: 'Acceso VIP Gratuito' },
+        'REGALO2025': { acceso: 'gratuito', unico: true, usado: false, nombre: 'Regalo 2025 Sistema' },
+        'GRATISAMIGO': { acceso: 'gratuito', unico: true, usado: false, nombre: 'Gratis Amigo' },
+        'BONUSIMSS': { acceso: 'gratuito', unico: true, usado: false, nombre: 'Bonus IMSS Gratis' },
+        'FREEACCESS': { acceso: 'gratuito', unico: true, usado: false, nombre: 'Free Access Premium' },
+        'PROMOCIONAL': { acceso: 'gratuito', unico: true, usado: false, nombre: 'Código Promocional' },
+        'SISTEMAFREE': { acceso: 'gratuito', unico: true, usado: false, nombre: 'Sistema Free VIP' },
         // Códigos especiales de administrador
         'ADMIN100': 100, // Acceso gratuito total para admin
         'DEVELOPER': 100, // Acceso para desarrollador
@@ -530,7 +529,39 @@ function applyDiscount() {
         const codeData = discountCodes[code];
         
         // Verificar si es código especial con estructura de objeto
-        if (typeof codeData === 'object' && codeData.descuento) {
+        if (typeof codeData === 'object' && codeData.acceso === 'gratuito') {
+            // CÓDIGOS GRATUITOS DE UN SOLO USO
+            if (codeData.usado) {
+                showAlert('Código Ya Usado', `El código ${code} ya fue utilizado anteriormente.`);
+                return;
+            }
+            
+            // Marcar como usado
+            discountCodes[code].usado = true;
+            
+            // Dar acceso completo gratuito
+            userAccess.type = 'tiempo';
+            userAccess.remaining = null;
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 30); // 30 días gratis
+            userAccess.expiry = expiryDate.toISOString();
+            
+            updateAccessStatus();
+            document.getElementById('discountInfo').innerHTML = `
+                🎁 <strong>${codeData.nombre}</strong>: ¡ACCESO GRATUITO ACTIVADO!<br>
+                ✅ 30 días de acceso completo<br>
+                ✅ Cálculos ilimitados<br>
+                ✅ Reportes PDF incluidos<br>
+                ✅ Todas las funciones desbloqueadas
+            `;
+            document.getElementById('discountInfo').classList.remove('hidden');
+            showAlert('🎁 Acceso Gratuito Activado', 
+                `¡Felicidades! Has activado ${codeData.nombre} con 30 días de acceso completo gratuito.`);
+            
+            // Ocultar sección de pagos
+            document.getElementById('accessCodeSection').style.display = 'none';
+            
+        } else if (typeof codeData === 'object' && codeData.descuento) {
             appliedDiscount = codeData.descuento;
             
             // CÓDIGOS ESPECIALES SEPTIEMBRE CON DOBLE BENEFICIO
@@ -1421,5 +1452,6 @@ function hideLoadingModal() {
 
 </script>
 
-</body>
-</html>
+
+
+</body></html>
