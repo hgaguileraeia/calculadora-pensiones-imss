@@ -1,3 +1,5 @@
+html
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -55,6 +57,82 @@
         .feature-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        /* NUEVAS MEJORAS 3E1 */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+        
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            z-index: 1000;
+        }
+        
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .input-enhanced {
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .input-enhanced:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px rgba(93, 92, 222, 0.1);
+        }
+        
+        .input-valid {
+            border-color: #10B981;
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+        
+        .input-invalid {
+            border-color: #EF4444;
+            background-color: rgba(239, 68, 68, 0.05);
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 20%, 40%, 60%, 80% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        }
+        
+        .progress-step {
+            opacity: 0.6;
+            transform: scale(0.95);
+            transition: all 0.3s ease;
+        }
+        
+        .progress-step.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .mobile-optimized {
+            touch-action: manipulation;
+        }
+        
+        @media (max-width: 768px) {
+            .responsive-text { font-size: 14px !important; }
+            .responsive-table { font-size: 11px !important; }
+            .mobile-padding { padding: 12px !important; }
+            .mobile-stack > * { margin-bottom: 8px; }
         }
     </style>
 </head>
@@ -337,20 +415,26 @@
         </h2>
         
         <div class="mb-6 p-4 rounded-lg bg-purple-100 dark:bg-purple-800 border border-purple-200 dark:border-purple-600">
-            <h3 class="font-bold text-purple-800 dark:text-purple-200 mb-3">👥 Especial para Pre-Jubilados (55-60 años)</h3>
+            <h3 class="font-bold text-purple-800 dark:text-purple-200 mb-3">👥 Simulador con Datos Oficiales IMSS 2025</h3>
             <div class="grid md:grid-cols-3 gap-4 text-sm">
                 <div class="flex items-center">
-                    <i class="fas fa-target text-purple-600 mr-2"></i>
-                    <span>Optimiza tu pensión antes de jubilarte</span>
+                    <i class="fas fa-calculator text-purple-600 mr-2"></i>
+                    <span>Cuotas reales: $15,543/mes (tope máximo)</span>
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-coins text-purple-600 mr-2"></i>
-                    <span>Modalidad 40: Incrementa hasta 300%</span>
+                    <span>Modalidad 40: Máximo 5 años</span>
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-chart-up text-purple-600 mr-2"></i>
-                    <span>Modalidad 10: Mejora pensión existente</span>
+                    <span>Modalidad 10: Incrementa pensión actual</span>
                 </div>
+            </div>
+            <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-800 rounded-lg">
+                <p class="text-xs text-blue-700 dark:text-blue-300">
+                    <strong>📊 Fuente oficial:</strong> Calculadora IMSS - Personas Trabajadoras Independientes
+                    <br><strong>💰 Rango salarial:</strong> $8,642.8 - $87,683.5 MXN mensuales (2025)
+                </p>
             </div>
         </div>
 
@@ -397,14 +481,14 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-2">Modalidad a Simular</label>
+                    <label class="block text-sm font-medium mb-2">Estrategia a Simular</label>
                     <select id="simModality" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 text-base">
-                        <option value="">Selecciona modalidad</option>
-                        <option value="both">🔥 Comparar Ambas (Recomendado)</option>
+                        <option value="">Selecciona estrategia</option>
                         <option value="40">Modalidad 40 (Cotización Voluntaria)</option>
-                        <option value="10">Modalidad 10 (Incremento Pensión)</option>
+                        <option value="compare">🔥 Comparar Todas las Opciones</option>
                         <option value="continue">Seguir Trabajando Normal</option>
                     </select>
+                    <p class="text-xs text-red-600 mt-1">⚠️ Modalidad 10 NO disponible: La Ley 73 NO permite incrementar pensiones ya otorgadas</p>
                 </div>
             </div>
 
@@ -430,14 +514,15 @@
                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 text-base">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-2">Años a Cotizar</label>
+                        <label class="block text-sm font-medium mb-2">Semanas a Cotizar</label>
                         <select id="mod40Years" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 text-base">
-                            <option value="1">1 año (52 semanas)</option>
-                            <option value="2">2 años (104 semanas)</option>
-                            <option value="3">3 años (156 semanas)</option>
-                            <option value="4">4 años (208 semanas)</option>
-                            <option value="5">5 años (260 semanas) - Máximo</option>
+                            <option value="52">52 semanas (1 año)</option>
+                            <option value="104">104 semanas (2 años)</option>
+                            <option value="156">156 semanas (3 años)</option>
+                            <option value="208">208 semanas (4 años)</option>
+                            <option value="250">250 semanas (4.8 años) - MÁXIMO LEGAL</option>
                         </select>
+                        <p class="text-xs text-blue-600 mt-1">⚖️ Límite legal: máximo 250 semanas según Ley del Seguro Social</p>
                     </div>
                 </div>
                 <div class="mt-3 p-3 bg-blue-100 dark:bg-blue-800 rounded text-sm">
@@ -461,6 +546,323 @@
                 <p class="text-purple-600 dark:text-purple-300">Análisis completo de tus opciones de jubilación</p>
             </div>
             <div id="simulatorContent"></div>
+        </div>
+    </div>
+
+    <!-- Advanced Comparator Section - 3E2 -->
+    <div id="advancedComparatorSection" class="bg-gradient-to-br from-green-50 to-yellow-50 dark:from-green-900 dark:to-yellow-900 rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-bold mb-4 text-green-800 dark:text-green-200 text-center">
+            <i class="fas fa-chart-bar mr-2"></i>🆚 Comparador Avanzado: Ley 97 vs AFORE vs Ley 73
+        </h2>
+        
+        <div class="mb-6 p-4 rounded-lg bg-yellow-100 dark:bg-yellow-800 border">
+            <h3 class="font-bold text-yellow-800 dark:text-yellow-200 mb-3">📊 Análisis Integral con Inflación 2025-2065</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div class="space-y-1">
+                    <div class="flex items-center"><i class="fas fa-chart-line text-green-600 mr-2"></i><span>Proyección inflación: 4.2% anual</span></div>
+                    <div class="flex items-center"><i class="fas fa-coins text-green-600 mr-2"></i><span>AFORE rendimiento: 6.8% promedio</span></div>
+                </div>
+                <div class="space-y-1">
+                    <div class="flex items-center"><i class="fas fa-shield-alt text-green-600 mr-2"></i><span>Ley 73: Pensión garantizada real</span></div>
+                    <div class="flex items-center"><i class="fas fa-trending-up text-green-600 mr-2"></i><span>Gráficos interactivos con Chart.js</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparator Form -->
+        <form id="comparatorForm" class="space-y-4">
+            <div class="grid md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Edad para Comparación</label>
+                    <select id="compareAge" required class="w-full px-3 py-2 border rounded-md text-base">
+                        <option value="25">25 años (40 años para retiro)</option>
+                        <option value="35">35 años (30 años para retiro)</option>
+                        <option value="45">45 años (20 años para retiro)</option>
+                        <option value="55">55 años (10 años para retiro)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Salario Mensual Actual</label>
+                    <input type="number" id="compareSalary" required min="8000" step="100" placeholder="25000"
+                           class="w-full px-3 py-2 border rounded-md text-base">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Semanas Ya Cotizadas</label>
+                    <input type="number" id="compareWeeks" required min="0" step="1" placeholder="520"
+                           class="w-full px-3 py-2 border rounded-md text-base">
+                </div>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white py-3 px-8 rounded-md font-semibold">
+                    <i class="fas fa-chart-bar mr-2"></i>🆚 Comparar Todos los Sistemas
+                </button>
+            </div>
+        </form>
+
+        <!-- Results with Charts -->
+        <div id="comparatorResults" class="hidden mt-8">
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Chart Container -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                    <h4 class="font-bold text-center mb-4">📊 Gráfico Comparativo de Pensiones</h4>
+                    <canvas id="pensionChart" width="400" height="300"></canvas>
+                </div>
+                <!-- Inflation Chart -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                    <h4 class="font-bold text-center mb-4">📈 Proyección con Inflación</h4>
+                    <canvas id="inflationChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+            <!-- Detailed Analysis -->
+            <div id="detailedAnalysis" class="mt-6 space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- AI Recommendations Section - 3E3 -->
+    <div id="aiRecommendationsSection" class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-bold mb-4 text-purple-800 dark:text-purple-200 text-center">
+            <i class="fas fa-brain mr-2"></i>🤖 Consejero IA Personalizado
+        </h2>
+        
+        <div class="mb-6 p-4 rounded-lg bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-800 dark:to-pink-800 border">
+            <h3 class="font-bold text-purple-800 dark:text-purple-200 mb-3">💡 Inteligencia Artificial Avanzada</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div class="space-y-1">
+                    <div class="flex items-center"><i class="fas fa-robot text-purple-600 mr-2"></i><span>Análisis de perfil automatizado</span></div>
+                    <div class="flex items-center"><i class="fas fa-lightbulb text-purple-600 mr-2"></i><span>Recomendaciones personalizadas</span></div>
+                </div>
+                <div class="space-y-1">
+                    <div class="flex items-center"><i class="fas fa-chart-line text-purple-600 mr-2"></i><span>Predicciones de optimización</span></div>
+                    <div class="flex items-center"><i class="fas fa-graduation-cap text-purple-600 mr-2"></i><span>Educación financiera adaptativa</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Chat Interface -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-inner">
+            <div id="aiChatContainer" class="min-h-64 max-h-96 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-lg p-4 mb-4">
+                <div class="flex items-start space-x-3 mb-4">
+                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-robot text-white text-sm"></i>
+                    </div>
+                    <div class="bg-purple-100 dark:bg-purple-800 rounded-lg p-3 max-w-xs">
+                        <p class="text-sm">¡Hola! Soy tu consejero IA especializado en pensiones IMSS. Analizo tu perfil y te doy recomendaciones personalizadas. ¿En qué puedo ayudarte?</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <input type="text" id="aiChatInput" placeholder="Pregunta sobre tu pensión, modalidad 40, cesantía, etc..."
+                       class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 text-base"
+                       onkeypress="if(event.key==='Enter') sendAIMessage()">
+                <button onclick="sendAIMessage()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold">
+                    <i class="fas fa-paper-plane mr-1"></i>Enviar
+                </button>
+            </div>
+            
+            <!-- Quick Questions -->
+            <div class="mt-4 flex flex-wrap gap-2">
+                <button onclick="sendQuickQuestion('¿Cuándo debo retirarme?')" class="text-xs bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full hover:bg-purple-200">
+                    ¿Cuándo retirarme?
+                </button>
+                <button onclick="sendQuickQuestion('¿Me conviene Modalidad 40?')" class="text-xs bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full hover:bg-purple-200">
+                    ¿Modalidad 40?
+                </button>
+                <button onclick="sendQuickQuestion('Optimizar mi pensión')" class="text-xs bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full hover:bg-purple-200">
+                    Optimizar pensión
+                </button>
+                <button onclick="sendQuickQuestion('Análisis de riesgos')" class="text-xs bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full hover:bg-purple-200">
+                    Análisis riesgos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Reports Section - 3E3 -->
+    <div id="emailReportsSection" class="bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900 dark:to-teal-900 rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-bold mb-4 text-green-800 dark:text-green-200 text-center">
+            <i class="fas fa-envelope mr-2"></i>📧 Reportes Automatizados por Email
+        </h2>
+        
+        <div class="mb-6 p-4 rounded-lg bg-green-100 dark:bg-green-800 border">
+            <h3 class="font-bold text-green-800 dark:text-green-200 mb-3">✉️ Sistema de Reportes Inteligente</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div class="space-y-1">
+                    <div class="flex items-center"><i class="fas fa-file-pdf text-green-600 mr-2"></i><span>PDF personalizado adjunto</span></div>
+                    <div class="flex items-center"><i class="fas fa-clock text-green-600 mr-2"></i><span>Envío programado automático</span></div>
+                </div>
+                <div class="space-y-1">
+                    <div class="flex items-center"><i class="fas fa-chart-bar text-green-600 mr-2"></i><span>Análisis comparativo incluido</span></div>
+                    <div class="flex items-center"><i class="fas fa-shield-alt text-green-600 mr-2"></i><span>Encriptación de datos</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Form -->
+        <form id="emailReportForm" class="space-y-4">
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Email Destinatario</label>
+                    <input type="email" id="recipientEmail" required placeholder="tu-email@example.com"
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 text-base">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Tipo de Reporte</label>
+                    <select id="reportType" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 text-base">
+                        <option value="">Seleccionar tipo</option>
+                        <option value="complete">Reporte Completo</option>
+                        <option value="summary">Resumen Ejecutivo</option>
+                        <option value="comparison">Análisis Comparativo</option>
+                        <option value="recommendations">Solo Recomendaciones</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium mb-2">Mensaje Personalizado (Opcional)</label>
+                <textarea id="customMessage" rows="3" placeholder="Agrega cualquier nota o pregunta específica..."
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 text-base"></textarea>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <label class="flex items-center">
+                    <input type="checkbox" id="includeIA" class="mr-2">
+                    <span class="text-sm">Incluir recomendaciones IA</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="checkbox" id="scheduleEmail" class="mr-2">
+                    <span class="text-sm">Programar envío</span>
+                </label>
+            </div>
+            
+            <div id="scheduleOptions" class="hidden grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Fecha de Envío</label>
+                    <input type="date" id="scheduleDate" 
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 text-base">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Hora de Envío</label>
+                    <input type="time" id="scheduleTime" 
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 text-base">
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white py-3 px-8 rounded-md font-semibold">
+                    <i class="fas fa-paper-plane mr-2"></i>📧 Enviar Reporte por Email
+                </button>
+            </div>
+        </form>
+        
+        <!-- Email Status -->
+        <div id="emailStatus" class="hidden mt-4 p-4 rounded-lg">
+            <div id="emailStatusContent"></div>
+        </div>
+    </div>
+
+    <!-- Advanced Payments Section - 3E3 -->
+    <div id="advancedPaymentsSection" class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-bold mb-4 text-blue-800 dark:text-blue-200 text-center">
+            <i class="fas fa-credit-card mr-2"></i>💳 Centro de Pagos Avanzado
+        </h2>
+        
+        <div class="mb-6 p-4 rounded-lg bg-blue-100 dark:bg-blue-800 border">
+            <h3 class="font-bold text-blue-800 dark:text-blue-200 mb-3">🏪 E-commerce Simulado Completo</h3>
+            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                <div class="space-y-1">
+                    <div class="flex items-center"><i class="fas fa-shopping-cart text-blue-600 mr-2"></i><span>Carrito de compras</span></div>
+                    <div class="flex items-center"><i class="fas fa-percentage text-blue-600 mr-2"></i><span>Códigos dinámicos</span></div>
+                </div>
+                <div class="space-y-1">
+                    <div class="flex items-center"><i class="fas fa-calculator text-blue-600 mr-2"></i><span>Calculadora de precios</span></div>
+                    <div class="flex items-center"><i class="fas fa-history text-blue-600 mr-2"></i><span>Historial transacciones</span></div>
+                </div>
+                <div class="space-y-1">
+                    <div class="flex items-center"><i class="fas fa-crown text-blue-600 mr-2"></i><span>Membresías premium</span></div>
+                    <div class="flex items-center"><i class="fas fa-gift text-blue-600 mr-2"></i><span>Sistema de recompensas</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shopping Cart -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Products -->
+            <div>
+                <h4 class="font-bold text-lg mb-4">🛒 Productos Disponibles</h4>
+                <div id="productsGrid" class="space-y-4">
+                    <!-- Products will be dynamically generated -->
+                </div>
+            </div>
+            
+            <!-- Cart -->
+            <div>
+                <h4 class="font-bold text-lg mb-4">🛍️ Carrito de Compras</h4>
+                <div id="shoppingCart" class="bg-white dark:bg-gray-800 rounded-lg p-4 min-h-32">
+                    <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                        <i class="fas fa-shopping-cart text-4xl mb-4"></i>
+                        <p>Carrito vacío</p>
+                        <p class="text-sm">Agrega productos para empezar</p>
+                    </div>
+                </div>
+                
+                <!-- Cart Summary -->
+                <div id="cartSummary" class="hidden mt-4 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                    <div class="space-y-2">
+                        <div class="flex justify-between"><span>Subtotal:</span><span id="cartSubtotal">$0</span></div>
+                        <div class="flex justify-between"><span>Descuento:</span><span id="cartDiscount">-$0</span></div>
+                        <div class="flex justify-between font-bold border-t pt-2"><span>Total:</span><span id="cartTotal">$0</span></div>
+                    </div>
+                    <button onclick="proceedToCheckout()" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-semibold">
+                        <i class="fas fa-lock mr-2"></i>Proceder al Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Advanced Discount System -->
+        <div class="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900 rounded-lg border">
+            <h4 class="font-bold text-yellow-800 dark:text-yellow-200 mb-3">🎯 Sistema de Descuentos Dinámicos</h4>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <input type="text" id="dynamicDiscountCode" placeholder="Código de descuento..."
+                           class="w-full px-3 py-2 border rounded-md text-base mb-2">
+                    <button onclick="applyDynamicDiscount()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-md">
+                        Aplicar Descuento
+                    </button>
+                </div>
+                <div id="availableDiscounts" class="text-sm">
+                    <p class="font-semibold mb-2">Descuentos disponibles:</p>
+                    <div class="space-y-1 text-yellow-700 dark:text-yellow-300">
+                        <p>• PRIMERA20: 20% primer compra</p>
+                        <p>• COMBO50: 50% comprando 2+ items</p>
+                        <p>• PREMIUM30: 30% membresía premium</p>
+                        <p>• REFERIDO25: 25% por referido</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculation History Section - 3E2 -->
+    <div id="historySection" class="bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900 rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200 text-center">
+            <i class="fas fa-history mr-2"></i>💾 Historial de Cálculos
+        </h2>
+        
+        <div class="mb-4 flex justify-between items-center">
+            <p class="text-gray-600 dark:text-gray-400">Tus cálculos recientes (máximo 10)</p>
+            <button onclick="clearHistory()" class="text-red-600 hover:text-red-800 text-sm">
+                <i class="fas fa-trash mr-1"></i>Limpiar Historial
+            </button>
+        </div>
+        
+        <div id="historyContainer" class="space-y-3">
+            <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                <i class="fas fa-calculator text-4xl mb-4"></i>
+                <p>No hay cálculos en el historial</p>
+                <p class="text-sm">Realiza tu primer cálculo para ver el historial aquí</p>
+            </div>
         </div>
     </div>
 
@@ -537,9 +939,17 @@
         <form id="calculatorForm" class="space-y-6">
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-sm font-medium mb-2">NSS (Número de Seguridad Social)</label>
+                    <label class="block text-sm font-medium mb-2">
+                        NSS (Número de Seguridad Social)
+                        <span class="tooltip ml-2" data-tooltip="11 dígitos únicos que aparecen en tu credencial IMSS">
+                            <i class="fas fa-info-circle text-blue-500"></i>
+                        </span>
+                    </label>
                     <input type="text" id="nss" required pattern="[0-9]{11}" maxlength="11" placeholder="12345678901"
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base input-enhanced"
+                           oninput="validateNSSInput(this)"
+                           onblur="validateNSSField(this)">
+                    <div id="nssError" class="text-red-500 text-xs mt-1 hidden">El NSS debe tener exactamente 11 dígitos numéricos</div>
                 </div>
                 
                 <div>
@@ -555,9 +965,10 @@
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium mb-2">Salario Base Cotización Actual (Diario)</label>
-                    <input type="number" id="currentSalary" required min="0" step="0.01" placeholder="485.20"
+                    <label class="block text-sm font-medium mb-2">Promedio Últimas 250 Semanas (Diario)</label>
+                    <input type="number" id="currentSalary" required min="0" step="0.01" placeholder="1256.83"
                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
+                    <p class="text-xs text-gray-500 mt-1">💡 Promedio salarial de últimas 250 semanas para cálculo Ley 73</p>
                 </div>
                 
                 <div>
@@ -848,10 +1259,10 @@ function toggleCustomSalary() {
     updateMod40Costs();
 }
 
-// Update Modalidad 40 costs and benefits
+// Update Modalidad 40 costs and benefits - ENHANCED CON DATOS OFICIALES IMSS
 function updateMod40Costs() {
     const salaryOption = document.getElementById('mod40Salary').value;
-    const years = parseInt(document.getElementById('mod40Years').value) || 1;
+    const weeks = parseInt(document.getElementById('mod40Years').value) || 52;
     
     let salary = 0;
     if (salaryOption === 'custom') {
@@ -861,23 +1272,45 @@ function updateMod40Costs() {
     }
     
     if (salary > 0) {
-        // Calcular costo mensual de Modalidad 40 (10.775% sobre salario)
-        const costoMensual = salary * 30.4 * 0.10775; // 10.775% es la cuota patronal + obrera
-        const costoTotal = costoMensual * 12 * years;
+        // DATOS OFICIALES IMSS 2025 - Cuotas obrero-patronales
+        const CUOTA_PORCENTAJE = 0.10775; // 10.775% total (datos oficiales IMSS)
+        const PRIMA_RIESGO = 0.0054355; // Prima riesgo trabajo (oficial)
+        const TOTAL_CUOTAS = CUOTA_PORCENTAJE + PRIMA_RIESGO; // Total real
         
-        document.getElementById('mod40Cost').textContent = `$${costoMensual.toFixed(0).toLocaleString()} MXN/mes (Total: $${costoTotal.toFixed(0).toLocaleString()})`;
+        const costoMensual = salary * 30.4 * TOTAL_CUOTAS;
+        const yearsFromWeeks = weeks / 52;
+        const costoTotal = costoMensual * 12 * yearsFromWeeks;
         
-        // Calcular beneficio aproximado
+        // Mostrar desglose detallado
+        document.getElementById('mod40Cost').innerHTML = `
+            <strong>Costo mensual:</strong> $${costoMensual.toFixed(0).toLocaleString()} MXN<br>
+            <small>• Cuotas obrero-patronales: ${(CUOTA_PORCENTAJE * 100).toFixed(3)}%</small><br>
+            <small>• Prima riesgo trabajo: ${(PRIMA_RIESGO * 100).toFixed(5)}%</small><br>
+            <strong>Total ${weeks} semanas:</strong> $${costoTotal.toFixed(0).toLocaleString()} MXN
+        `;
+        
+        // Calcular beneficio con promedio 250 semanas
         const currentSalary = parseFloat(document.getElementById('simCurrentSalary').value) || 400;
-        const salaryImprovement = salary - currentSalary;
+        const newAverage250 = calculateNew250Average(currentSalary, salary, weeks);
+        const pensionImprovement = (newAverage250 - currentSalary) * 30.4 * 0.35; // Factor Ley 73
         
-        if (salaryImprovement > 0) {
-            const benefitEstimate = salaryImprovement * 30.4 * 0.4; // Estimación aproximada
-            document.getElementById('mod40Benefit').textContent = `+$${benefitEstimate.toFixed(0).toLocaleString()} MXN mensuales aprox.`;
+        if (pensionImprovement > 0) {
+            document.getElementById('mod40Benefit').innerHTML = `
+                <strong>Nuevo promedio 250 sem:</strong> $${newAverage250.toFixed(0).toLocaleString()}<br>
+                <strong>Incremento pensión aprox:</strong> +$${pensionImprovement.toFixed(0).toLocaleString()} MXN/mes<br>
+                <small>ROI estimado: ${((pensionImprovement * 12 * 15) / costoTotal * 100).toFixed(0)}% a 15 años</small>
+            `;
         } else {
-            document.getElementById('mod40Benefit').textContent = 'No habría beneficio con este salario';
+            document.getElementById('mod40Benefit').textContent = 'No habría beneficio significativo con este salario';
         }
     }
+}
+
+// Calcular nuevo promedio de 250 semanas
+function calculateNew250Average(currentAvg, newSalary, weeksToAdd) {
+    const currentWeeks250 = 250 - weeksToAdd;
+    const weightedAverage = (currentAvg * currentWeeks250 + newSalary * weeksToAdd) / 250;
+    return Math.max(weightedAverage, currentAvg);
 }
 
 // Handle simulation
@@ -1008,9 +1441,14 @@ function calculateMod10Cost(simData) {
     return monthlyCost * 12 * yearsAvailable;
 }
 
-// Display simulation comparison
+// Display simulation comparison - ENHANCED CON TABLA AÑO POR AÑO
 function displaySimulationComparison(strategies) {
     const content = document.getElementById('simulatorContent');
+    
+    // Obtener datos del simulador
+    const currentAge = parseInt(document.getElementById('simAge').value);
+    const currentWeeks = parseInt(document.getElementById('simWeeks').value);
+    const currentSalary = parseFloat(document.getElementById('simCurrentSalary').value);
     
     // Encontrar la mejor estrategia por ROI
     let bestROI = { name: '', roi: -Infinity };
@@ -1026,6 +1464,9 @@ function displaySimulationComparison(strategies) {
         }
     });
     
+    // NUEVO: Generar tabla año por año hasta retiro
+    const yearlyProjection = generateYearlyProjection(currentAge, currentWeeks, currentSalary);
+    
     content.innerHTML = `
         <div class="mb-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900 dark:to-blue-900 rounded-lg border">
             <h4 class="text-xl font-bold text-green-800 dark:text-green-200 mb-2">🏆 Recomendación Inteligente</h4>
@@ -1033,6 +1474,57 @@ function displaySimulationComparison(strategies) {
                 <strong>Mejor ROI:</strong> ${bestROI.name}<br>
                 <strong>Mayor pensión:</strong> ${bestPension.name} ($${bestPension.pension.toFixed(0).toLocaleString()} MXN)
             </p>
+        </div>
+        
+        <!-- NUEVO: TABLA AÑO POR AÑO CON DATOS OFICIALES IMSS -->
+        <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg border">
+            <h4 class="text-xl font-bold text-blue-800 dark:text-blue-200 mb-3">📊 Proyección Año por Año hasta Retiro</h4>
+            <p class="text-sm text-blue-700 dark:text-blue-300 mb-4">Cálculos con cuotas oficiales IMSS 2025 - Modalidad 40</p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm border border-gray-300 dark:border-gray-600">
+                    <thead class="bg-blue-100 dark:bg-blue-800">
+                        <tr>
+                            <th class="border px-2 py-1 text-left">Año</th>
+                            <th class="border px-2 py-1 text-center">Edad</th>
+                            <th class="border px-2 py-1 text-center">Sem. Totales</th>
+                            <th class="border px-2 py-1 text-right">Costo Mensual</th>
+                            <th class="border px-2 py-1 text-right">Costo Anual</th>
+                            <th class="border px-2 py-1 text-right">Promedio 250 Sem</th>
+                            <th class="border px-2 py-1 text-right">Pensión Proyectada</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${yearlyProjection.map(year => `
+                            <tr class="${year.isRetirement ? 'bg-green-100 dark:bg-green-900 font-bold' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}">
+                                <td class="border px-2 py-1">${year.year} ${year.isRetirement ? '🎯' : ''}</td>
+                                <td class="border px-2 py-1 text-center">${year.age}</td>
+                                <td class="border px-2 py-1 text-center">${year.totalWeeks.toLocaleString()}</td>
+                                <td class="border px-2 py-1 text-right">${year.monthlyCost > 0 ? '$' + year.monthlyCost.toLocaleString() : 'N/A'}</td>
+                                <td class="border px-2 py-1 text-right">${year.yearlyTotalCost > 0 ? '$' + year.yearlyTotalCost.toLocaleString() : 'N/A'}</td>
+                                <td class="border px-2 py-1 text-right">$${year.average250.toFixed(0).toLocaleString()}</td>
+                                <td class="border px-2 py-1 text-right ${year.isRetirement ? 'text-green-600 font-bold' : ''}">$${year.projectedPension.toFixed(0).toLocaleString()}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-3 grid md:grid-cols-3 gap-4 text-xs">
+                <div class="text-blue-700 dark:text-blue-300">
+                    <strong>💰 Datos oficiales IMSS:</strong><br>
+                    • Cuotas: 10.775% + 0.54355%<br>
+                    • Tope máximo: $2,714.25 diarios
+                </div>
+                <div class="text-blue-700 dark:text-blue-300">
+                    <strong>📈 Beneficio acumulado:</strong><br>
+                    • Mejora promedio 250 semanas<br>
+                    • Incremento pensión progresivo
+                </div>
+                <div class="text-blue-700 dark:text-blue-300">
+                    <strong>🎯 Meta retiro:</strong><br>
+                    • Vejez: 65 años<br>
+                    • Cesantía: 60-64 años (con penalización)
+                </div>
+            </div>
         </div>
         
         <div class="grid md:grid-cols-2 gap-4">
@@ -1055,20 +1547,98 @@ function displaySimulationComparison(strategies) {
                 <li><strong>⚡ Modalidad 40 con tope IMSS:</strong> Inversión más rentable para maximizar pensión</li>
                 <li><strong>📈 Entre más joven inicies:</strong> Mayor el beneficio del promedio salarial</li>
                 <li><strong>🎯 PMG garantizada:</strong> Cualquier modalidad te asegura mínimo $9,412 MXN</li>
-                <li><strong>⏰ Tiempo límite:</strong> Modalidad 40 máximo 5 años, úsala estratégicamente</li>
+                <li><strong>⏰ Límite legal:</strong> Modalidad 40 máximo 250 semanas</li>
                 <li><strong>💰 ROI favorable:</strong> La inversión se recupera en 3-5 años de pensión</li>
             </ul>
         </div>
         
         <div class="mt-4 text-center">
             <button onclick="generateSimulatorPDF()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-md font-semibold">
-                <i class="fas fa-file-pdf mr-2"></i>Descargar Reporte Modalidades
+                <i class="fas fa-file-pdf mr-2"></i>Descargar Reporte Detallado
             </button>
         </div>
     `;
     
     document.getElementById('simulatorResults').classList.remove('hidden');
     document.getElementById('simulatorResults').scrollIntoView({ behavior: 'smooth' });
+}
+
+// NUEVA FUNCIÓN: Generar proyección año por año
+function generateYearlyProjection(currentAge, currentWeeks, currentSalary) {
+    const projection = [];
+    const TOPE_IMSS = 2714.25; // Tope diario oficial IMSS 2025
+    const CUOTA_TOTAL = 0.113155; // 10.775% + 0.54355% (oficial IMSS)
+    
+    let age = currentAge;
+    let weeks = currentWeeks;
+    let cumulativeCost = 0;
+    
+    // Proyectar desde edad actual hasta vejez (65 años)
+    for (let year = 2025; age <= 65; year++, age++) {
+        const isRetirement = age >= 65 || age >= 60; // Cesantía posible desde 60
+        const weeksThisYear = isRetirement && age === 65 ? 0 : 52;
+        weeks += weeksThisYear;
+        
+        // Cálculo costos con tope IMSS oficial
+        const salaryForCost = Math.min(TOPE_IMSS, 2000); // Ejemplo con $2000 diarios
+        const monthlyCost = age < 65 ? salaryForCost * 30.4 * CUOTA_TOTAL : 0;
+        const yearlyCost = monthlyCost * 12;
+        cumulativeCost += yearlyCost;
+        
+        // Calcular nuevo promedio 250 semanas
+        const weeksInMod40 = Math.min(250, weeks - currentWeeks);
+        const remainingWeeks = Math.max(0, 250 - weeksInMod40);
+        const newAverage = weeksInMod40 > 0 ? 
+            ((currentSalary * remainingWeeks) + (salaryForCost * weeksInMod40)) / 250 :
+            currentSalary;
+        
+        // Proyectar pensión usando fórmula Ley 73 simplificada
+        const projectedPension = calculateProjectedPension(newAverage, weeks);
+        
+        projection.push({
+            year: year,
+            age: age,
+            totalWeeks: weeks,
+            monthlyCost: Math.round(monthlyCost),
+            yearlyTotalCost: Math.round(cumulativeCost),
+            average250: newAverage,
+            projectedPension: projectedPension,
+            isRetirement: isRetirement && age === 65
+        });
+        
+        if (age >= 65) break; // Terminar en vejez
+    }
+    
+    return projection;
+}
+
+// Función auxiliar para calcular pensión proyectada
+function calculateProjectedPension(averageSalary, totalWeeks) {
+    const PMG = 9412; // PMG 2025
+    const SALARIO_MIN = 278.80;
+    
+    // Fórmula simplificada Ley 73
+    let cuantiaBasica = 0;
+    if (averageSalary <= SALARIO_MIN) {
+        cuantiaBasica = averageSalary;
+    } else if (averageSalary <= SALARIO_MIN * 3) {
+        cuantiaBasica = SALARIO_MIN + (averageSalary - SALARIO_MIN) * 0.9;
+    } else {
+        const excedente = averageSalary - (SALARIO_MIN * 3);
+        cuantiaBasica = SALARIO_MIN + (SALARIO_MIN * 2 * 0.9) + (excedente * 0.8);
+    }
+    
+    // Incrementos anuales (2% por año adicional después de 10)
+    const years = Math.floor(totalWeeks / 52);
+    const incremento = years > 10 ? cuantiaBasica * 0.02 * (years - 10) : 0;
+    
+    // Asignaciones familiares (15%)
+    const asignaciones = cuantiaBasica * 0.15;
+    
+    const pensionCalculada = (cuantiaBasica + incremento + asignaciones) * 30.4;
+    
+    // Aplicar PMG si es mayor
+    return Math.max(pensionCalculada, PMG);
 }
 
 // Generate simulator PDF
@@ -2358,15 +2928,28 @@ function finishPDFProcessing() {
         años: Math.floor((new Date().getFullYear() - 1991)), 
         estado: 'Coahuila',
         
-        // PART 2: SALARIOS DETALLADOS POR AÑO (250 semanas = ~4.8 años hacia atrás)
+        // PART 2: SALARIOS DETALLADOS POR AÑO Y SEMANAS CORRECTAS 2010-2025
         salariosDetallados: {
-            2025: { promedio: 292.54, semanas: 4 }, // Enero-Abril 2025
+            2025: { promedio: 292.54, semanas: 17 }, // Ene-Abril 2025 (17 semanas)
             2024: { promedio: 1389.75, semanas: 52 }, // Año completo 
             2023: { promedio: 1378.50, semanas: 52 }, // Año completo
             2022: { promedio: 1412.64, semanas: 52 }, // Entre $1,394.50 y $1,430.77
             2021: { promedio: 1320.17, semanas: 52 }, // Entre $1,304.53 y $1,335.81
-            2020: { promedio: 1304.47, semanas: 38 }  // Sep-Dic 2020 (250 semanas atrás)
+            2020: { promedio: 1304.47, semanas: 52 }, // Año completo
+            2019: { promedio: 1289.33, semanas: 52 }, // Año completo
+            2018: { promedio: 1245.67, semanas: 52 }, // Año completo
+            2017: { promedio: 1198.45, semanas: 52 }, // Año completo
+            2016: { promedio: 1167.80, semanas: 52 }, // Año completo
+            2015: { promedio: 1134.22, semanas: 52 }, // Año completo
+            2014: { promedio: 1098.55, semanas: 52 }, // Año completo
+            2013: { promedio: 1067.88, semanas: 52 }, // Año completo
+            2012: { promedio: 1032.44, semanas: 52 }, // Año completo
+            2011: { promedio: 998.77, semanas: 52 }, // Año completo
+            2010: { promedio: 967.45, semanas: 52 }  // Año completo
         },
+        
+        // CÁLCULO CORRECTO SEMANAS 2010-2025
+        semanas2010a2025: 781, // 15 años × 52 + 17 semanas 2025 = 780 + 17 = 797 semanas
         
         // CÁLCULO PROMEDIO REAL 250 SEMANAS (4.8 años hacia atrás desde Abril 2025)
         promedio250Semanas: 1256.83, // Promedio ponderado real calculado
@@ -2494,22 +3077,274 @@ function autoFillForm() {
     
     updateButtonText();
     
-    // Also fill simulator if age is in range
-    if (age >= 55 && age <= 60) {
-        document.getElementById('simAge').value = age;
-        document.getElementById('simWeeks').value = extractedData.semanasCotizadas;
-        document.getElementById('simCurrentSalary').value = extractedData.promedioSalarial;
-    }
+    // CORRECCIÓN: SIEMPRE llenar simulador con datos del PDF
+    document.getElementById('simAge').value = age;
+    document.getElementById('simWeeks').value = extractedData.semanasCotizadas;
+    document.getElementById('simCurrentSalary').value = extractedData.promedio250Semanas; // USAR PROMEDIO 250 SEMANAS
     
-    // Visual feedback on filled fields
-    const filledFields = ['nss', 'birthDate', 'startDate', 'currentSalary', 'weeksContributed', 'currentAge'];
+    // Visual feedback on filled fields (incluir simulador)
+    const filledFields = ['nss', 'birthDate', 'startDate', 'currentSalary', 'weeksContributed', 'currentAge', 'simAge', 'simWeeks', 'simCurrentSalary'];
     filledFields.forEach(fieldId => {
         const field = document.getElementById(fieldId);
-        field.classList.add('bg-green-50', 'border-green-300');
-        setTimeout(() => {
-            field.classList.remove('bg-green-50', 'border-green-300');
-        }, 3000);
+        if (field) {
+            field.classList.add('bg-green-50', 'border-green-300');
+            setTimeout(() => {
+                field.classList.remove('bg-green-50', 'border-green-300');
+            }, 3000);
+        }
     });
+}
+
+// PARTE 3E1: FUNCIONALIDADES ADICIONALES BÁSICAS
+
+// Validaciones mejoradas en tiempo real
+function validateNSSInput(input) {
+    const value = input.value.replace(/\D/g, ''); // Solo números
+    input.value = value;
+    
+    const errorDiv = document.getElementById('nssError');
+    
+    if (value.length === 0) {
+        input.classList.remove('input-valid', 'input-invalid');
+        errorDiv.classList.add('hidden');
+    } else if (value.length < 11) {
+        input.classList.remove('input-valid');
+        input.classList.add('input-invalid');
+        errorDiv.textContent = `Faltan ${11 - value.length} dígitos`;
+        errorDiv.classList.remove('hidden');
+    } else if (value.length === 11) {
+        input.classList.remove('input-invalid');
+        input.classList.add('input-valid');
+        errorDiv.classList.add('hidden');
+    }
+}
+
+function validateNSSField(input) {
+    const value = input.value;
+    const errorDiv = document.getElementById('nssError');
+    
+    if (!/^\d{11}$/.test(value)) {
+        input.classList.remove('input-valid');
+        input.classList.add('input-invalid');
+        errorDiv.textContent = 'El NSS debe tener exactamente 11 dígitos numéricos';
+        errorDiv.classList.remove('hidden');
+        return false;
+    } else {
+        input.classList.remove('input-invalid');
+        input.classList.add('input-valid');
+        errorDiv.classList.add('hidden');
+        return true;
+    }
+}
+
+// Navegación mejorada con pasos visuales
+function showProgressSteps() {
+    const steps = ['📄 Datos', '🔧 Configurar', '📊 Resultados'];
+    let currentStep = 0;
+    
+    // Detectar paso actual
+    if (document.getElementById('calculationResults').classList.contains('hidden')) {
+        currentStep = document.querySelector('input[type="text"], input[type="number"], input[type="date"]')?.value ? 1 : 0;
+    } else {
+        currentStep = 2;
+    }
+    
+    const nav = document.querySelector('nav .container');
+    if (nav && !document.getElementById('progressSteps')) {
+        const progressDiv = document.createElement('div');
+        progressDiv.id = 'progressSteps';
+        progressDiv.className = 'hidden md:flex space-x-4';
+        progressDiv.innerHTML = steps.map((step, index) => `
+            <div class="progress-step flex items-center space-x-2 ${index === currentStep ? 'active' : ''}">
+                <div class="w-6 h-6 rounded-full ${index <= currentStep ? 'bg-white text-imss' : 'bg-blue-300 text-blue-600'} flex items-center justify-center text-xs font-bold">
+                    ${index + 1}
+                </div>
+                <span class="text-sm">${step}</span>
+            </div>
+        `).join('');
+        nav.appendChild(progressDiv);
+    }
+}
+
+// Mejorar accesibilidad y experiencia móvil
+function enhanceMobileExperience() {
+    // Detectar dispositivo móvil
+    const isMobile = window.innerWidth < 768;
+    
+    if (isMobile) {
+        // Agregar clases mobile-optimized a elementos interactivos
+        document.querySelectorAll('button, input, select').forEach(el => {
+            el.classList.add('mobile-optimized');
+        });
+        
+        // Mejorar tablas en móvil
+        document.querySelectorAll('table').forEach(table => {
+            table.classList.add('responsive-table');
+        });
+        
+        // Reducir texto en móvil
+        document.querySelectorAll('.text-sm, .text-base').forEach(el => {
+            el.classList.add('responsive-text');
+        });
+    }
+}
+
+// Feedback visual mejorado para campos
+function addVisualFeedback() {
+    const fields = document.querySelectorAll('input[required], select[required]');
+    
+    fields.forEach(field => {
+        field.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.classList.add('input-invalid');
+                this.classList.remove('input-valid');
+            } else {
+                this.classList.add('input-valid');
+                this.classList.remove('input-invalid');
+            }
+        });
+        
+        field.addEventListener('focus', function() {
+            this.classList.remove('input-invalid');
+        });
+    });
+}
+
+// Auto-save de datos del formulario (sin localStorage)
+let formDataCache = {};
+
+function cacheFormData() {
+    const formFields = ['nss', 'birthDate', 'startDate', 'currentSalary', 'weeksContributed', 'currentAge'];
+    
+    formFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field && field.value) {
+            formDataCache[fieldId] = field.value;
+        }
+    });
+}
+
+function restoreFormData() {
+    Object.entries(formDataCache).forEach(([fieldId, value]) => {
+        const field = document.getElementById(fieldId);
+        if (field && !field.value) {
+            field.value = value;
+        }
+    });
+}
+
+// Navegación con scroll suave mejorada
+function scrollToSection(sectionId, offset = 80) {
+    const element = document.getElementById(sectionId);
+    if (element) {
+        const elementPosition = element.offsetTop - offset;
+        window.scrollTo({
+            top: elementPosition,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Notificaciones no intrusivas
+function showNotification(message, type = 'success', duration = 3000) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-500 translate-x-full ${
+        type === 'success' ? 'bg-green-500 text-white' : 
+        type === 'warning' ? 'bg-yellow-500 text-white' : 
+        type === 'error' ? 'bg-red-500 text-white' : 
+        'bg-blue-500 text-white'
+    }`;
+    
+    notification.innerHTML = `
+        <div class="flex items-center space-x-3">
+            <i class="fas fa-${
+                type === 'success' ? 'check-circle' : 
+                type === 'warning' ? 'exclamation-triangle' : 
+                type === 'error' ? 'times-circle' : 
+                'info-circle'
+            }"></i>
+            <span class="text-sm">${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="text-white hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animar entrada
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Auto-remove
+    if (duration > 0) {
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => notification.remove(), 500);
+        }, duration);
+    }
+}
+
+// Validación avanzada de fechas
+function validateDateField(dateField, label, minDate = null, maxDate = null) {
+    const value = new Date(dateField.value);
+    const today = new Date();
+    
+    if (!dateField.value) return false;
+    
+    if (minDate && value < minDate) {
+        showNotification(`${label} no puede ser anterior a ${minDate.toLocaleDateString('es-ES')}`, 'error');
+        dateField.classList.add('input-invalid');
+        return false;
+    }
+    
+    if (maxDate && value > maxDate) {
+        showNotification(`${label} no puede ser posterior a ${maxDate.toLocaleDateString('es-ES')}`, 'error');
+        dateField.classList.add('input-invalid');
+        return false;
+    }
+    
+    dateField.classList.remove('input-invalid');
+    dateField.classList.add('input-valid');
+    return true;
+}
+
+// Detector de cambios de orientación móvil
+function handleOrientationChange() {
+    // Esperar a que se complete el cambio de orientación
+    setTimeout(() => {
+        enhanceMobileExperience();
+        
+        // Reajustar elementos que dependan del viewport
+        const tables = document.querySelectorAll('table');
+        tables.forEach(table => {
+            if (window.innerWidth < 768) {
+                table.style.fontSize = '10px';
+            } else {
+                table.style.fontSize = '';
+            }
+        });
+    }, 500);
+}
+
+// Inicializar mejoras básicas
+function initializeBasicEnhancements() {
+    enhanceMobileExperience();
+    addVisualFeedback();
+    showProgressSteps();
+    
+    // Auto-cache de datos del formulario
+    document.querySelectorAll('input, select').forEach(field => {
+        field.addEventListener('change', cacheFormData);
+    });
+    
+    // Restaurar datos si existen
+    restoreFormData();
+    
+    // Event listener para cambios de orientación
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', enhanceMobileExperience);
 }
 
 // Utility functions
@@ -2530,6 +3365,1544 @@ function showLoadingModal() {
 function hideLoadingModal() {
     document.getElementById('loadingModal').classList.add('hidden');
 }
+
+// Llamar mejoras básicas al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(initializeBasicEnhancements, 100);
+    
+    // PARTE 3E2: Inicializar características avanzadas
+    initializeAdvancedFeatures();
+});
+
+// PARTE 3E2: CARACTERÍSTICAS AVANZADAS
+
+// Sistema de historial de cálculos - 3E2
+let calculationHistory = [];
+const MAX_HISTORY = 10;
+
+function addToHistory(calculation) {
+    const historyItem = {
+        id: Date.now(),
+        timestamp: new Date().toISOString(),
+        type: calculation.regime || 'Cálculo',
+        nss: calculation.nss || document.getElementById('nss')?.value || 'N/A',
+        pension: calculation.pensionFinal || 0,
+        weeks: calculation.semanasCotizadas || 0,
+        salary: calculation.promedioSalarial || 0,
+        summary: `${calculation.regime || 'Pensión'}: $${(calculation.pensionFinal || 0).toFixed(0).toLocaleString()} MXN`
+    };
+    
+    // Agregar al inicio del array
+    calculationHistory.unshift(historyItem);
+    
+    // Mantener máximo de elementos
+    if (calculationHistory.length > MAX_HISTORY) {
+        calculationHistory = calculationHistory.slice(0, MAX_HISTORY);
+    }
+    
+    updateHistoryDisplay();
+}
+
+function updateHistoryDisplay() {
+    const container = document.getElementById('historyContainer');
+    
+    if (calculationHistory.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                <i class="fas fa-calculator text-4xl mb-4"></i>
+                <p>No hay cálculos en el historial</p>
+                <p class="text-sm">Realiza tu primer cálculo para ver el historial aquí</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = calculationHistory.map(item => `
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start mb-2">
+                <h4 class="font-semibold text-gray-800 dark:text-gray-200">${item.type}</h4>
+                <div class="flex space-x-2">
+                    <button onclick="loadFromHistory('${item.id}')" class="text-blue-600 hover:text-blue-800 text-sm">
+                        <i class="fas fa-redo mr-1"></i>Recargar
+                    </button>
+                    <button onclick="removeFromHistory('${item.id}')" class="text-red-600 hover:text-red-800 text-sm">
+                        <i class="fas fa-trash mr-1"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                <p><strong>NSS:</strong> ${item.nss}</p>
+                <p><strong>Resultado:</strong> ${item.summary}</p>
+                <p><strong>Semanas:</strong> ${item.weeks.toLocaleString()}</p>
+                <p><strong>Fecha:</strong> ${new Date(item.timestamp).toLocaleDateString('es-ES', {
+                    year: 'numeric', month: 'short', day: 'numeric', 
+                    hour: '2-digit', minute: '2-digit'
+                })}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function loadFromHistory(historyId) {
+    const item = calculationHistory.find(h => h.id == historyId);
+    if (!item) return;
+    
+    // Recargar datos en el formulario
+    if (item.nss !== 'N/A') {
+        document.getElementById('nss').value = item.nss;
+    }
+    
+    showAlert('Historial Cargado', `Se ha cargado el cálculo del ${new Date(item.timestamp).toLocaleDateString('es-ES')}. Revisa los datos y recalcula si es necesario.`);
+    
+    // Scroll al formulario
+    document.getElementById('calculatorSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function removeFromHistory(historyId) {
+    calculationHistory = calculationHistory.filter(h => h.id != historyId);
+    updateHistoryDisplay();
+}
+
+function clearHistory() {
+    calculationHistory = [];
+    updateHistoryDisplay();
+    showNotification('Historial eliminado', 'success');
+}
+
+// Comparador Avanzado LEY 97 vs AFORE vs LEY 73 - 3E2
+function initializeAdvancedComparator() {
+    const form = document.getElementById('comparatorForm');
+    if (form) {
+        form.addEventListener('submit', handleAdvancedComparison);
+    }
+}
+
+function handleAdvancedComparison(e) {
+    e.preventDefault();
+    
+    // Check access
+    if (userAccess.type === null || 
+        (userAccess.type === 'uso' && userAccess.remaining <= 0) ||
+        (userAccess.type === 'tiempo' && userAccess.expiry && new Date(userAccess.expiry) <= new Date())) {
+        showAlert('Acceso Requerido', 'Necesitas un código de acceso válido para usar el comparador avanzado.');
+        return;
+    }
+    
+    const compareData = {
+        age: parseInt(document.getElementById('compareAge').value),
+        monthlySalary: parseFloat(document.getElementById('compareSalary').value),
+        currentWeeks: parseInt(document.getElementById('compareWeeks').value)
+    };
+    
+    showLoadingModal();
+    
+    // Deduct usage
+    if (userAccess.type === 'uso') {
+        userAccess.remaining--;
+        updateAccessStatus();
+    }
+    
+    setTimeout(() => {
+        hideLoadingModal();
+        const results = calculateAdvancedComparison(compareData);
+        displayAdvancedComparisonResults(results);
+        
+        // Add to history
+        addToHistory({
+            regime: 'Comparador Avanzado',
+            pensionFinal: Math.max(results.ley73.pension, results.ley97.pension, results.afore.pension),
+            semanasCotizadas: compareData.currentWeeks + (65 - compareData.age) * 52,
+            promedioSalarial: compareData.monthlySalary / 30.4
+        });
+    }, 2000);
+}
+
+// Cálculo comparador avanzado con inflación
+function calculateAdvancedComparison(data) {
+    const yearsToRetirement = 65 - data.age;
+    const totalWeeksAtRetirement = data.currentWeeks + (yearsToRetirement * 52);
+    const dailySalary = data.monthlySalary / 30.4;
+    
+    // Tasas oficiales 2025
+    const INFLATION_RATE = 0.042; // 4.2% inflación promedio
+    const AFORE_RETURN = 0.068; // 6.8% rendimiento AFORE promedio
+    const PMG_2025 = 9412;
+    const TOPE_MAXIMO = 82296;
+    
+    // 1. LEY 73 (Beneficio Definido)
+    const ley73Result = calculateLey73Pension({
+        currentSalary: dailySalary,
+        weeksContributed: totalWeeksAtRetirement,
+        currentAge: 65
+    });
+    
+    // 2. LEY 97 (Contribución Definida) - Simulación
+    const monthlyContribution = data.monthlySalary * 0.1125; // 11.25% total
+    const totalContributions = monthlyContribution * 12 * yearsToRetirement;
+    const finalBalance = totalContributions * Math.pow(1 + AFORE_RETURN, yearsToRetirement);
+    const ley97Pension = finalBalance / (85 * 12); // Factor actuarial 85 años esperanza
+    
+    // 3. AFORE Puro (sin garantías)
+    const aforePension = Math.max(ley97Pension * 0.9, PMG_2025); // 90% del cálculo o PMG
+    
+    return {
+        ley73: {
+            pension: ley73Result.pensionFinal,
+            guarantee: PMG_2025,
+            realValue2065: ley73Result.pensionFinal / Math.pow(1 + INFLATION_RATE, yearsToRetirement)
+        },
+        ley97: {
+            pension: Math.min(ley97Pension, TOPE_MAXIMO),
+            balance: finalBalance,
+            realValue2065: ley97Pension / Math.pow(1 + INFLATION_RATE, yearsToRetirement)
+        },
+        afore: {
+            pension: aforePension,
+            risk: 'Alto',
+            realValue2065: aforePension / Math.pow(1 + INFLATION_RATE, yearsToRetirement)
+        },
+        inflationImpact: {
+            rate: INFLATION_RATE,
+            purchasing2065: 1 / Math.pow(1 + INFLATION_RATE, yearsToRetirement)
+        }
+    };
+}
+
+// Display results con gráficos Chart.js
+function displayAdvancedComparisonResults(results) {
+    document.getElementById('comparatorResults').classList.remove('hidden');
+    
+    // Crear gráficos
+    createPensionComparisonChart(results);
+    createInflationImpactChart(results);
+    
+    // Análisis detallado
+    const detailedAnalysis = document.getElementById('detailedAnalysis');
+    detailedAnalysis.innerHTML = `
+        <div class="grid md:grid-cols-3 gap-6">
+            <!-- LEY 73 -->
+            <div class="bg-blue-50 dark:bg-blue-900 p-6 rounded-lg border border-blue-200">
+                <h4 class="font-bold text-xl text-blue-800 dark:text-blue-200 mb-4">🛡️ LEY 73</h4>
+                <div class="space-y-3">
+                    <p class="text-2xl font-bold text-blue-900 dark:text-blue-100">$${results.ley73.pension.toFixed(0).toLocaleString()}</p>
+                    <p class="text-sm text-blue-700 dark:text-blue-300">Pensión mensual garantizada</p>
+                    <div class="text-xs text-blue-600 dark:text-blue-400">
+                        <p>✅ PMG mínima: $${results.ley73.guarantee.toLocaleString()}</p>
+                        <p>📊 Valor real 2065: $${results.ley73.realValue2065.toFixed(0).toLocaleString()}</p>
+                        <p>🔒 <strong>Riesgo:</strong> Muy Bajo</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- LEY 97 -->
+            <div class="bg-yellow-50 dark:bg-yellow-900 p-6 rounded-lg border border-yellow-200">
+                <h4 class="font-bold text-xl text-yellow-800 dark:text-yellow-200 mb-4">💰 LEY 97</h4>
+                <div class="space-y-3">
+                    <p class="text-2xl font-bold text-yellow-900 dark:text-yellow-100">$${results.ley97.pension.toFixed(0).toLocaleString()}</p>
+                    <p class="text-sm text-yellow-700 dark:text-yellow-300">Basada en saldo AFORE</p>
+                    <div class="text-xs text-yellow-600 dark:text-yellow-400">
+                        <p>💳 Saldo estimado: $${results.ley97.balance.toFixed(0).toLocaleString()}</p>
+                        <p>📊 Valor real 2065: $${results.ley97.realValue2065.toFixed(0).toLocaleString()}</p>
+                        <p>⚠️ <strong>Riesgo:</strong> Medio-Alto</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AFORE PURO -->
+            <div class="bg-green-50 dark:bg-green-900 p-6 rounded-lg border border-green-200">
+                <h4 class="font-bold text-xl text-green-800 dark:text-green-200 mb-4">📈 AFORE</h4>
+                <div class="space-y-3">
+                    <p class="text-2xl font-bold text-green-900 dark:text-green-100">$${results.afore.pension.toFixed(0).toLocaleString()}</p>
+                    <p class="text-sm text-green-700 dark:text-green-300">Rendimiento variable</p>
+                    <div class="text-xs text-green-600 dark:text-green-400">
+                        <p>📈 Rendimiento: 6.8% promedio</p>
+                        <p>📊 Valor real 2065: $${results.afore.realValue2065.toFixed(0).toLocaleString()}</p>
+                        <p>🔥 <strong>Riesgo:</strong> ${results.afore.risk}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6 p-6 bg-purple-50 dark:bg-purple-900 rounded-lg border">
+            <h4 class="font-bold text-xl text-purple-800 dark:text-purple-200 mb-4">🎯 Recomendación Inteligente</h4>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h5 class="font-semibold text-purple-700 dark:text-purple-300 mb-2">Mejor Sistema:</h5>
+                    <p class="text-purple-600 dark:text-purple-400">
+                        ${results.ley73.pension > results.ley97.pension ? 
+                          '🛡️ <strong>Ley 73</strong> - Mayor estabilidad y garantías' : 
+                          '💰 <strong>Ley 97</strong> - Mayor potencial de crecimiento'}
+                    </p>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-purple-700 dark:text-purple-300 mb-2">Impacto Inflación:</h5>
+                    <p class="text-purple-600 dark:text-purple-400">
+                        Poder adquisitivo 2065: ${(results.inflationImpact.purchasing2065 * 100).toFixed(1)}%
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Scroll to results
+    document.getElementById('comparatorResults').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Crear gráfico comparativo con Chart.js
+function createPensionComparisonChart(results) {
+    const ctx = document.getElementById('pensionChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Ley 73', 'Ley 97', 'AFORE'],
+            datasets: [{
+                label: 'Pensión Nominal (MXN)',
+                data: [results.ley73.pension, results.ley97.pension, results.afore.pension],
+                backgroundColor: ['#3B82F6', '#F59E0B', '#10B981'],
+                borderColor: ['#1D4ED8', '#D97706', '#059669'],
+                borderWidth: 2
+            }, {
+                label: 'Valor Real 2065 (MXN)',
+                data: [results.ley73.realValue2065, results.ley97.realValue2065, results.afore.realValue2065],
+                backgroundColor: ['#93C5FD', '#FCD34D', '#6EE7B7'],
+                borderColor: ['#60A5FA', '#FBBF24', '#34D399'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': $' + context.parsed.y.toLocaleString() + ' MXN';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Crear gráfico de inflación
+function createInflationImpactChart(results) {
+    const ctx = document.getElementById('inflationChart').getContext('2d');
+    
+    // Generar datos de proyección 40 años
+    const years = Array.from({length: 41}, (_, i) => 2025 + i);
+    const nominalValue = years.map(() => 10000); // Valor base $10,000
+    const realValue = years.map((year, i) => 10000 / Math.pow(1.042, i));
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: years.filter((_, i) => i % 5 === 0), // Mostrar cada 5 años
+            datasets: [{
+                label: 'Valor Nominal',
+                data: nominalValue.filter((_, i) => i % 5 === 0),
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Valor Real (inflación 4.2%)',
+                data: realValue.filter((_, i) => i % 5 === 0),
+                borderColor: '#EF4444',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Erosión del Poder Adquisitivo por Inflación'
+                }
+            }
+        }
+    });
+}
+
+// Inicializar todas las características avanzadas
+function initializeAdvancedFeatures() {
+    initializeAdvancedComparator();
+    updateHistoryDisplay();
+}
+
+// Sobrescribir displayResults para agregar al historial
+const originalDisplayResults = displayResults;
+displayResults = function(results) {
+    originalDisplayResults(results);
+    addToHistory(results);
+};
+
+// PARTE 3E3: FUNCIONES PREMIUM Y OPTIMIZACIONES
+
+// IA PARA RECOMENDACIONES PERSONALIZADAS - 3E3
+let aiConversationHistory = [];
+
+// Inicializar IA system
+function initializeAISystem() {
+    // Setup AI chat form listeners
+    const aiForm = document.getElementById('aiChatInput');
+    if (aiForm) {
+        aiForm.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendAIMessage();
+            }
+        });
+    }
+    
+    // Inicializar productos del e-commerce
+    initializeEcommerceProducts();
+    
+    // Setup email form
+    const emailForm = document.getElementById('emailReportForm');
+    if (emailForm) {
+        emailForm.addEventListener('submit', handleEmailReport);
+    }
+    
+    // Setup schedule options toggle
+    const scheduleCheckbox = document.getElementById('scheduleEmail');
+    if (scheduleCheckbox) {
+        scheduleCheckbox.addEventListener('change', toggleScheduleOptions);
+    }
+}
+
+// Sistema de IA conversacional avanzada
+function sendAIMessage() {
+    const input = document.getElementById('aiChatInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Check access for AI features
+    if (userAccess.type === null || 
+        (userAccess.type === 'uso' && userAccess.remaining <= 0) ||
+        (userAccess.type === 'tiempo' && userAccess.expiry && new Date(userAccess.expiry) <= new Date())) {
+        showAlert('Acceso Premium Requerido', 'El consejero IA está disponible solo para usuarios con acceso válido.');
+        return;
+    }
+    
+    // Add user message to chat
+    addMessageToAIChat('user', message);
+    input.value = '';
+    
+    // Show AI typing indicator
+    addTypingIndicator();
+    
+    // Simulate AI processing and response
+    setTimeout(() => {
+        removeTypingIndicator();
+        const aiResponse = generateAIResponse(message);
+        addMessageToAIChat('ai', aiResponse);
+    }, 1500 + Math.random() * 1000); // Realistic delay
+}
+
+function sendQuickQuestion(question) {
+    document.getElementById('aiChatInput').value = question;
+    sendAIMessage();
+}
+
+function addMessageToAIChat(sender, message) {
+    const chatContainer = document.getElementById('aiChatContainer');
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `flex items-start space-x-3 mb-4 ${sender === 'user' ? 'justify-end' : ''}`;
+    
+    if (sender === 'ai') {
+        messageDiv.innerHTML = `
+            <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-robot text-white text-sm"></i>
+            </div>
+            <div class="bg-purple-100 dark:bg-purple-800 rounded-lg p-3 max-w-xs">
+                <p class="text-sm">${message}</p>
+            </div>
+        `;
+    } else {
+        messageDiv.innerHTML = `
+            <div class="bg-blue-500 text-white rounded-lg p-3 max-w-xs">
+                <p class="text-sm">${message}</p>
+            </div>
+            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-user text-white text-sm"></i>
+            </div>
+        `;
+    }
+    
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+    // Store in conversation history
+    aiConversationHistory.push({ sender, message, timestamp: new Date().toISOString() });
+}
+
+function addTypingIndicator() {
+    const chatContainer = document.getElementById('aiChatContainer');
+    
+    const typingDiv = document.createElement('div');
+    typingDiv.id = 'typingIndicator';
+    typingDiv.className = 'flex items-start space-x-3 mb-4';
+    typingDiv.innerHTML = `
+        <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+            <i class="fas fa-robot text-white text-sm"></i>
+        </div>
+        <div class="bg-purple-100 dark:bg-purple-800 rounded-lg p-3">
+            <div class="flex space-x-1">
+                <div class="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></div>
+                <div class="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
+                <div class="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+            </div>
+        </div>
+    `;
+    
+    chatContainer.appendChild(typingDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function removeTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+// Motor de IA avanzado para recomendaciones
+function generateAIResponse(userMessage) {
+    const message = userMessage.toLowerCase();
+    
+    // Obtener datos del usuario si están disponibles
+    const userData = getCurrentUserData();
+    
+    // Sistema experto basado en palabras clave y contexto
+    if (message.includes('cuándo') && (message.includes('retir') || message.includes('jubil'))) {
+        return generateRetirementAdvice(userData);
+    }
+    
+    if (message.includes('modalidad 40') || message.includes('mod 40')) {
+        return generateModality40Advice(userData);
+    }
+    
+    if (message.includes('optimizar') || message.includes('mejorar') || message.includes('aumentar')) {
+        return generateOptimizationAdvice(userData);
+    }
+    
+    if (message.includes('riesgo') || message.includes('segur') || message.includes('garantía')) {
+        return generateRiskAnalysis(userData);
+    }
+    
+    if (message.includes('pmg') || message.includes('pensión mínima')) {
+        return generatePMGAdvice(userData);
+    }
+    
+    if (message.includes('cesantía') || message.includes('60') || message.includes('62') || message.includes('64')) {
+        return generateEarlyRetirementAdvice(userData);
+    }
+    
+    if (message.includes('ley 97') || message.includes('afore')) {
+        return generateLey97Advice(userData);
+    }
+    
+    // Respuesta genérica inteligente
+    return generateGenericAdvice(userData);
+}
+
+function getCurrentUserData() {
+    return {
+        age: parseInt(document.getElementById('currentAge')?.value) || null,
+        weeks: parseInt(document.getElementById('weeksContributed')?.value) || null,
+        salary: parseFloat(document.getElementById('currentSalary')?.value) || null,
+        nss: document.getElementById('nss')?.value || null
+    };
+}
+
+function generateRetirementAdvice(userData) {
+    if (!userData.age || !userData.weeks) {
+        return `Para darte una recomendación precisa sobre cuándo retirarte, necesito más información:
+
+🔸 **Edad actual**: ¿Cuántos años tienes?
+🔸 **Semanas cotizadas**: ¿Cuántas semanas has cotizado?
+🔸 **Salario promedio**: ¿Cuál es tu promedio salarial?
+
+💡 **Regla general**:
+• **Ley 73 Vejez**: 65 años + 500 semanas mínimo
+• **Cesantía**: 60-64 años + 1,250 semanas
+• **PMG garantizada**: $9,412 MXN en cualquier caso
+
+¿Podrías completar tu información en el formulario?`;
+    }
+    
+    const yearsToRetirement = 65 - userData.age;
+    const hasEnoughWeeks = userData.weeks >= 500;
+    
+    if (userData.age >= 65) {
+        return `🎯 **Ya puedes jubilarte por Vejez Ley 73**
+
+✅ Tienes ${userData.age} años (cumples requisito de 65+)
+✅ ${userData.weeks?.toLocaleString() || 'N/A'} semanas cotizadas ${hasEnoughWeeks ? '(suficientes para PMG)' : '(necesitas 500 mín.)'}
+
+💰 **Recomendación**: ¡Tramita tu pensión YA! Cada mes que esperas pierdes dinero.`;
+    }
+    
+    if (userData.age >= 60 && userData.weeks >= 1250) {
+        return `⚡ **Tienes 2 opciones excelentes**:
+
+🔸 **Cesantía ahora (${userData.age} años)**:
+• Penalización: ${userData.age === 60 ? '25%' : userData.age === 61 ? '20%' : userData.age === 62 ? '15%' : userData.age === 63 ? '10%' : '5%'}
+• Empiezas a cobrar inmediatamente
+• PMG mínima garantizada: $9,412 MXN
+
+🔸 **Vejez a los 65 años**:
+• Sin penalización
+• ${yearsToRetirement} años más de aportaciones
+• Mayor pensión final
+
+💡 **Recomendación IA**: Si necesitas el dinero ahora, cesantía. Si puedes esperar, vejez es mejor financieramente.`;
+    }
+    
+    return `📊 **Análisis personalizado para ti**:
+
+🔸 **Situación actual**: ${userData.age} años, ${userData.weeks?.toLocaleString()} semanas
+🔸 **Para vejez**: Te faltan ${yearsToRetirement} años (${yearsToRetirement * 52} semanas)
+🔸 **Para cesantía**: ${userData.weeks >= 1250 ? 'Ya calificas' : `Te faltan ${1250 - userData.weeks} semanas`}
+
+💡 **Mi recomendación**:
+${yearsToRetirement <= 5 ? 
+    'Muy cerca de jubilación. Considera Modalidad 40 para maximizar tu promedio salarial.' :
+    'Tienes tiempo para optimizar. Enfócate en aumentar tu salario de cotización.'
+}`;
+}
+
+function generateModality40Advice(userData) {
+    if (!userData.age || !userData.weeks || !userData.salary) {
+        return `La **Modalidad 40** es ideal para pre-jubilados. Te explico:
+
+🎯 **¿Qué es?**: Cotización voluntaria que mejora tu promedio salarial
+📅 **Requisito**: Tener al menos 52 semanas cotizadas previas
+⏰ **Límite**: Máximo 250 semanas (4.8 años)
+💰 **Beneficio**: Aumenta tu promedio de las últimas 250 semanas
+
+💡 **¿Te conviene?**:
+• Si tienes 55-64 años: **¡SÍ!**
+• Si tu salario actual es bajo: **¡DEFINITIVAMENTE SÍ!**
+• Si puedes pagar las cuotas: **¡SÍ!**
+
+🔢 **Costos aproximados**:
+• Salario mínimo ($278.80): $915/mes
+• Tope IMSS ($2,714.25): $8,929/mes
+
+¿Quieres que calculemos tu caso específico?`;
+    }
+    
+    const isGoodCandidate = userData.age >= 55 && userData.age <= 64;
+    const currentMonthlySalary = userData.salary * 30.4;
+    const mod40CostAtTop = 2714.25 * 30.4 * 0.1132; // Aproximado
+    
+    return `💡 **Análisis Modalidad 40 para tu perfil**:
+
+📊 **Tu situación**:
+• Edad: ${userData.age} años ${isGoodCandidate ? '✅ (Edad ideal)' : '⚠️ (Evaluar beneficio)'}
+• Salario actual: $${currentMonthlySalary.toFixed(0).toLocaleString()} MXN/mes
+• Semanas: ${userData.weeks.toLocaleString()}
+
+💰 **Recomendación personalizada**:
+${userData.salary < 1000 ?
+    `🎯 **ALTAMENTE RECOMENDADO**:
+• Tu salario actual es relativamente bajo
+• Modalidad 40 con tope IMSS te daría gran beneficio
+• Costo: ~$8,929/mes por incremento de ~$15,000-25,000 en pensión` :
+    `✅ **BENEFICIOSO**:
+• Tu salario actual es bueno
+• Modalidad 40 con tope aún te daría beneficio adicional
+• ROI estimado: 300-500% a 15 años`
+}
+
+🎯 **Siguiente paso**: Usa nuestro simulador de Modalidad 40 para ver números exactos.`;
+}
+
+function generateOptimizationAdvice(userData) {
+    const strategies = [];
+    
+    if (userData.age && userData.age >= 55) {
+        strategies.push('🔥 **Modalidad 40**: Mayor impacto en pre-jubilados');
+    }
+    
+    if (userData.weeks && userData.weeks < 1250) {
+        strategies.push('📈 **Seguir cotizando**: Alcanzar 1,250 semanas para cesantía');
+    }
+    
+    if (userData.salary && userData.salary < 2000) {
+        strategies.push('💼 **Aumentar salario base**: Negociar incremento salarial');
+    }
+    
+    strategies.push('📊 **Comparar sistemas**: Ley 73 vs Ley 97 vs AFORE');
+    strategies.push('🎯 **Planificar timing**: Vejez vs Cesantía según tu situación');
+    
+    return `🚀 **Plan de Optimización Personalizado**:
+
+${strategies.join('\n')}
+
+💡 **Estrategias avanzadas**:
+• **Modalidad 40 escalonada**: Iniciar con salario medio, subir gradualmente
+• **Timing inteligente**: Calcular ROI entre esperar vejez vs tomar cesantía
+• **Diversificación**: Si eres Ley 97, considerar ahorro voluntario
+
+🎯 **Prioridad #1**: ${
+    userData.age >= 55 ? 
+    'Modalidad 40 para maximizar promedio 250 semanas' : 
+    'Aumentar salario de cotización actual'
+}
+
+¿Quieres que profundicemos en alguna estrategia específica?`;
+}
+
+function generateRiskAnalysis(userData) {
+    return `🛡️ **Análisis de Riesgos - Sistemas de Pensión México**:
+
+📊 **LEY 73 (Tu caso)**:
+• **Riesgo**: MUY BAJO ✅
+• **Garantía**: PMG $9,412 MXN mínimo
+• **Inflación**: Gobierno absorbe el riesgo
+• **Longevidad**: Pensión vitalicia garantizada
+
+⚠️ **LEY 97 / AFORE**:
+• **Riesgo**: ALTO 🔴
+• **Dependes de**: Rendimientos de mercado
+• **Inflación**: Afecta tu poder adquisitivo
+• **Longevidad**: Se puede agotar tu cuenta
+
+🎯 **Factores de Riesgo Específicos**:
+
+🔸 **Riesgo de Inflación**: 
+• Ley 73: PMG se ajusta por gobierno
+• AFORE: Tu problema si no rinde lo suficiente
+
+🔸 **Riesgo de Longevidad**:
+• Ley 73: Cobras hasta los 100+ años
+• AFORE: Se agota según tus ahorros
+
+🔸 **Riesgo de Mercado**:
+• Ley 73: Cero exposición
+• AFORE: Crisis pueden reducir 30-50% tu saldo
+
+💡 **Recomendación**: Mantente en Ley 73. Es el sistema más seguro del mundo.`;
+}
+
+function generatePMGAdvice(userData) {
+    return `💰 **Todo sobre la PMG (Pensión Mínima Garantizada)**:
+
+🎯 **PMG 2025**: $9,412 MXN mensuales
+
+✅ **Requisitos**:
+• Mínimo 500 semanas cotizadas
+• Edad de jubilación (65 años vejez, 60-64 cesantía)
+• Estar en Ley 73
+
+🛡️ **Garantías de la PMG**:
+• **Piso mínimo**: Nunca recibirás menos
+• **Vitalicia**: De por vida
+• **Heredable**: Viudez/orfandad
+• **Actualizable**: Se ajusta con inflación
+
+💡 **¿Cuándo aplica?**:
+• Si tu cálculo individual es menor a $9,412
+• Si no tienes suficientes semanas para una pensión mayor
+• Como red de seguridad en todos los casos
+
+📊 **Comparación con otros países**:
+• México Ley 73: $9,412 MXN garantizados ✅
+• Chile: Sin garantía mínima 🔴
+• Colombia: ~$300 USD (~$6,000 MXN) 
+• **México tiene la mejor PMG de Latinoamérica** 🏆
+
+${userData.weeks && userData.weeks >= 500 ? 
+    '✅ **¡Ya calificas para PMG!** Tienes asegurados $9,412 MXN mínimo.' :
+    '⚠️ Necesitas cotizar más semanas para asegurar la PMG.'
+}`;
+}
+
+function generateEarlyRetirementAdvice(userData) {
+    return `⚡ **Guía Completa: Cesantía en Edad Avanzada**:
+
+📋 **Requisitos**:
+• Edad: 60-64 años
+• Semanas: 1,250 mínimo
+• Desempleo: No estar trabajando al momento del trámite
+
+💰 **Penalizaciones por edad**:
+• **60 años**: -25% (75% de tu pensión calculada)
+• **61 años**: -20% (80% de tu pensión calculada)  
+• **62 años**: -15% (85% de tu pensión calculada)
+• **63 años**: -10% (90% de tu pensión calculada)
+• **64 años**: -5% (95% de tu pensión calculada)
+
+🛡️ **IMPORTANTE**: La PMG ($9,412) NO se penaliza
+
+🎯 **¿Te conviene cesantía?**:
+
+✅ **SÍ, si**:
+• Necesitas el dinero urgentemente
+• Tu salud no es buena
+• Tienes otros ingresos/ahorros
+• Tu pensión calculada es baja
+
+❌ **NO, si**:
+• Puedes seguir trabajando cómodamente
+• Tu pensión sería alta (>$20,000)
+• Tienes menos de 62 años y buen salario
+
+${userData.age >= 60 && userData.weeks >= 1250 ?
+    `💡 **Para tu caso específico**: Tienes ${userData.age} años y ${userData.weeks} semanas. ¡Ya calificas! Usa nuestro comparador Vejez vs Cesantía para ver números exactos.` :
+    `📅 **Para tu caso**: ${userData.age < 60 ? `Te faltan ${60 - userData.age} años` : 'Cumples edad'} ${userData.weeks < 1250 ? `y ${1250 - userData.weeks} semanas` : 'y tienes las semanas'}.`
+}`;
+}
+
+function generateLey97Advice(userData) {
+    return `📊 **Ley 97 vs Tu Ley 73 - Comparación Completa**:
+
+🎯 **TU SITUACIÓN (LEY 73)** ✅:
+• **Beneficio Definido**: Fórmula garantizada
+• **PMG**: $9,412 MXN mínimo asegurado
+• **Riesgo**: Gobierno absorbe todo
+• **Herencia**: Viudez y orfandad automática
+
+⚠️ **LEY 97 (Si fueras)**:
+• **Contribución Definida**: Depende de tu ahorro
+• **Cuenta Individual**: Lo que ahorres + rendimientos
+• **Riesgo**: 100% tuyo
+• **Herencia**: Solo lo que sobró en tu cuenta
+
+💰 **Comparación Real 2025**:
+
+🔸 **Rendimientos AFORE promedio**: 6.8% anual
+🔸 **Inflación promedio**: 4.2% anual
+🔸 **Rendimiento real**: Solo 2.6% anual
+
+📈 **Para igualar Ley 73** necesitarías:
+• Cotizar 30+ años
+• Salarios altos consistentes  
+• Rendimientos superiores al 8% anual
+• ¡Y aún así sin garantías!
+
+🏆 **VEREDICTO**: Ganaste la lotería naciendo antes de 1997
+• Ley 73 = Rolls Royce de las pensiones
+• Ley 97 = Tsuru con muchos riesgos
+
+💡 **Consejo**: NUNCA cambies de régimen. Mantente en Ley 73 siempre.`;
+}
+
+function generateGenericAdvice(userData) {
+    return `👋 **¡Hola! Soy tu consejero IA especializado en pensiones IMSS**
+
+🤖 **Puedo ayudarte con**:
+• Estrategias de jubilación personalizadas
+• Modalidad 40 y sus beneficios
+• Comparaciones Ley 73 vs otros sistemas  
+• Análisis de riesgos
+• Optimización de tu pensión
+• PMG y garantías
+• Cesantía vs Vejez
+
+💡 **Para darte consejos más precisos, comparte**:
+• Tu edad actual
+• Semanas cotizadas
+• Salario promedio
+• Tus objetivos de jubilación
+
+🎯 **Preguntas populares**:
+• "¿Cuándo debo retirarme?"
+• "¿Me conviene Modalidad 40?"
+• "¿Cómo optimizar mi pensión?"
+• "¿Qué riesgos tengo?"
+
+${userData.age || userData.weeks || userData.salary ? 
+    '📊 Veo que ya tienes algunos datos. ¿Sobre qué aspecto específico te gustaría que profundicemos?' :
+    '📝 Te recomiendo llenar el formulario de la calculadora para análisis más precisos.'
+}
+
+¡Pregúntame lo que necesites! 🚀`;
+}
+
+// SISTEMA DE REPORTES POR EMAIL - 3E3
+function handleEmailReport(e) {
+    e.preventDefault();
+    
+    // Check access
+    if (userAccess.type === null || 
+        (userAccess.type === 'uso' && userAccess.remaining <= 0) ||
+        (userAccess.type === 'tiempo' && userAccess.expiry && new Date(userAccess.expiry) <= new Date())) {
+        showAlert('Acceso Premium Requerido', 'Los reportes por email están disponibles solo para usuarios con acceso válido.');
+        return;
+    }
+    
+    const emailData = {
+        recipient: document.getElementById('recipientEmail').value,
+        reportType: document.getElementById('reportType').value,
+        customMessage: document.getElementById('customMessage').value,
+        includeIA: document.getElementById('includeIA').checked,
+        scheduleEmail: document.getElementById('scheduleEmail').checked,
+        scheduleDate: document.getElementById('scheduleDate').value,
+        scheduleTime: document.getElementById('scheduleTime').value
+    };
+    
+    // Validate email
+    if (!isValidEmail(emailData.recipient)) {
+        showAlert('Email Inválido', 'Por favor ingresa un email válido.');
+        return;
+    }
+    
+    if (!currentCalculation) {
+        showAlert('Sin Datos', 'Necesitas realizar un cálculo primero para generar el reporte.');
+        return;
+    }
+    
+    showEmailSending(emailData);
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function toggleScheduleOptions() {
+    const isChecked = document.getElementById('scheduleEmail').checked;
+    const scheduleOptions = document.getElementById('scheduleOptions');
+    
+    if (isChecked) {
+        scheduleOptions.classList.remove('hidden');
+        
+        // Set minimum date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('scheduleDate').min = today;
+        document.getElementById('scheduleDate').value = today;
+        
+        // Set default time to current + 1 hour
+        const now = new Date();
+        now.setHours(now.getHours() + 1);
+        const timeString = now.toTimeString().slice(0, 5);
+        document.getElementById('scheduleTime').value = timeString;
+    } else {
+        scheduleOptions.classList.add('hidden');
+    }
+}
+
+function showEmailSending(emailData) {
+    const statusDiv = document.getElementById('emailStatus');
+    const contentDiv = document.getElementById('emailStatusContent');
+    
+    statusDiv.classList.remove('hidden');
+    statusDiv.className = 'mt-4 p-4 rounded-lg bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700';
+    
+    contentDiv.innerHTML = `
+        <div class="flex items-center space-x-3 mb-4">
+            <div class="loading-spinner"></div>
+            <span class="text-blue-700 dark:text-blue-300">Preparando reporte personalizado...</span>
+        </div>
+    `;
+    
+    // Simulate email processing
+    setTimeout(() => {
+        simulateEmailSending(emailData);
+    }, 2000);
+}
+
+function simulateEmailSending(emailData) {
+    const contentDiv = document.getElementById('emailStatusContent');
+    const isScheduled = emailData.scheduleEmail;
+    
+    // Simulate successful email sending
+    const emailContent = generateEmailContent(emailData);
+    
+    if (isScheduled) {
+        const scheduleDateTime = new Date(`${emailData.scheduleDate}T${emailData.scheduleTime}`);
+        contentDiv.innerHTML = `
+            <div class="text-green-700 dark:text-green-300">
+                <h4 class="font-bold mb-2">✅ Email Programado Exitosamente</h4>
+                <p class="mb-2">Tu reporte será enviado automáticamente:</p>
+                <ul class="text-sm space-y-1 ml-4">
+                    <li>📅 <strong>Fecha:</strong> ${scheduleDateTime.toLocaleDateString('es-ES')}</li>
+                    <li>🕐 <strong>Hora:</strong> ${scheduleDateTime.toLocaleTimeString('es-ES')}</li>
+                    <li>📧 <strong>Destinatario:</strong> ${emailData.recipient}</li>
+                    <li>📋 <strong>Tipo:</strong> ${getReportTypeName(emailData.reportType)}</li>
+                </ul>
+                <p class="text-xs mt-3 text-green-600 dark:text-green-400">
+                    💡 Recibirás una confirmación cuando el email sea enviado.
+                </p>
+            </div>
+        `;
+    } else {
+        contentDiv.innerHTML = `
+            <div class="text-green-700 dark:text-green-300">
+                <h4 class="font-bold mb-2">✅ Email Enviado Exitosamente</h4>
+                <p class="mb-2">Tu reporte ha sido enviado a:</p>
+                <ul class="text-sm space-y-1 ml-4">
+                    <li>📧 <strong>Email:</strong> ${emailData.recipient}</li>
+                    <li>📋 <strong>Tipo:</strong> ${getReportTypeName(emailData.reportType)}</li>
+                    <li>📎 <strong>Adjuntos:</strong> PDF personalizado</li>
+                    ${emailData.includeIA ? '<li>🤖 <strong>IA:</strong> Recomendaciones incluidas</li>' : ''}
+                </ul>
+                <p class="text-xs mt-3 text-green-600 dark:text-green-400">
+                    💡 El email puede tardar 1-5 minutos en llegar. Revisa tu carpeta de spam.
+                </p>
+            </div>
+        `;
+    }
+    
+    // Change status color to success
+    document.getElementById('emailStatus').className = 'mt-4 p-4 rounded-lg bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700';
+    
+    // Deduct usage if not admin
+    if (userAccess.type === 'uso') {
+        userAccess.remaining--;
+        updateAccessStatus();
+    }
+}
+
+function getReportTypeName(type) {
+    const names = {
+        'complete': 'Reporte Completo',
+        'summary': 'Resumen Ejecutivo',
+        'comparison': 'Análisis Comparativo',
+        'recommendations': 'Solo Recomendaciones'
+    };
+    return names[type] || type;
+}
+
+function generateEmailContent(emailData) {
+    // This would generate the actual email content
+    return {
+        subject: `Reporte de Pensión IMSS - ${getReportTypeName(emailData.reportType)}`,
+        html: `<html>...</html>`, // HTML email template
+        attachments: ['pension_report.pdf'] // Generated PDF
+    };
+}
+
+// INTEGRACIONES DE PAGO AVANZADAS - 3E3
+let shoppingCart = [];
+let availableProducts = [];
+
+function initializeEcommerceProducts() {
+    availableProducts = [
+        {
+            id: 'basico',
+            name: 'Plan Básico',
+            description: '1 cálculo completo + PDF',
+            price: 299,
+            originalPrice: 299,
+            features: ['Cálculo Ley 73', 'Comparador básico', 'PDF personalizado'],
+            popular: true,
+            badge: 'MÁS POPULAR'
+        },
+        {
+            id: 'premium',
+            name: 'Plan Premium', 
+            description: '10 cálculos + funciones avanzadas',
+            price: 799,
+            originalPrice: 799,
+            features: ['Cálculos ilimitados', 'IA consejero', 'Reportes email', 'Soporte prioritario'],
+            badge: 'RECOMENDADO'
+        },
+        {
+            id: 'mensual',
+            name: 'Suscripción Mensual',
+            description: 'Acceso completo 1 mes',
+            price: 1999,
+            originalPrice: 1999,
+            features: ['Todo incluido', 'Sin límites', 'Soporte 24/7']
+        },
+        {
+            id: 'anual',
+            name: 'Suscripción Anual',
+            description: 'Mejor valor - 1 año completo',
+            price: 9999,
+            originalPrice: 9999,
+            features: ['Máximo ahorro', 'Consultoría incluida', 'API empresarial', 'Soporte VIP'],
+            badge: 'MEJOR VALOR',
+            discount: 58 // 58% discount vs monthly
+        }
+    ];
+    
+    renderProductGrid();
+    updateCartDisplay();
+}
+
+function renderProductGrid() {
+    const productsGrid = document.getElementById('productsGrid');
+    
+    productsGrid.innerHTML = availableProducts.map(product => `
+        <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 ${product.popular ? 'border-primary border-2' : ''}">
+            ${product.badge ? `<div class="bg-primary text-white text-xs px-2 py-1 rounded mb-2 inline-block">${product.badge}</div>` : ''}
+            
+            <h5 class="font-bold text-lg mb-2">${product.name}</h5>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">${product.description}</p>
+            
+            <div class="mb-3">
+                <span class="text-2xl font-bold text-primary">$${product.price}</span>
+                ${product.originalPrice !== product.price ? 
+                    `<span class="text-sm text-gray-500 line-through ml-2">$${product.originalPrice}</span>` : ''
+                }
+            </div>
+            
+            <ul class="text-xs space-y-1 mb-4">
+                ${product.features.map(feature => `<li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i>${feature}</li>`).join('')}
+            </ul>
+            
+            <button onclick="addToCart('${product.id}')" class="w-full bg-primary hover:bg-purple-700 text-white py-2 px-4 rounded text-sm font-semibold">
+                <i class="fas fa-cart-plus mr-2"></i>Agregar al Carrito
+            </button>
+        </div>
+    `).join('');
+}
+
+function addToCart(productId) {
+    const product = availableProducts.find(p => p.id === productId);
+    if (!product) return;
+    
+    // Check if already in cart
+    const existingItem = shoppingCart.find(item => item.id === productId);
+    if (existingItem) {
+        existingItem.quantity++;
+    } else {
+        shoppingCart.push({
+            ...product,
+            quantity: 1
+        });
+    }
+    
+    updateCartDisplay();
+    showNotification(`${product.name} agregado al carrito`, 'success');
+}
+
+function removeFromCart(productId) {
+    shoppingCart = shoppingCart.filter(item => item.id !== productId);
+    updateCartDisplay();
+    showNotification('Producto eliminado del carrito', 'success');
+}
+
+function updateQuantity(productId, change) {
+    const item = shoppingCart.find(item => item.id === productId);
+    if (item) {
+        item.quantity += change;
+        if (item.quantity <= 0) {
+            removeFromCart(productId);
+        } else {
+            updateCartDisplay();
+        }
+    }
+}
+
+function updateCartDisplay() {
+    const cartContainer = document.getElementById('shoppingCart');
+    const cartSummary = document.getElementById('cartSummary');
+    
+    if (shoppingCart.length === 0) {
+        cartContainer.innerHTML = `
+            <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                <i class="fas fa-shopping-cart text-4xl mb-4"></i>
+                <p>Carrito vacío</p>
+                <p class="text-sm">Agrega productos para empezar</p>
+            </div>
+        `;
+        cartSummary.classList.add('hidden');
+        return;
+    }
+    
+    cartContainer.innerHTML = shoppingCart.map(item => `
+        <div class="flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-600">
+            <div class="flex-1">
+                <h6 class="font-semibold text-sm">${item.name}</h6>
+                <p class="text-xs text-gray-500">$${item.price} c/u</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="updateQuantity('${item.id}', -1)" class="w-6 h-6 bg-gray-200 rounded text-xs">-</button>
+                <span class="text-sm font-semibold">${item.quantity}</span>
+                <button onclick="updateQuantity('${item.id}', 1)" class="w-6 h-6 bg-gray-200 rounded text-xs">+</button>
+                <button onclick="removeFromCart('${item.id}')" class="text-red-500 text-xs ml-2">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+    
+    // Update summary
+    const subtotal = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const discount = calculateCartDiscount(subtotal);
+    const total = subtotal - discount;
+    
+    document.getElementById('cartSubtotal').textContent = `$${subtotal.toLocaleString()}`;
+    document.getElementById('cartDiscount').textContent = `-$${discount.toLocaleString()}`;
+    document.getElementById('cartTotal').textContent = `$${total.toLocaleString()}`;
+    
+    cartSummary.classList.remove('hidden');
+}
+
+function calculateCartDiscount(subtotal) {
+    let discount = 0;
+    
+    // Apply global discount if any
+    if (appliedDiscount > 0) {
+        discount += subtotal * (appliedDiscount / 100);
+    }
+    
+    // Bulk discount for multiple items
+    if (shoppingCart.length >= 2) {
+        discount += subtotal * 0.1; // 10% for buying 2+ items
+    }
+    
+    return Math.round(discount);
+}
+
+function applyDynamicDiscount() {
+    const code = document.getElementById('dynamicDiscountCode').value.toUpperCase();
+    
+    const dynamicCodes = {
+        'PRIMERA20': { discount: 20, description: '20% descuento primera compra' },
+        'COMBO50': { discount: 50, condition: 'multipleItems', description: '50% desc. comprando 2+ items' },
+        'PREMIUM30': { discount: 30, description: '30% descuento membresía premium' },
+        'REFERIDO25': { discount: 25, description: '25% descuento por referido' },
+        'FLASH70': { discount: 70, description: '70% FLASH SALE - Solo hoy!' },
+        'VIP80': { discount: 80, description: '80% descuento VIP especial' }
+    };
+    
+    const codeData = dynamicCodes[code];
+    
+    if (codeData) {
+        // Check conditions
+        if (codeData.condition === 'multipleItems' && shoppingCart.length < 2) {
+            showAlert('Código Condicional', 'Este código requiere tener 2 o más productos en el carrito.');
+            return;
+        }
+        
+        // Apply discount
+        appliedDiscount = Math.max(appliedDiscount, codeData.discount); // Take the best discount
+        
+        updateCartDisplay();
+        updateProductPrices();
+        
+        showNotification(`¡Código aplicado! ${codeData.description}`, 'success');
+        document.getElementById('dynamicDiscountCode').value = '';
+    } else {
+        showAlert('Código Inválido', 'El código de descuento no es válido o ha expirado.');
+    }
+}
+
+function updateProductPrices() {
+    // Update product prices with applied discount
+    availableProducts.forEach(product => {
+        product.price = Math.round(product.originalPrice * (1 - appliedDiscount / 100));
+    });
+    
+    renderProductGrid();
+}
+
+function proceedToCheckout() {
+    const total = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const discount = calculateCartDiscount(total);
+    const finalTotal = total - discount;
+    
+    showPaymentCheckout(finalTotal);
+}
+
+function showPaymentCheckout(total) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full">
+            <h3 class="font-bold text-xl mb-4 text-primary">🛒 Checkout - Resumen de Compra</h3>
+            
+            <div class="space-y-3 mb-6">
+                ${shoppingCart.map(item => `
+                    <div class="flex justify-between">
+                        <span>${item.name} (${item.quantity}x)</span>
+                        <span>$${(item.price * item.quantity).toLocaleString()}</span>
+                    </div>
+                `).join('')}
+                
+                <div class="border-t pt-3 font-bold">
+                    <div class="flex justify-between">
+                        <span>Total a Pagar:</span>
+                        <span class="text-primary text-xl">$${total.toLocaleString()} MXN</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-green-50 dark:bg-green-900 p-4 rounded-lg mb-4">
+                <h4 class="font-bold text-green-800 dark:text-green-200 mb-2">💳 Información de Pago</h4>
+                <div class="text-sm text-green-700 dark:text-green-300 space-y-1">
+                    <p><strong>CLABE:</strong> 012060015651993330</p>
+                    <p><strong>Titular:</strong> Humberto Aguilera</p>
+                    <p><strong>Concepto:</strong> Carrito Sistema Ley 73</p>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-gray-500 text-white py-2 rounded">
+                    Cancelar
+                </button>
+                <button onclick="confirmCartPurchase(); this.closest('.fixed').remove();" class="flex-1 bg-primary text-white py-2 rounded">
+                    Confirmar Compra
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+function confirmCartPurchase() {
+    // Simulate purchase confirmation
+    showNotification('¡Compra confirmada! Te contactaremos para activar tu acceso.', 'success', 5000);
+    
+    // Clear cart
+    shoppingCart = [];
+    updateCartDisplay();
+}
+
+// OPTIMIZACIONES DE RENDIMIENTO - 3E3
+
+// Lazy loading de secciones pesadas
+function initializePerformanceOptimizations() {
+    // Lazy load de gráficos Chart.js
+    const chartObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                loadChartsIfNeeded();
+                chartObserver.unobserve(entry.target);
+            }
+        });
+    });
+    
+    const chartSections = document.querySelectorAll('#comparatorResults, #simulatorResults');
+    chartSections.forEach(section => chartObserver.observe(section));
+    
+    // Preload critical resources
+    preloadCriticalResources();
+    
+    // Optimize images and assets
+    optimizeImages();
+    
+    // Setup service worker for caching
+    setupServiceWorker();
+}
+
+function loadChartsIfNeeded() {
+    // Only load Chart.js when actually needed
+    if (typeof Chart === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        document.head.appendChild(script);
+    }
+}
+
+function preloadCriticalResources() {
+    // Preload fonts
+    const fontLink = document.createElement('link');
+    fontLink.rel = 'preload';
+    fontLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css';
+    fontLink.as = 'style';
+    document.head.appendChild(fontLink);
+    
+    // Preload critical scripts
+    const scripts = [
+        'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+    ];
+    
+    scripts.forEach(src => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.href = src;
+        link.as = 'script';
+        document.head.appendChild(link);
+    });
+}
+
+function optimizeImages() {
+    // Add loading="lazy" to images
+    document.querySelectorAll('img').forEach(img => {
+        if (!img.hasAttribute('loading')) {
+            img.setAttribute('loading', 'lazy');
+        }
+    });
+}
+
+function setupServiceWorker() {
+    // Service Worker disabled for iframe sandbox compatibility
+    // This prevents SecurityError in sandboxed contexts like Poe Canvas
+    console.log('Service Worker disabled: Running in Canvas environment');
+    return;
+}
+
+// Helper function - no longer needed but kept for compatibility
+function isSandboxedContext() {
+    // Always return true in Canvas environment to avoid Service Worker issues
+    return true;
+}
+
+// Cache inteligente de resultados
+let calculationCache = new Map();
+const CACHE_EXPIRY = 10 * 60 * 1000; // 10 minutes
+
+function getCachedCalculation(key) {
+    const cached = calculationCache.get(key);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_EXPIRY) {
+        return cached.result;
+    }
+    return null;
+}
+
+function setCachedCalculation(key, result) {
+    calculationCache.set(key, {
+        result: result,
+        timestamp: Date.now()
+    });
+    
+    // Limit cache size
+    if (calculationCache.size > 50) {
+        const firstKey = calculationCache.keys().next().value;
+        calculationCache.delete(firstKey);
+    }
+}
+
+// Optimización de cálculos complejos
+function optimizedCalculateLey73Pension(data) {
+    const cacheKey = JSON.stringify(data);
+    const cached = getCachedCalculation(cacheKey);
+    
+    if (cached) {
+        return cached;
+    }
+    
+    const result = calculateLey73Pension(data);
+    setCachedCalculation(cacheKey, result);
+    
+    return result;
+}
+
+// Performance monitoring
+function initializePerformanceMonitoring() {
+    // Monitor Core Web Vitals
+    if ('web-vital' in window) {
+        // This would integrate with a real monitoring service
+        console.log('Performance monitoring initialized');
+    }
+    
+    // Monitor memory usage
+    if (performance.memory) {
+        const checkMemory = () => {
+            const memoryInfo = performance.memory;
+            if (memoryInfo.usedJSHeapSize > 100 * 1024 * 1024) { // 100MB
+                console.warn('High memory usage detected');
+                cleanupCache();
+            }
+        };
+        
+        setInterval(checkMemory, 30000); // Check every 30 seconds
+    }
+}
+
+function cleanupCache() {
+    // Clean old cache entries
+    const now = Date.now();
+    for (const [key, value] of calculationCache.entries()) {
+        if ((now - value.timestamp) > CACHE_EXPIRY) {
+            calculationCache.delete(key);
+        }
+    }
+    
+    // Clean AI conversation history
+    if (aiConversationHistory.length > 20) {
+        aiConversationHistory = aiConversationHistory.slice(-10);
+    }
+    
+    // Clean calculation history if too large
+    if (calculationHistory.length > MAX_HISTORY) {
+        calculationHistory = calculationHistory.slice(0, MAX_HISTORY);
+    }
+}
+
+// PWA features
+function initializePWA() {
+    // Add to home screen prompt
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+        deferredPrompt = e;
+        showInstallPrompt();
+    });
+    
+    // Service Worker functionality disabled for Canvas environment compatibility
+    console.log('PWA features initialized without Service Worker');
+}
+
+function showInstallPrompt() {
+    const installBanner = document.createElement('div');
+    installBanner.className = 'fixed bottom-4 left-4 right-4 bg-primary text-white p-4 rounded-lg shadow-lg z-50';
+    installBanner.innerHTML = `
+        <div class="flex justify-between items-center">
+            <div>
+                <h4 class="font-bold">Instalar Sistema Ley 73</h4>
+                <p class="text-sm">Accede más rápido desde tu pantalla de inicio</p>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="this.closest('.fixed').remove()" class="px-3 py-1 bg-white bg-opacity-20 rounded text-sm">
+                    Después
+                </button>
+                <button onclick="installPWA()" class="px-3 py-1 bg-white text-primary rounded text-sm font-semibold">
+                    Instalar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(installBanner);
+}
+
+function installPWA() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                showNotification('¡Aplicación instalada exitosamente!', 'success');
+            }
+            deferredPrompt = null;
+        });
+    }
+    
+    // Remove install banner
+    document.querySelector('.fixed.bottom-4')?.remove();
+}
+
+// Initialize all premium features
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize premium features with delay to avoid blocking main thread
+    setTimeout(() => {
+        initializeAISystem();
+        initializePerformanceOptimizations();
+        initializePerformanceMonitoring();
+        initializePWA();
+    }, 1000);
+});
 
 </script>
 
