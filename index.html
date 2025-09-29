@@ -179,10 +179,14 @@ html
     <div class="container mx-auto flex justify-between items-center">
         <div class="flex items-center space-x-3">
             <i class="fas fa-shield-alt text-2xl"></i>
-            <h1 class="text-xl font-bold">Sistema Ley 73 IMSS</h1>
+            <div>
+                <h1 class="text-xl font-bold">Sistema Ley 73 IMSS</h1>
+                <span class="text-xs bg-green-500 px-2 py-1 rounded-full">v4.0 Premium</span>
+            </div>
         </div>
         <div class="flex items-center space-x-4">
             <span class="text-sm">📊 Valores Oficiales 2025</span>
+            <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded">Build 2025.01</span>
         </div>
     </div>
 </nav>
@@ -198,7 +202,7 @@ html
         <div class="mb-6 p-4 rounded-lg bg-orange-50 dark:bg-orange-900 border border-orange-200 dark:border-orange-700">
             <h3 class="font-bold text-lg mb-3 text-orange-800 dark:text-orange-200">💰 ¿Tienes un Código de Acceso o Descuento?</h3>
             <div class="flex gap-3">
-                <input type="text" id="discountCode" placeholder="Ingresa tu código (ej: DESC10)" 
+                <input type="password" id="discountCode" placeholder="Ingresa tu código (ej: DESC10)" 
                        class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 text-base">
                 <button onclick="applyDiscount()" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded text-sm font-semibold">
                     Aplicar Código
@@ -416,24 +420,40 @@ html
         
         <div class="mb-6 p-4 rounded-lg bg-purple-100 dark:bg-purple-800 border border-purple-200 dark:border-purple-600">
             <h3 class="font-bold text-purple-800 dark:text-purple-200 mb-3">👥 Simulador con Datos Oficiales IMSS 2025</h3>
-            <div class="grid md:grid-cols-3 gap-4 text-sm">
-                <div class="flex items-center">
-                    <i class="fas fa-calculator text-purple-600 mr-2"></i>
-                    <span>Cuotas reales: $15,543/mes (tope máximo)</span>
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <i class="fas fa-user-clock text-blue-600 mr-2"></i>
+                        <span><strong>Modalidad 40:</strong> ANTES de pensionarte</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-coins text-blue-600 mr-2"></i>
+                        <span>• Cotización voluntaria (máximo 5 años)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-target text-blue-600 mr-2"></i>
+                        <span>• Mejora promedio 250 semanas</span>
+                    </div>
                 </div>
-                <div class="flex items-center">
-                    <i class="fas fa-coins text-purple-600 mr-2"></i>
-                    <span>Modalidad 40: Máximo 5 años</span>
-                </div>
-                <div class="flex items-center">
-                    <i class="fas fa-chart-up text-purple-600 mr-2"></i>
-                    <span>Modalidad 10: Incrementa pensión actual</span>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <i class="fas fa-user-check text-green-600 mr-2"></i>
+                        <span><strong>Modalidad 10:</strong> DESPUÉS de pensionarte</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-chart-up text-green-600 mr-2"></i>
+                        <span>• Incrementa pensión ya otorgada</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-infinity text-green-600 mr-2"></i>
+                        <span>• Sin límite de tiempo</span>
+                    </div>
                 </div>
             </div>
             <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-800 rounded-lg">
                 <p class="text-xs text-blue-700 dark:text-blue-300">
-                    <strong>📊 Fuente oficial:</strong> Calculadora IMSS - Personas Trabajadoras Independientes
-                    <br><strong>💰 Rango salarial:</strong> $8,642.8 - $87,683.5 MXN mensuales (2025)
+                    <strong>🎯 Diferencia clave:</strong> Modalidad 40 = Antes de jubilarte (para mejorar cálculo inicial) | Modalidad 10 = Después de jubilarte (para incrementar pensión recibida)
+                    <br><strong>💰 Cuotas máximas:</strong> $8,929/mes (tope IMSS $2,714.25 diarios × 11.32%)
                 </p>
             </div>
         </div>
@@ -469,8 +489,8 @@ html
                 <div>
                     <label class="block text-sm font-medium mb-2">¿Ya tienes pensión otorgada?</label>
                     <select id="simHasPension" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 text-base">
-                        <option value="no">No, aún no me pensiono</option>
-                        <option value="yes">Sí, ya tengo pensión</option>
+                        <option value="no">No, aún no me pensiono (Modalidad 40)</option>
+                        <option value="yes">Sí, ya tengo pensión (Modalidad 10)</option>
                     </select>
                 </div>
 
@@ -485,10 +505,11 @@ html
                     <select id="simModality" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 text-base">
                         <option value="">Selecciona estrategia</option>
                         <option value="40">Modalidad 40 (Cotización Voluntaria)</option>
+                        <option value="10">Modalidad 10 (Incremento de Pensión)</option>
                         <option value="compare">🔥 Comparar Todas las Opciones</option>
                         <option value="continue">Seguir Trabajando Normal</option>
                     </select>
-                    <p class="text-xs text-red-600 mt-1">⚠️ Modalidad 10 NO disponible: La Ley 73 NO permite incrementar pensiones ya otorgadas</p>
+                    <p class="text-xs text-green-600 mt-1">✅ Modalidad 10: Funciona PERFECTAMENTE para pensionados Ley 73 - Incrementa tu pensión actual</p>
                 </div>
             </div>
 
@@ -528,6 +549,49 @@ html
                 <div class="mt-3 p-3 bg-blue-100 dark:bg-blue-800 rounded text-sm">
                     <p><strong>💡 Costo mensual estimado:</strong> <span id="mod40Cost">$0</span></p>
                     <p><strong>📈 Beneficio esperado:</strong> <span id="mod40Benefit">Calculando...</span></p>
+                </div>
+            </div>
+
+            <!-- Modalidad 10 Options -->
+            <div id="mod10Options" class="hidden p-4 bg-green-50 dark:bg-green-900 rounded-lg border">
+                <h4 class="font-bold text-green-800 dark:text-green-200 mb-3">⚙️ Configuración Modalidad 10</h4>
+                <div class="mb-4 p-3 bg-green-100 dark:bg-green-800 rounded-lg">
+                    <p class="text-sm text-green-700 dark:text-green-300">
+                        <strong>✅ Modalidad 10 para Ley 73:</strong> ¡SÍ funciona! Ya debes tener pensión otorgada por Ley 73 para incrementarla
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Nuevo Salario de Cotización (Diario)</label>
+                        <select id="mod10Salary" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 text-base">
+                            <option value="600">Bueno: $600</option>
+                            <option value="1000">Excelente: $1,000</option>
+                            <option value="1500">Premium: $1,500</option>
+                            <option value="2000">Superior: $2,000</option>
+                            <option value="2714.25">Tope IMSS: $2,714.25</option>
+                            <option value="custom">💰 Personalizado</option>
+                        </select>
+                    </div>
+                    <div id="customMod10SalaryDiv" class="hidden">
+                        <label class="block text-sm font-medium mb-2">Salario Personalizado</label>
+                        <input type="number" id="customMod10Salary" min="278.80" max="2714.25" step="0.01"
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 text-base">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Período de Cotización</label>
+                        <select id="mod10Years" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-700 text-base">
+                            <option value="52">1 año (52 semanas)</option>
+                            <option value="104">2 años (104 semanas)</option>
+                            <option value="156">3 años (156 semanas)</option>
+                            <option value="208">4 años (208 semanas)</option>
+                            <option value="250">5 años (250 semanas) - MÁXIMO</option>
+                        </select>
+                        <p class="text-xs text-green-600 mt-1">⚖️ Modalidad 10: Sin límite de semanas, pero cotiza sobre diferencia salarial</p>
+                    </div>
+                </div>
+                <div class="mt-3 p-3 bg-green-100 dark:bg-green-800 rounded text-sm">
+                    <p><strong>💡 Costo mensual estimado:</strong> <span id="mod10Cost">$0</span></p>
+                    <p><strong>📈 Incremento pensión esperado:</strong> <span id="mod10Benefit">Calculando...</span></p>
                 </div>
             </div>
 
@@ -825,7 +889,7 @@ html
             <h4 class="font-bold text-yellow-800 dark:text-yellow-200 mb-3">🎯 Sistema de Descuentos Dinámicos</h4>
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
-                    <input type="text" id="dynamicDiscountCode" placeholder="Código de descuento..."
+                    <input type="password" id="dynamicDiscountCode" placeholder="Código de descuento..."
                            class="w-full px-3 py-2 border rounded-md text-base mb-2">
                     <button onclick="applyDynamicDiscount()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-md">
                         Aplicar Descuento
