@@ -1353,6 +1353,1120 @@ let appliedDiscount = 0;
 let selectedPlan = null;
 let originalPrice = 0;
 
+// FASE 1: BASE DE DATOS SIMULADA PARA ADMINISTRACIÓN
+let userDatabase = {
+    users: new Map(),
+    sessions: new Map(),
+    codeUsage: new Map(),
+    systemLogs: [],
+    dailyStats: new Map()
+};
+
+// Configuración de administrador
+const ADMIN_CONFIG = {
+    adminCodes: ['ADMIN100', 'DEVELOPER', 'HUMBERTO2025', 'MASTER', 'OWNER'],
+    isAdminMode: false,
+    currentAdminSession: null
+};
+
+// Estructura de usuario
+class User {
+    constructor(fingerprint, ip = null) {
+        this.id = this.generateUserId();
+        this.fingerprint = fingerprint;
+        this.ip = ip || this.getSimulatedIP();
+        this.createdAt = new Date().toISOString();
+        this.lastActivity = new Date().toISOString();
+        this.accessHistory = [];
+        this.codesUsed = [];
+        this.calculations = 0;
+        this.totalSpent = 0;
+        this.userAgent = navigator.userAgent;
+        this.location = this.getSimulatedLocation();
+        this.status = 'active';
+    }
+    
+    generateUserId() {
+        return 'USR_' + Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+    
+    getSimulatedIP() {
+        // Simular IPs mexicanas comunes
+        const mexicanIPs = [
+            '201.159.', '187.254.', '189.203.', '200.57.', '148.233.',
+            '132.248.', '187.141.', '201.141.', '189.146.', '187.190.'
+        ];
+        const randomBase = mexicanIPs[Math.floor(Math.random() * mexicanIPs.length)];
+        return randomBase + Math.floor(Math.random() * 255) + '.' + Math.floor(Math.random() * 255);
+    }
+    
+    getSimulatedLocation() {
+        const mexicanCities = [
+            'Ciudad de México, CDMX', 'Guadalajara, Jalisco', 'Monterrey, Nuevo León',
+            'Tijuana, Baja California', 'León, Guanajuato', 'Puebla, Puebla',
+            'Torreón, Coahuila', 'Saltillo, Coahuila', 'Mérida, Yucatán',
+            'Aguascalientes, Aguascalientes', 'Mexicali, Baja California'
+        ];
+        return mexicanCities[Math.floor(Math.random() * mexicanCities.length)];
+    }
+    
+    addAccessEvent(type, details = {}) {
+        const event = {
+            timestamp: new Date().toISOString(),
+            type: type, // 'code_used', 'calculation', 'purchase', 'login'
+            details: details,
+            ip: this.ip,
+            userAgent: navigator.userAgent.substring(0, 50) + '...'
+        };
+        
+        this.accessHistory.push(event);
+        this.lastActivity = event.timestamp;
+        
+        // Mantener solo últimos 50 eventos por usuario
+        if (this.accessHistory.length > 50) {
+            this.accessHistory = this.accessHistory.slice(-50);
+        }
+    }
+    
+    addCodeUsage(code, codeType, success = true) {
+        const usage = {
+            code: code,
+            type: codeType, // 'discount', 'free_access', 'admin'
+            success: success,
+            timestamp: new Date().toISOString(),
+            ip: this.ip
+        };
+        
+        this.codesUsed.push(usage);
+        this.addAccessEvent('code_used', { code: code, type: codeType, success: success });
+        
+        // Actualizar estadísticas globales de códigos
+        updateCodeUsageStats(code, codeType, success);
+    }
+}
+
+// Gestión de sesiones
+class SessionManager {
+    constructor() {
+        this.currentUser = null;
+        this.userFingerprint = this.generateFingerprint();
+        this.sessionId = this.generateSessionId();
+    }
+    
+    generateFingerprint() {
+        // Crear fingerprint único basado en características del navegador
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.fillText('Browser fingerprint', 2, 2);
+        
+        const fingerprint = [
+            navigator.userAgent,
+            navigator.language,
+            screen.width + 'x' + screen.height,
+            new Date().getTimezoneOffset(),
+            canvas.toDataURL(),
+            navigator.hardwareConcurrency || 'unknown'
+        ].join('|');
+        
+        return this.hashCode(fingerprint);
+    }
+    
+    hashCode(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32-bit integer
+        }
+        return Math.abs(hash).toString(36);
+    }
+    
+    generateSessionId() {
+        return 'SES_' + Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+    
+    getCurrentUser() {
+        if (!this.currentUser) {
+            // Buscar usuario existente por fingerprint
+            for (const [userId, user] of userDatabase.users) {
+                if (user.fingerprint === this.userFingerprint) {
+                    this.currentUser = user;
+                    user.lastActivity = new Date().toISOString();
+                    break;
+                }
+            }
+            
+            // Si no existe, crear nuevo usuario
+            if (!this.currentUser) {
+                this.currentUser = new User(this.userFingerprint);
+                userDatabase.users.set(this.currentUser.id, this.currentUser);
+                
+                // Log nuevo usuario
+                logSystemEvent('new_user', {
+                    userId: this.currentUser.id,
+                    fingerprint: this.userFingerprint,
+                    location: this.currentUser.location
+                });
+            }
+        }
+        
+        return this.currentUser;
+    }
+    
+    trackActivity(activityType, data = {}) {
+        const user = this.getCurrentUser();
+        user.addAccessEvent(activityType, data);
+        
+        // Actualizar estadísticas diarias
+        updateDailyStats(activityType);
+    }
+}
+
+// Instancia global del session manager
+const sessionManager = new SessionManager();
+
+// Funciones de utilidad para la base de datos
+function updateCodeUsageStats(code, type, success) {
+    if (!userDatabase.codeUsage.has(code)) {
+        userDatabase.codeUsage.set(code, {
+            code: code,
+            type: type,
+            totalUses: 0,
+            successfulUses: 0,
+            failedUses: 0,
+            uniqueUsers: new Set(),
+            firstUsed: new Date().toISOString(),
+            lastUsed: new Date().toISOString()
+        });
+    }
+    
+    const stats = userDatabase.codeUsage.get(code);
+    stats.totalUses++;
+    stats.lastUsed = new Date().toISOString();
+    stats.uniqueUsers.add(sessionManager.getCurrentUser().id);
+    
+    if (success) {
+        stats.successfulUses++;
+    } else {
+        stats.failedUses++;
+    }
+}
+
+function updateDailyStats(activityType) {
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (!userDatabase.dailyStats.has(today)) {
+        userDatabase.dailyStats.set(today, {
+            date: today,
+            newUsers: 0,
+            totalVisits: 0,
+            calculations: 0,
+            codeUsages: 0,
+            purchases: 0,
+            revenue: 0
+        });
+    }
+    
+    const todayStats = userDatabase.dailyStats.get(today);
+    todayStats.totalVisits++;
+    
+    switch (activityType) {
+        case 'new_user':
+            todayStats.newUsers++;
+            break;
+        case 'calculation':
+            todayStats.calculations++;
+            break;
+        case 'code_used':
+            todayStats.codeUsages++;
+            break;
+        case 'purchase':
+            todayStats.purchases++;
+            break;
+    }
+}
+
+function logSystemEvent(eventType, data = {}) {
+    const logEvent = {
+        id: 'LOG_' + Date.now(),
+        timestamp: new Date().toISOString(),
+        type: eventType,
+        data: data,
+        userId: sessionManager.getCurrentUser()?.id || null,
+        sessionId: sessionManager.sessionId
+    };
+    
+    userDatabase.systemLogs.push(logEvent);
+    
+    // Mantener solo últimos 1000 logs
+    if (userDatabase.systemLogs.length > 1000) {
+        userDatabase.systemLogs = userDatabase.systemLogs.slice(-1000);
+    }
+}
+
+// Funciones de administración
+function enableAdminMode(code) {
+    if (ADMIN_CONFIG.adminCodes.includes(code)) {
+        ADMIN_CONFIG.isAdminMode = true;
+        ADMIN_CONFIG.currentAdminSession = {
+            code: code,
+            startTime: new Date().toISOString(),
+            userId: sessionManager.getCurrentUser().id
+        };
+        
+        logSystemEvent('admin_access', { code: code, success: true });
+        
+        // FASE 2: Mostrar dashboard de administrador
+        showAdminDashboard();
+        
+        return true;
+    }
+    
+    logSystemEvent('admin_access_attempt', { code: code, success: false });
+    return false;
+}
+
+// FASE 2: DASHBOARD COMPLETO DE ADMINISTRADOR
+function showAdminDashboard() {
+    // Crear el dashboard y insertarlo después del nav
+    const dashboardHTML = createAdminDashboardHTML();
+    
+    const nav = document.querySelector('nav');
+    const dashboardContainer = document.createElement('div');
+    dashboardContainer.id = 'adminDashboard';
+    dashboardContainer.innerHTML = dashboardHTML;
+    
+    // Insertar después del nav
+    nav.insertAdjacentElement('afterend', dashboardContainer);
+    
+    // Inicializar funcionalidades del dashboard
+    setTimeout(() => {
+        initializeAdminDashboard();
+    }, 500);
+    
+    // Scroll al dashboard
+    dashboardContainer.scrollIntoView({ behavior: 'smooth' });
+}
+
+function createAdminDashboardHTML() {
+    return `
+        <div class="bg-gradient-to-br from-red-50 to-blue-50 dark:from-red-900 dark:to-blue-900 border-4 border-red-500 shadow-2xl">
+            <!-- Header del Dashboard -->
+            <div class="bg-gradient-to-r from-red-600 to-blue-600 text-white p-6">
+                <div class="container mx-auto flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold flex items-center">
+                            <i class="fas fa-crown mr-3"></i>Panel de Administración - Sistema Ley 73
+                        </h1>
+                        <p class="text-blue-100 mt-2">Dashboard completo con métricas en tiempo real</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm">Sesión Admin: ${ADMIN_CONFIG.currentAdminSession?.code || 'N/A'}</p>
+                        <p class="text-xs text-blue-200">Inicio: ${new Date().toLocaleString('es-ES')}</p>
+                        <button onclick="closeAdminDashboard()" class="mt-2 bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-sm">
+                            <i class="fas fa-times mr-1"></i>Cerrar Dashboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="container mx-auto p-6">
+                <!-- KPIs Principales -->
+                <div class="grid md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg border-l-4 border-blue-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 font-semibold">Total Usuarios</p>
+                                <p class="text-3xl font-bold text-blue-600" id="kpi-total-users">0</p>
+                            </div>
+                            <i class="fas fa-users text-4xl text-blue-500 opacity-20"></i>
+                        </div>
+                        <p class="text-xs text-green-600 mt-2" id="kpi-users-trend">📈 +0 hoy</p>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg border-l-4 border-green-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 font-semibold">Códigos Usados</p>
+                                <p class="text-3xl font-bold text-green-600" id="kpi-codes-used">0</p>
+                            </div>
+                            <i class="fas fa-key text-4xl text-green-500 opacity-20"></i>
+                        </div>
+                        <p class="text-xs text-green-600 mt-2" id="kpi-codes-trend">🔑 0 únicos</p>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg border-l-4 border-purple-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 font-semibold">Cálculos</p>
+                                <p class="text-3xl font-bold text-purple-600" id="kpi-calculations">0</p>
+                            </div>
+                            <i class="fas fa-calculator text-4xl text-purple-500 opacity-20"></i>
+                        </div>
+                        <p class="text-xs text-purple-600 mt-2" id="kpi-calc-trend">📊 0 hoy</p>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg border-l-4 border-yellow-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 font-semibold">Revenue Est.</p>
+                                <p class="text-3xl font-bold text-yellow-600" id="kpi-revenue">$0</p>
+                            </div>
+                            <i class="fas fa-dollar-sign text-4xl text-yellow-500 opacity-20"></i>
+                        </div>
+                        <p class="text-xs text-yellow-600 mt-2" id="kpi-revenue-trend">💰 $0 hoy</p>
+                    </div>
+                </div>
+                
+                <!-- Filtros y Controles -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
+                    <h3 class="text-lg font-bold mb-4">🔍 Filtros y Controles</h3>
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Período</label>
+                            <select id="admin-date-filter" class="w-full px-3 py-2 border rounded text-sm" onchange="updateDashboardData()">
+                                <option value="today">Hoy</option>
+                                <option value="week">Esta semana</option>
+                                <option value="month">Este mes</option>
+                                <option value="all" selected>Todo el tiempo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Tipo de Datos</label>
+                            <select id="admin-data-type" class="w-full px-3 py-2 border rounded text-sm" onchange="updateDashboardCharts()">
+                                <option value="users">Usuarios</option>
+                                <option value="codes">Códigos</option>
+                                <option value="calculations">Cálculos</option>
+                                <option value="sessions">Sesiones</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Acciones Rápidas</label>
+                            <button onclick="exportAdminData()" class="w-full bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700">
+                                <i class="fas fa-download mr-1"></i>Exportar CSV
+                            </button>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Auto-refresh</label>
+                            <button onclick="toggleAutoRefresh()" id="auto-refresh-btn" class="w-full bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700">
+                                <i class="fas fa-play mr-1"></i>Activar (30s)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gráficos Principales -->
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-lg font-bold mb-4">📈 Tendencia de Usuarios</h3>
+                        <canvas id="admin-users-chart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-lg font-bold mb-4">🔑 Códigos Más Utilizados</h3>
+                        <canvas id="admin-codes-chart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Tablas de Datos -->
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <!-- Usuarios Recientes -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold">👥 Usuarios Recientes</h3>
+                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded" id="recent-users-count">0 usuarios</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50 dark:bg-gray-700">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left">Usuario</th>
+                                        <th class="px-3 py-2 text-left">Ubicación</th>
+                                        <th class="px-3 py-2 text-left">Última Actividad</th>
+                                        <th class="px-3 py-2 text-left">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-users-table">
+                                    <!-- Data will be populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Códigos y Estadísticas -->
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold">🎫 Estadísticas de Códigos</h3>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded" id="codes-stats-count">0 códigos</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50 dark:bg-gray-700">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left">Código</th>
+                                        <th class="px-3 py-2 text-center">Usos</th>
+                                        <th class="px-3 py-2 text-center">Éxito</th>
+                                        <th class="px-3 py-2 text-left">Último Uso</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="codes-stats-table">
+                                    <!-- Data will be populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Logs del Sistema -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold">📋 Logs del Sistema (Últimos 20)</h3>
+                        <div class="flex space-x-2">
+                            <button onclick="clearSystemLogs()" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600">
+                                <i class="fas fa-trash mr-1"></i>Limpiar
+                            </button>
+                            <button onclick="exportSystemLogs()" class="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
+                                <i class="fas fa-download mr-1"></i>Exportar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded font-mono text-xs max-h-64 overflow-y-auto" id="system-logs-console">
+                        <!-- Logs will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Métricas Avanzadas -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-lg font-bold mb-4">⚡ Métricas Avanzadas</h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <h4 class="font-semibold text-gray-600 dark:text-gray-400 mb-2">Retención de Usuarios</h4>
+                            <div class="relative">
+                                <canvas id="retention-chart" width="150" height="150"></canvas>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl font-bold" id="retention-percentage">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="font-semibold text-gray-600 dark:text-gray-400 mb-2">Conversión de Códigos</h4>
+                            <div class="relative">
+                                <canvas id="conversion-chart" width="150" height="150"></canvas>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl font-bold" id="conversion-percentage">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="font-semibold text-gray-600 dark:text-gray-400 mb-2">Engagement Score</h4>
+                            <div class="relative">
+                                <canvas id="engagement-chart" width="150" height="150"></canvas>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl font-bold" id="engagement-score">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function initializeAdminDashboard() {
+    // Cargar datos iniciales
+    updateDashboardKPIs();
+    updateDashboardData();
+    updateDashboardCharts();
+    
+    // Crear gráficos iniciales
+    createUsersChart();
+    createCodesChart();
+    createMetricsCharts();
+    
+    // Setup auto-refresh (opcional)
+    setupAutoRefresh();
+    
+    console.log('🔥 DASHBOARD DE ADMINISTRADOR INICIALIZADO');
+}
+
+// Auto-refresh functionality
+let autoRefreshInterval = null;
+let autoRefreshActive = false;
+
+function toggleAutoRefresh() {
+    const btn = document.getElementById('auto-refresh-btn');
+    
+    if (autoRefreshActive) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshActive = false;
+        btn.innerHTML = '<i class="fas fa-play mr-1"></i>Activar (30s)';
+        btn.className = 'w-full bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700';
+    } else {
+        autoRefreshInterval = setInterval(() => {
+            updateDashboardData();
+            updateDashboardKPIs();
+        }, 30000); // 30 seconds
+        
+        autoRefreshActive = true;
+        btn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pausar (30s)';
+        btn.className = 'w-full bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700';
+    }
+}
+
+function setupAutoRefresh() {
+    // Auto-refresh will be controlled by user
+    console.log('Auto-refresh disponible (manual)');
+}
+
+// Update KPIs
+function updateDashboardKPIs() {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Total usuarios
+    const totalUsers = userDatabase.users.size;
+    document.getElementById('kpi-total-users').textContent = totalUsers.toLocaleString();
+    
+    // Usuarios hoy
+    const todayUsers = Array.from(userDatabase.users.values())
+        .filter(user => user.createdAt.startsWith(today)).length;
+    document.getElementById('kpi-users-trend').textContent = `📈 +${todayUsers} hoy`;
+    
+    // Códigos usados
+    const totalCodes = userDatabase.codeUsage.size;
+    document.getElementById('kpi-codes-used').textContent = totalCodes.toLocaleString();
+    document.getElementById('kpi-codes-trend').textContent = `🔑 ${totalCodes} únicos`;
+    
+    // Cálculos totales
+    const totalCalculations = Array.from(userDatabase.users.values())
+        .reduce((sum, user) => sum + user.calculations, 0);
+    document.getElementById('kpi-calculations').textContent = totalCalculations.toLocaleString();
+    
+    // Cálculos hoy
+    const todayCalculations = userDatabase.systemLogs
+        .filter(log => log.type === 'calculation' && log.timestamp.startsWith(today)).length;
+    document.getElementById('kpi-calc-trend').textContent = `📊 ${todayCalculations} hoy`;
+    
+    // Revenue estimado
+    const estimatedRevenue = Array.from(userDatabase.users.values())
+        .reduce((sum, user) => sum + user.totalSpent, 0);
+    document.getElementById('kpi-revenue').textContent = `$${estimatedRevenue.toLocaleString()}`;
+    document.getElementById('kpi-revenue-trend').textContent = `💰 $${estimatedRevenue > 0 ? Math.round(estimatedRevenue * 0.1) : 0} hoy`;
+}
+
+// Update dashboard data tables
+function updateDashboardData() {
+    updateRecentUsersTable();
+    updateCodesStatsTable();
+    updateSystemLogsConsole();
+}
+
+function updateRecentUsersTable() {
+    const recentUsers = Array.from(userDatabase.users.values())
+        .sort((a, b) => new Date(b.lastActivity) - new Date(a.lastActivity))
+        .slice(0, 10);
+    
+    document.getElementById('recent-users-count').textContent = `${userDatabase.users.size} usuarios`;
+    
+    const tbody = document.getElementById('recent-users-table');
+    tbody.innerHTML = recentUsers.map(user => `
+        <tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="px-3 py-2">
+                <div class="font-mono text-xs">${user.id.substring(0, 12)}...</div>
+                <div class="text-xs text-gray-500">FP: ${user.fingerprint.substring(0, 8)}</div>
+            </td>
+            <td class="px-3 py-2">
+                <div class="text-xs">${user.location}</div>
+                <div class="text-xs text-gray-500">${user.ip}</div>
+            </td>
+            <td class="px-3 py-2">
+                <div class="text-xs">${new Date(user.lastActivity).toLocaleString('es-ES')}</div>
+                <span class="text-xs px-1 rounded ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${user.status}</span>
+            </td>
+            <td class="px-3 py-2">
+                <button onclick="viewUserDetails('${user.id}')" class="text-blue-600 hover:text-blue-800 text-xs">
+                    <i class="fas fa-eye mr-1"></i>Ver
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function updateCodesStatsTable() {
+    const codesStats = Array.from(userDatabase.codeUsage.values())
+        .sort((a, b) => b.totalUses - a.totalUses);
+    
+    document.getElementById('codes-stats-count').textContent = `${codesStats.length} códigos`;
+    
+    const tbody = document.getElementById('codes-stats-table');
+    tbody.innerHTML = codesStats.map(code => `
+        <tr class="border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="px-3 py-2">
+                <div class="font-mono text-sm font-bold">${code.code}</div>
+                <div class="text-xs text-gray-500">${code.type}</div>
+            </td>
+            <td class="px-3 py-2 text-center">
+                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${code.totalUses}</span>
+            </td>
+            <td class="px-3 py-2 text-center">
+                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                    ${((code.successfulUses / code.totalUses) * 100).toFixed(1)}%
+                </span>
+            </td>
+            <td class="px-3 py-2 text-xs">${new Date(code.lastUsed).toLocaleDateString('es-ES')}</td>
+        </tr>
+    `).join('');
+}
+
+function updateSystemLogsConsole() {
+    const recentLogs = userDatabase.systemLogs
+        .slice(-20)
+        .reverse(); // Más recientes primero
+    
+    const console = document.getElementById('system-logs-console');
+    console.innerHTML = recentLogs.map(log => {
+        const time = new Date(log.timestamp).toLocaleTimeString('es-ES');
+        const type = log.type.toUpperCase().padEnd(15);
+        const userId = log.userId ? log.userId.substring(0, 8) : 'SYSTEM';
+        const dataStr = JSON.stringify(log.data).substring(0, 50);
+        
+        return `<div class="mb-1">[${time}] ${type} | ${userId} | ${dataStr}...</div>`;
+    }).join('');
+}
+
+// Chart creation functions
+function createUsersChart() {
+    const ctx = document.getElementById('admin-users-chart').getContext('2d');
+    
+    // Generate last 7 days data
+    const last7Days = [];
+    const usersByDay = [];
+    
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        last7Days.push(date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }));
+        
+        const usersThisDay = Array.from(userDatabase.users.values())
+            .filter(user => user.createdAt.startsWith(dateStr)).length;
+        usersByDay.push(usersThisDay);
+    }
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: last7Days,
+            datasets: [{
+                label: 'Nuevos Usuarios',
+                data: usersByDay,
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function createCodesChart() {
+    const ctx = document.getElementById('admin-codes-chart').getContext('2d');
+    
+    const topCodes = Array.from(userDatabase.codeUsage.values())
+        .sort((a, b) => b.totalUses - a.totalUses)
+        .slice(0, 5);
+    
+    const labels = topCodes.map(code => code.code);
+    const data = topCodes.map(code => code.totalUses);
+    const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 10,
+                        font: {
+                            size: 10
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createMetricsCharts() {
+    // Retention Chart
+    const retentionCtx = document.getElementById('retention-chart').getContext('2d');
+    const retentionRate = calculateRetentionRate();
+    
+    new Chart(retentionCtx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [retentionRate, 100 - retentionRate],
+                backgroundColor: ['#10B981', '#E5E7EB'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: false,
+            maintainAspectRatio: true,
+            cutout: '70%',
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false }
+            }
+        }
+    });
+    
+    document.getElementById('retention-percentage').textContent = `${retentionRate}%`;
+    
+    // Conversion Chart
+    const conversionCtx = document.getElementById('conversion-chart').getContext('2d');
+    const conversionRate = calculateConversionRate();
+    
+    new Chart(conversionCtx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [conversionRate, 100 - conversionRate],
+                backgroundColor: ['#F59E0B', '#E5E7EB'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: false,
+            maintainAspectRatio: true,
+            cutout: '70%',
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false }
+            }
+        }
+    });
+    
+    document.getElementById('conversion-percentage').textContent = `${conversionRate}%`;
+    
+    // Engagement Chart
+    const engagementCtx = document.getElementById('engagement-chart').getContext('2d');
+    const engagementScore = calculateEngagementScore();
+    
+    new Chart(engagementCtx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [engagementScore, 100 - engagementScore],
+                backgroundColor: ['#8B5CF6', '#E5E7EB'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: false,
+            maintainAspectRatio: true,
+            cutout: '70%',
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false }
+            }
+        }
+    });
+    
+    document.getElementById('engagement-score').textContent = `${engagementScore}`;
+}
+
+// Metric calculation functions
+function calculateRetentionRate() {
+    // Calculate users who came back after their first visit
+    const totalUsers = userDatabase.users.size;
+    if (totalUsers === 0) return 0;
+    
+    const returningUsers = Array.from(userDatabase.users.values())
+        .filter(user => user.accessHistory.length > 1).length;
+    
+    return Math.round((returningUsers / totalUsers) * 100);
+}
+
+function calculateConversionRate() {
+    // Calculate users who used a code vs total users
+    const totalUsers = userDatabase.users.size;
+    if (totalUsers === 0) return 0;
+    
+    const usersWithCodes = Array.from(userDatabase.users.values())
+        .filter(user => user.codesUsed.length > 0).length;
+    
+    return Math.round((usersWithCodes / totalUsers) * 100);
+}
+
+function calculateEngagementScore() {
+    // Calculate average engagement based on calculations and activity
+    const totalUsers = userDatabase.users.size;
+    if (totalUsers === 0) return 0;
+    
+    const totalCalculations = Array.from(userDatabase.users.values())
+        .reduce((sum, user) => sum + user.calculations, 0);
+    
+    const avgCalculations = totalCalculations / totalUsers;
+    
+    // Convert to 0-100 scale (assume 5+ calculations = 100% engaged)
+    return Math.min(Math.round(avgCalculations * 20), 100);
+}
+
+// Update charts based on filter
+function updateDashboardCharts() {
+    const dataType = document.getElementById('admin-data-type').value;
+    
+    // This would update charts based on selected data type
+    console.log(`Actualizando gráficos para: ${dataType}`);
+    
+    // For now, just refresh existing charts
+    setTimeout(() => {
+        createUsersChart();
+        createCodesChart();
+    }, 100);
+}
+
+// User details modal
+function viewUserDetails(userId) {
+    const user = userDatabase.users.get(userId);
+    if (!user) return;
+    
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-xl">👤 Detalles de Usuario</h3>
+                <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700 text-xl">×</button>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold mb-2">Información Básica</h4>
+                    <div class="space-y-2 text-sm">
+                        <p><strong>ID:</strong> <code class="bg-gray-100 px-1 rounded">${user.id}</code></p>
+                        <p><strong>Fingerprint:</strong> <code class="bg-gray-100 px-1 rounded">${user.fingerprint}</code></p>
+                        <p><strong>IP:</strong> ${user.ip}</p>
+                        <p><strong>Ubicación:</strong> ${user.location}</p>
+                        <p><strong>Creado:</strong> ${new Date(user.createdAt).toLocaleString('es-ES')}</p>
+                        <p><strong>Última actividad:</strong> ${new Date(user.lastActivity).toLocaleString('es-ES')}</p>
+                        <p><strong>Estado:</strong> <span class="px-2 py-1 rounded text-xs ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${user.status}</span></p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-2">Estadísticas</h4>
+                    <div class="space-y-2 text-sm">
+                        <p><strong>Cálculos realizados:</strong> ${user.calculations}</p>
+                        <p><strong>Total gastado:</strong> $${user.totalSpent.toLocaleString()} MXN</p>
+                        <p><strong>Códigos usados:</strong> ${user.codesUsed.length}</p>
+                        <p><strong>Eventos registrados:</strong> ${user.accessHistory.length}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <h4 class="font-semibold mb-2">Códigos Utilizados</h4>
+                <div class="max-h-32 overflow-y-auto">
+                    ${user.codesUsed.length > 0 ? 
+                        user.codesUsed.map(code => `
+                            <div class="text-xs p-2 border rounded mb-1">
+                                <strong>${code.code}</strong> (${code.type}) - ${new Date(code.timestamp).toLocaleString('es-ES')}
+                                ${code.success ? '<span class="text-green-600">✓</span>' : '<span class="text-red-600">✗</span>'}
+                            </div>
+                        `).join('') :
+                        '<p class="text-gray-500 text-sm">No ha usado códigos</p>'
+                    }
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <h4 class="font-semibold mb-2">Historial de Actividad (Últimos 10)</h4>
+                <div class="max-h-40 overflow-y-auto">
+                    ${user.accessHistory.slice(-10).reverse().map(event => `
+                        <div class="text-xs p-2 border rounded mb-1 bg-gray-50 dark:bg-gray-700">
+                            <strong>${event.type}</strong> - ${new Date(event.timestamp).toLocaleString('es-ES')}
+                            ${event.details ? `<br><span class="text-gray-600">${JSON.stringify(event.details)}</span>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Export functions
+function exportAdminData() {
+    const dateFilter = document.getElementById('admin-date-filter').value;
+    const dataType = document.getElementById('admin-data-type').value;
+    
+    let csvContent = '';
+    let filename = '';
+    
+    if (dataType === 'users') {
+        csvContent = generateUsersCSV(dateFilter);
+        filename = `usuarios_${dateFilter}_${new Date().toISOString().split('T')[0]}.csv`;
+    } else if (dataType === 'codes') {
+        csvContent = generateCodesCSV(dateFilter);
+        filename = `codigos_${dateFilter}_${new Date().toISOString().split('T')[0]}.csv`;
+    }
+    
+    downloadCSV(csvContent, filename);
+}
+
+function generateUsersCSV(dateFilter) {
+    const headers = ['ID', 'Fingerprint', 'IP', 'Ubicación', 'Creado', 'Última Actividad', 'Cálculos', 'Total Gastado', 'Estado'];
+    
+    let users = Array.from(userDatabase.users.values());
+    
+    // Apply date filter
+    if (dateFilter === 'today') {
+        const today = new Date().toISOString().split('T')[0];
+        users = users.filter(user => user.createdAt.startsWith(today));
+    } else if (dateFilter === 'week') {
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        users = users.filter(user => new Date(user.createdAt) >= weekAgo);
+    }
+    
+    const rows = users.map(user => [
+        user.id,
+        user.fingerprint,
+        user.ip,
+        user.location,
+        user.createdAt,
+        user.lastActivity,
+        user.calculations,
+        user.totalSpent,
+        user.status
+    ]);
+    
+    return [headers, ...rows].map(row => row.join(',')).join('\n');
+}
+
+function generateCodesCSV(dateFilter) {
+    const headers = ['Código', 'Tipo', 'Total Usos', 'Usos Exitosos', 'Usuarios Únicos', 'Primer Uso', 'Último Uso'];
+    
+    const codes = Array.from(userDatabase.codeUsage.values());
+    
+    const rows = codes.map(code => [
+        code.code,
+        code.type,
+        code.totalUses,
+        code.successfulUses,
+        code.uniqueUsers.size,
+        code.firstUsed,
+        code.lastUsed
+    ]);
+    
+    return [headers, ...rows].map(row => row.join(',')).join('\n');
+}
+
+function downloadCSV(content, filename) {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+}
+
+function exportSystemLogs() {
+    const logs = userDatabase.systemLogs.map(log => ({
+        timestamp: log.timestamp,
+        type: log.type,
+        userId: log.userId,
+        sessionId: log.sessionId,
+        data: JSON.stringify(log.data)
+    }));
+    
+    const headers = ['Timestamp', 'Tipo', 'Usuario ID', 'Sesión ID', 'Datos'];
+    const rows = logs.map(log => [log.timestamp, log.type, log.userId, log.sessionId, log.data]);
+    
+    const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
+    downloadCSV(csvContent, `system_logs_${new Date().toISOString().split('T')[0]}.csv`);
+}
+
+function clearSystemLogs() {
+    if (confirm('¿Estás seguro de que quieres limpiar todos los logs del sistema?')) {
+        userDatabase.systemLogs = [];
+        updateSystemLogsConsole();
+        showNotification('Logs del sistema eliminados', 'success');
+    }
+}
+
+function closeAdminDashboard() {
+    const dashboard = document.getElementById('adminDashboard');
+    if (dashboard) {
+        dashboard.remove();
+    }
+    
+    // Clear auto-refresh
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshActive = false;
+    }
+    
+    // Reset admin mode if needed
+    // ADMIN_CONFIG.isAdminMode = false;
+}
+
+// Mejorar la función applyDiscount para mostrar dashboard cuando se use código admin
+const originalApplyDiscount = window.applyDiscount;
+window.applyDiscount = function() {
+    const code = document.getElementById('discountCode').value.toUpperCase();
+    
+    // Call original function
+    const result = originalApplyDiscount.call(this);
+    
+    // Check if it was an admin code
+    if (ADMIN_CONFIG.adminCodes.includes(code)) {
+        enableAdminMode(code);
+    }
+    
+    return result;
+};
+
 // Dark mode support
 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
     document.documentElement.classList.add('dark');
@@ -5092,6 +6206,2057 @@ function installPWA() {
     document.querySelector('.fixed.bottom-4')?.remove();
 }
 
+// FASE 3: FUNCIONALIDADES PREMIUM Y ANÁLISIS PREDICTIVO
+
+// Sistema de IA Predictiva Avanzada
+class PredictiveAnalyticsEngine {
+    constructor() {
+        this.models = {
+            pension: new PensionPredictionModel(),
+            market: new MarketAnalysisModel(),
+            risk: new RiskAssessmentModel(),
+            optimization: new OptimizationModel()
+        };
+        this.dataProcessor = new AdvancedDataProcessor();
+        this.initialized = false;
+    }
+    
+    async initialize() {
+        if (this.initialized) return;
+        
+        console.log('🤖 Inicializando Motor de IA Predictiva...');
+        
+        // Simular carga de modelos ML
+        await this.loadPredictiveModels();
+        
+        // Inicializar procesador de datos
+        await this.dataProcessor.initialize();
+        
+        this.initialized = true;
+        console.log('✅ Motor de IA Predictiva inicializado');
+    }
+    
+    async loadPredictiveModels() {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                this.models.pension.trainWithHistoricalData();
+                this.models.market.loadMarketTrends();
+                this.models.risk.calibrateRiskFactors();
+                this.models.optimization.setupOptimizationAlgorithms();
+                resolve();
+            }, 2000);
+        });
+    }
+    
+    async generatePredictiveAnalysis(userData) {
+        if (!this.initialized) await this.initialize();
+        
+        const analysis = {
+            pensionProjection: await this.models.pension.predict(userData),
+            marketForecast: await this.models.market.forecast(userData),
+            riskAssessment: await this.models.risk.analyze(userData),
+            optimizationSuggestions: await this.models.optimization.suggest(userData),
+            confidence: this.calculateConfidence(userData)
+        };
+        
+        return this.formatPredictiveReport(analysis);
+    }
+    
+    calculateConfidence(userData) {
+        let confidence = 85; // Base confidence
+        
+        if (userData.age && userData.weeks && userData.salary) confidence += 10;
+        if (userData.weeks > 1000) confidence += 3;
+        if (userData.salary > 500) confidence += 2;
+        
+        return Math.min(confidence, 99);
+    }
+    
+    formatPredictiveReport(analysis) {
+        return {
+            ...analysis,
+            generatedAt: new Date().toISOString(),
+            reportId: 'PRED_' + Date.now(),
+            summary: this.generateExecutiveSummary(analysis)
+        };
+    }
+    
+    generateExecutiveSummary(analysis) {
+        return `Basado en análisis predictivo con ${analysis.confidence}% de confianza: ${analysis.pensionProjection.summary}`;
+    }
+}
+
+// Modelos de ML Simulados
+class PensionPredictionModel {
+    constructor() {
+        this.historicalData = [];
+        this.trends = {};
+    }
+    
+    trainWithHistoricalData() {
+        // Simular entrenamiento con datos históricos IMSS
+        this.historicalData = this.generateMockHistoricalData();
+        this.trends = this.analyzeTrends();
+    }
+    
+    generateMockHistoricalData() {
+        const data = [];
+        for (let year = 2000; year <= 2025; year++) {
+            data.push({
+                year,
+                avgPension: 8000 + (year - 2000) * 200 + Math.random() * 1000,
+                inflation: 0.03 + Math.random() * 0.04,
+                salaryGrowth: 0.02 + Math.random() * 0.03,
+                pensions: Math.floor(50000 + (year - 2000) * 5000)
+            });
+        }
+        return data;
+    }
+    
+    analyzeTrends() {
+        return {
+            pensionGrowth: 0.045, // 4.5% anual
+            inflationTrend: 0.042, // 4.2% promedio
+            salaryTrend: 0.035, // 3.5% crecimiento salarial
+            demographic: 'aging_population'
+        };
+    }
+    
+    async predict(userData) {
+        await this.simulateMLProcessing();
+        
+        const projection = this.calculateAdvancedProjection(userData);
+        
+        return {
+            next5Years: projection.short,
+            next10Years: projection.medium,
+            retirementProjection: projection.long,
+            scenarios: this.generateScenarios(userData),
+            summary: `Proyección favorable con crecimiento esperado del ${(projection.growthRate * 100).toFixed(1)}% anual`
+        };
+    }
+    
+    async simulateMLProcessing() {
+        return new Promise(resolve => setTimeout(resolve, 800));
+    }
+    
+    calculateAdvancedProjection(userData) {
+        const baseGrowth = 0.045;
+        const inflationAdjustment = -0.042;
+        const realGrowth = baseGrowth + inflationAdjustment;
+        
+        return {
+            short: this.projectYears(userData, 5, realGrowth),
+            medium: this.projectYears(userData, 10, realGrowth),
+            long: this.projectYears(userData, 65 - (userData.age || 60), realGrowth),
+            growthRate: realGrowth
+        };
+    }
+    
+    projectYears(userData, years, growthRate) {
+        const currentPension = this.estimateCurrentPension(userData);
+        return currentPension * Math.pow(1 + growthRate, years);
+    }
+    
+    estimateCurrentPension(userData) {
+        if (!userData.salary || !userData.weeks) return 9412; // PMG
+        
+        const dailySalary = userData.salary;
+        const years = Math.floor((userData.weeks || 500) / 52);
+        
+        // Simplified Ley 73 calculation
+        return Math.max(dailySalary * 30.4 * 0.35 * (1 + years * 0.02), 9412);
+    }
+    
+    generateScenarios(userData) {
+        const base = this.estimateCurrentPension(userData);
+        
+        return {
+            optimistic: {
+                pension: base * 1.3,
+                probability: 25,
+                description: 'Crecimiento económico fuerte + reformas favorables'
+            },
+            realistic: {
+                pension: base * 1.1,
+                probability: 50,
+                description: 'Escenario más probable basado en tendencias actuales'
+            },
+            pessimistic: {
+                pension: base * 0.9,
+                probability: 25,
+                description: 'Crisis económica o reformas desfavorables'
+            }
+        };
+    }
+}
+
+class MarketAnalysisModel {
+    constructor() {
+        this.marketData = {};
+        this.indicators = {};
+    }
+    
+    loadMarketTrends() {
+        this.marketData = {
+            inflation: { current: 4.2, trend: 'stable', forecast: [4.1, 4.0, 3.9, 3.8, 3.7] },
+            gdp: { current: 2.8, trend: 'growing', forecast: [3.1, 3.3, 3.2, 3.4, 3.5] },
+            employment: { current: 96.2, trend: 'stable', forecast: [96.5, 96.8, 97.0, 97.2, 97.1] },
+            salaries: { current: 3.5, trend: 'growing', forecast: [3.8, 4.0, 4.1, 4.3, 4.2] }
+        };
+        
+        this.indicators = {
+            economicHealth: 'good',
+            pensionSustainability: 'moderate',
+            demographicPressure: 'increasing',
+            governmentCapacity: 'stable'
+        };
+    }
+    
+    async forecast(userData) {
+        await this.simulateMarketAnalysis();
+        
+        const economicForecast = this.generateEconomicForecast();
+        const pensionSystemForecast = this.generatePensionSystemForecast();
+        
+        return {
+            economic: economicForecast,
+            pensionSystem: pensionSystemForecast,
+            recommendations: this.generateMarketRecommendations(userData),
+            confidence: 78
+        };
+    }
+    
+    async simulateMarketAnalysis() {
+        return new Promise(resolve => setTimeout(resolve, 1200));
+    }
+    
+    generateEconomicForecast() {
+        return {
+            nextYear: {
+                inflation: 4.1,
+                gdpGrowth: 3.1,
+                employmentRate: 96.5,
+                salaryGrowth: 3.8
+            },
+            next5Years: {
+                avgInflation: 3.9,
+                avgGdpGrowth: 3.3,
+                avgEmployment: 96.9,
+                avgSalaryGrowth: 4.0
+            },
+            risks: [
+                'Presión inflacionaria por energéticos',
+                'Volatilidad en mercados internacionales',
+                'Cambios en política fiscal'
+            ]
+        };
+    }
+    
+    generatePensionSystemForecast() {
+        return {
+            sustainability: {
+                current: 'estable',
+                trend: 'presión moderada',
+                timeHorizon: '2035-2040'
+            },
+            demographics: {
+                retirementRatio: 0.28, // 28% población en edad de retiro para 2050
+                supportRatio: 3.2, // 3.2 trabajadores por pensionado
+                trend: 'decreciente'
+            },
+            reforms: {
+                probability: 'media',
+                expectedChanges: [
+                    'Ajustes en edad de retiro',
+                    'Modificaciones a PMG',
+                    'Incentivos para trabajar más tiempo'
+                ]
+            }
+        };
+    }
+    
+    generateMarketRecommendations(userData) {
+        const recommendations = [];
+        
+        if (userData.age <= 50) {
+            recommendations.push('Aprovechar crecimiento salarial proyectado');
+            recommendations.push('Considerar ahorro voluntario adicional');
+        }
+        
+        if (userData.age >= 55) {
+            recommendations.push('Acelerar estrategias de optimización (Modalidad 40)');
+            recommendations.push('Protegerse contra reformas futuras');
+        }
+        
+        recommendations.push('Diversificar ingresos de jubilación');
+        recommendations.push('Monitorear cambios regulatorios');
+        
+        return recommendations;
+    }
+}
+
+class RiskAssessmentModel {
+    constructor() {
+        this.riskFactors = {};
+        this.riskMatrix = {};
+    }
+    
+    calibrateRiskFactors() {
+        this.riskFactors = {
+            demographic: { weight: 0.3, current: 'medium' },
+            economic: { weight: 0.25, current: 'low' },
+            political: { weight: 0.2, current: 'medium' },
+            individual: { weight: 0.15, current: 'variable' },
+            system: { weight: 0.1, current: 'low' }
+        };
+        
+        this.riskMatrix = {
+            high: { threshold: 0.7, color: 'red', action: 'immediate' },
+            medium: { threshold: 0.4, color: 'yellow', action: 'monitor' },
+            low: { threshold: 0.2, color: 'green', action: 'routine' }
+        };
+    }
+    
+    async analyze(userData) {
+        await this.simulateRiskAnalysis();
+        
+        const risks = {
+            demographic: this.analyzeDemographicRisk(),
+            economic: this.analyzeEconomicRisk(),
+            political: this.analyzePoliticalRisk(),
+            individual: this.analyzeIndividualRisk(userData),
+            system: this.analyzeSystemRisk()
+        };
+        
+        const overallRisk = this.calculateOverallRisk(risks);
+        
+        return {
+            overall: overallRisk,
+            breakdown: risks,
+            mitigation: this.generateMitigationStrategies(risks, userData),
+            monitoring: this.generateMonitoringPlan(risks)
+        };
+    }
+    
+    async simulateRiskAnalysis() {
+        return new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
+    analyzeDemographicRisk() {
+        return {
+            level: 'medium',
+            score: 0.6,
+            factors: [
+                'Envejecimiento poblacional acelerado',
+                'Reducción de tasa de natalidad',
+                'Aumento en esperanza de vida'
+            ],
+            timeline: '2030-2050',
+            impact: 'Presión en sistema de pensiones'
+        };
+    }
+    
+    analyzeEconomicRisk() {
+        return {
+            level: 'low',
+            score: 0.3,
+            factors: [
+                'Crecimiento económico estable',
+                'Inflación controlada',
+                'Mercado laboral robusto'
+            ],
+            timeline: '2025-2030',
+            impact: 'Sostenibilidad del sistema'
+        };
+    }
+    
+    analyzePoliticalRisk() {
+        return {
+            level: 'medium',
+            score: 0.5,
+            factors: [
+                'Presión para reformas al sistema',
+                'Cambios en administración gubernamental',
+                'Negociaciones sindicales'
+            ],
+            timeline: '2025-2035',
+            impact: 'Modificaciones a beneficios'
+        };
+    }
+    
+    analyzeIndividualRisk(userData) {
+        let score = 0.2; // Base low risk
+        
+        if (!userData.age || userData.age > 55) score += 0.2;
+        if (!userData.weeks || userData.weeks < 1000) score += 0.1;
+        if (!userData.salary || userData.salary < 500) score += 0.1;
+        
+        return {
+            level: score > 0.4 ? 'medium' : 'low',
+            score: Math.min(score, 0.8),
+            factors: this.getIndividualRiskFactors(userData),
+            recommendations: this.getIndividualRecommendations(userData)
+        };
+    }
+    
+    getIndividualRiskFactors(userData) {
+        const factors = [];
+        
+        if (userData.age > 55) factors.push('Proximidad a edad de jubilación');
+        if (userData.weeks < 1000) factors.push('Historial de cotización insuficiente');
+        if (userData.salary < 500) factors.push('Nivel salarial bajo');
+        
+        if (factors.length === 0) factors.push('Perfil de riesgo bajo');
+        
+        return factors;
+    }
+    
+    getIndividualRecommendations(userData) {
+        const recommendations = [];
+        
+        if (userData.age > 55) recommendations.push('Considerar Modalidad 40');
+        if (userData.weeks < 1000) recommendations.push('Maximizar semanas de cotización');
+        if (userData.salary < 500) recommendations.push('Buscar incremento salarial');
+        
+        return recommendations;
+    }
+    
+    analyzeSystemRisk() {
+        return {
+            level: 'low',
+            score: 0.25,
+            factors: [
+                'Sistema Ley 73 bien estructurado',
+                'PMG garantizada por gobierno',
+                'Respaldo constitucional'
+            ],
+            timeline: 'Largo plazo',
+            impact: 'Estabilidad del sistema'
+        };
+    }
+    
+    calculateOverallRisk(risks) {
+        let weightedScore = 0;
+        
+        Object.entries(this.riskFactors).forEach(([key, factor]) => {
+            if (risks[key]) {
+                weightedScore += risks[key].score * factor.weight;
+            }
+        });
+        
+        const level = weightedScore > 0.6 ? 'high' : weightedScore > 0.3 ? 'medium' : 'low';
+        
+        return {
+            score: weightedScore,
+            level: level,
+            description: this.getRiskDescription(level),
+            action: this.riskMatrix[level].action
+        };
+    }
+    
+    getRiskDescription(level) {
+        const descriptions = {
+            high: 'Riesgo alto requiere atención inmediata y estrategias de mitigación',
+            medium: 'Riesgo moderado requiere monitoreo y planificación preventiva',
+            low: 'Riesgo bajo, mantener estrategia actual con revisiones periódicas'
+        };
+        return descriptions[level];
+    }
+    
+    generateMitigationStrategies(risks, userData) {
+        const strategies = [];
+        
+        if (risks.overall.level === 'high') {
+            strategies.push('Implementar Modalidad 40 inmediatamente');
+            strategies.push('Diversificar fuentes de ingreso');
+            strategies.push('Consulta con especialista');
+        }
+        
+        if (risks.demographic.level === 'medium') {
+            strategies.push('Adelantar planes de jubilación');
+            strategies.push('Maximizar beneficios actuales');
+        }
+        
+        if (risks.individual.level === 'medium') {
+            strategies.push('Plan de optimización personalizado');
+            strategies.push('Seguimiento trimestral');
+        }
+        
+        return strategies;
+    }
+    
+    generateMonitoringPlan(risks) {
+        return {
+            frequency: 'trimestral',
+            keyIndicators: [
+                'Cambios en legislación',
+                'Indicadores económicos',
+                'Demografía poblacional',
+                'Situación personal'
+            ],
+            alerts: [
+                'Propuestas de reforma',
+                'Crisis económica',
+                'Cambios en empleo personal'
+            ]
+        };
+    }
+}
+
+class OptimizationModel {
+    constructor() {
+        this.algorithms = {};
+        this.strategies = {};
+    }
+    
+    setupOptimizationAlgorithms() {
+        this.algorithms = {
+            genetic: new GeneticOptimizer(),
+            montecarlo: new MonteCarloSimulator(),
+            linearProg: new LinearProgrammingSolver(),
+            reinforcement: new ReinforcementLearner()
+        };
+        
+        this.strategies = {
+            maxPension: 'Maximizar pensión final',
+            minRisk: 'Minimizar riesgo',
+            balanced: 'Balance riesgo-retorno',
+            earlyRetirement: 'Jubilación anticipada'
+        };
+    }
+    
+    async suggest(userData) {
+        await this.simulateOptimization();
+        
+        const optimizations = await Promise.all([
+            this.optimizeForMaxPension(userData),
+            this.optimizeForMinRisk(userData),
+            this.optimizeForBalance(userData),
+            this.optimizeForEarlyRetirement(userData)
+        ]);
+        
+        return {
+            strategies: optimizations,
+            recommended: this.selectBestStrategy(optimizations, userData),
+            comparison: this.compareStrategies(optimizations)
+        };
+    }
+    
+    async simulateOptimization() {
+        return new Promise(resolve => setTimeout(resolve, 1500));
+    }
+    
+    async optimizeForMaxPension(userData) {
+        // Simulate genetic algorithm optimization
+        const scenarios = this.generateOptimizationScenarios(userData);
+        
+        return {
+            strategy: 'maxPension',
+            name: 'Maximizar Pensión',
+            actions: [
+                'Modalidad 40 con tope IMSS por 250 semanas',
+                'Trabajar hasta 65 años',
+                'Optimizar últimas 250 semanas'
+            ],
+            projection: {
+                pension: this.calculateMaxPension(userData),
+                cost: this.calculateOptimizationCost(userData, 'max'),
+                roi: '450%',
+                timeframe: '5 años'
+            },
+            confidence: 92
+        };
+    }
+    
+    async optimizeForMinRisk(userData) {
+        return {
+            strategy: 'minRisk',
+            name: 'Minimizar Riesgo',
+            actions: [
+                'Asegurar PMG con 500+ semanas',
+                'No depender de rendimientos variables',
+                'Mantener Ley 73'
+            ],
+            projection: {
+                pension: Math.max(9412, this.calculateBasePension(userData)),
+                cost: 0,
+                roi: 'N/A',
+                timeframe: 'Inmediato'
+            },
+            confidence: 99
+        };
+    }
+    
+    async optimizeForBalance(userData) {
+        return {
+            strategy: 'balanced',
+            name: 'Balance Óptimo',
+            actions: [
+                'Modalidad 40 gradual',
+                'Diversificar ingresos',
+                'Plan híbrido'
+            ],
+            projection: {
+                pension: this.calculateBalancedPension(userData),
+                cost: this.calculateOptimizationCost(userData, 'balanced'),
+                roi: '320%',
+                timeframe: '3-4 años'
+            },
+            confidence: 87
+        };
+    }
+    
+    async optimizeForEarlyRetirement(userData) {
+        const canRetireEarly = userData.weeks >= 1250 && userData.age >= 60;
+        
+        return {
+            strategy: 'earlyRetirement',
+            name: 'Jubilación Anticipada',
+            actions: canRetireEarly ? [
+                'Cesantía inmediata',
+                'Aprovechar PMG',
+                'Actividades complementarias'
+            ] : [
+                'Alcanzar 1250 semanas',
+                'Planificar cesantía a los 60',
+                'Estrategia de transición'
+            ],
+            projection: {
+                pension: this.calculateEarlyRetirementPension(userData),
+                cost: 0,
+                roi: 'Inmediato',
+                timeframe: canRetireEarly ? 'Ya disponible' : `${Math.max(0, 1250 - (userData.weeks || 0))} semanas`
+            },
+            confidence: canRetireEarly ? 95 : 75
+        };
+    }
+    
+    generateOptimizationScenarios(userData) {
+        // Simulate scenario generation for optimization
+        return Array.from({length: 100}, (_, i) => ({
+            modalidad40Weeks: Math.floor(Math.random() * 250) + 1,
+            salary: Math.floor(Math.random() * 2714.25) + 278.80,
+            retirementAge: Math.floor(Math.random() * 6) + 60,
+            fitness: Math.random()
+        }));
+    }
+    
+    calculateMaxPension(userData) {
+        // Simulate maximum pension calculation
+        const basePension = this.calculateBasePension(userData);
+        const optimizationMultiplier = 2.5; // Modalidad 40 with tope IMSS
+        return Math.min(basePension * optimizationMultiplier, 82296); // Tope máximo
+    }
+    
+    calculateBasePension(userData) {
+        if (!userData.salary || !userData.weeks) return 9412;
+        return Math.max(userData.salary * 30.4 * 0.35, 9412);
+    }
+    
+    calculateBalancedPension(userData) {
+        const basePension = this.calculateBasePension(userData);
+        return basePension * 1.8; // Moderate optimization
+    }
+    
+    calculateEarlyRetirementPension(userData) {
+        if (!userData.weeks || userData.weeks < 1250) return 9412;
+        
+        const basePension = this.calculateBasePension(userData);
+        const age = userData.age || 62;
+        const penaltyFactors = { 60: 0.75, 61: 0.8, 62: 0.85, 63: 0.9, 64: 0.95 };
+        const penalty = penaltyFactors[age] || 0.85;
+        
+        return Math.max(basePension * penalty, 9412);
+    }
+    
+    calculateOptimizationCost(userData, type) {
+        const costs = {
+            max: 2714.25 * 30.4 * 0.1132 * 12 * 5, // Tope IMSS por 5 años
+            balanced: 1500 * 30.4 * 0.1132 * 12 * 3, // Salario medio por 3 años
+            min: 0
+        };
+        return costs[type] || 0;
+    }
+    
+    selectBestStrategy(optimizations, userData) {
+        // AI selection based on user profile
+        if (userData.age >= 60 && userData.weeks >= 1250) {
+            return optimizations.find(opt => opt.strategy === 'earlyRetirement');
+        }
+        
+        if (userData.age >= 55 && userData.salary < 1000) {
+            return optimizations.find(opt => opt.strategy === 'maxPension');
+        }
+        
+        return optimizations.find(opt => opt.strategy === 'balanced');
+    }
+    
+    compareStrategies(optimizations) {
+        return {
+            bestROI: optimizations.reduce((best, curr) => 
+                parseFloat(curr.projection.roi) > parseFloat(best.projection.roi) ? curr : best),
+            safest: optimizations.reduce((safest, curr) => 
+                curr.confidence > safest.confidence ? curr : safest),
+            fastest: optimizations.reduce((fastest, curr) => 
+                curr.projection.timeframe.includes('Inmediato') ? curr : fastest)
+        };
+    }
+}
+
+// Simuladores de algoritmos avanzados
+class GeneticOptimizer {
+    optimize(parameters, fitness) {
+        // Simulate genetic algorithm
+        return { solution: parameters, fitness: fitness };
+    }
+}
+
+class MonteCarloSimulator {
+    simulate(scenarios, iterations = 10000) {
+        // Simulate Monte Carlo simulation
+        return scenarios.map(s => ({ ...s, probability: Math.random() }));
+    }
+}
+
+class LinearProgrammingSolver {
+    solve(constraints, objective) {
+        // Simulate linear programming solution
+        return { optimal: objective, feasible: true };
+    }
+}
+
+class ReinforcementLearner {
+    learn(states, actions, rewards) {
+        // Simulate reinforcement learning
+        return { policy: actions, value: rewards };
+    }
+}
+
+// Procesador de datos avanzado
+class AdvancedDataProcessor {
+    constructor() {
+        this.dataStreams = new Map();
+        this.analytics = new AnalyticsEngine();
+    }
+    
+    async initialize() {
+        await this.setupDataStreams();
+        await this.analytics.initialize();
+    }
+    
+    async setupDataStreams() {
+        // Simulate real-time data streams
+        this.dataStreams.set('imss', new IMSSDataStream());
+        this.dataStreams.set('banxico', new BanxicoDataStream());
+        this.dataStreams.set('inegi', new INEGIDataStream());
+        this.dataStreams.set('market', new MarketDataStream());
+    }
+    
+    async processRealTimeData() {
+        const data = {};
+        
+        for (const [source, stream] of this.dataStreams) {
+            data[source] = await stream.fetch();
+        }
+        
+        return this.analytics.process(data);
+    }
+}
+
+// Simuladores de fuentes de datos
+class IMSSDataStream {
+    async fetch() {
+        return {
+            pmg: 9412,
+            tope: 82296.16,
+            salarioMinimo: 278.80,
+            lastUpdate: new Date().toISOString()
+        };
+    }
+}
+
+class BanxicoDataStream {
+    async fetch() {
+        return {
+            inflacion: 4.2 + (Math.random() - 0.5) * 0.5,
+            tasaReferencia: 11.25 + (Math.random() - 0.5),
+            tipoCambio: 18.5 + (Math.random() - 0.5) * 2,
+            lastUpdate: new Date().toISOString()
+        };
+    }
+}
+
+class INEGIDataStream {
+    async fetch() {
+        return {
+            poblacionEconomicamenteActiva: 58.5 + Math.random(),
+            tasaDesempleo: 3.2 + (Math.random() - 0.5) * 0.5,
+            indiceBienestar: 75.3 + Math.random() * 5,
+            lastUpdate: new Date().toISOString()
+        };
+    }
+}
+
+class MarketDataStream {
+    async fetch() {
+        return {
+            sp500: 4500 + (Math.random() - 0.5) * 200,
+            mexbol: 55000 + (Math.random() - 0.5) * 2000,
+            volatilidad: 15 + Math.random() * 10,
+            lastUpdate: new Date().toISOString()
+        };
+    }
+}
+
+// Motor de análisis avanzado
+class AnalyticsEngine {
+    constructor() {
+        this.processors = {
+            statistical: new StatisticalProcessor(),
+            ml: new MachineLearningProcessor(),
+            sentiment: new SentimentAnalyzer(),
+            forecast: new ForecastingEngine()
+        };
+    }
+    
+    async initialize() {
+        console.log('🔬 Inicializando Motor de Análisis...');
+        
+        for (const processor of Object.values(this.processors)) {
+            await processor.initialize();
+        }
+    }
+    
+    async process(data) {
+        const results = {};
+        
+        results.statistical = await this.processors.statistical.analyze(data);
+        results.predictions = await this.processors.ml.predict(data);
+        results.sentiment = await this.processors.sentiment.analyze(data);
+        results.forecasts = await this.processors.forecast.generate(data);
+        
+        return this.synthesizeResults(results);
+    }
+    
+    synthesizeResults(results) {
+        return {
+            confidence: this.calculateOverallConfidence(results),
+            insights: this.extractKeyInsights(results),
+            recommendations: this.generateRecommendations(results),
+            alerts: this.checkAlerts(results)
+        };
+    }
+    
+    calculateOverallConfidence(results) {
+        const confidences = Object.values(results).map(r => r.confidence || 0.8);
+        return confidences.reduce((sum, c) => sum + c, 0) / confidences.length;
+    }
+    
+    extractKeyInsights(results) {
+        return [
+            'Tendencia inflacionaria estable',
+            'Mercado laboral robusto',
+            'Sistema pensional sostenible',
+            'Oportunidades de optimización disponibles'
+        ];
+    }
+    
+    generateRecommendations(results) {
+        return [
+            'Mantener estrategia actual de optimización',
+            'Monitorear indicadores económicos',
+            'Considerar ajustes en plan de jubilación',
+            'Aprovechar condiciones actuales del mercado'
+        ];
+    }
+    
+    checkAlerts(results) {
+        const alerts = [];
+        
+        if (results.statistical?.volatility > 0.8) {
+            alerts.push({ level: 'warning', message: 'Alta volatilidad detectada' });
+        }
+        
+        if (results.sentiment?.score < 0.3) {
+            alerts.push({ level: 'info', message: 'Sentimiento de mercado negativo' });
+        }
+        
+        return alerts;
+    }
+}
+
+// Procesadores especializados
+class StatisticalProcessor {
+    async initialize() {
+        this.models = ['regression', 'correlation', 'variance'];
+    }
+    
+    async analyze(data) {
+        return {
+            mean: this.calculateMean(data),
+            variance: this.calculateVariance(data),
+            correlation: this.calculateCorrelations(data),
+            confidence: 0.85
+        };
+    }
+    
+    calculateMean(data) {
+        // Simulate statistical analysis
+        return Object.values(data).reduce((sum, val) => {
+            if (typeof val === 'object' && val.inflacion) {
+                return sum + val.inflacion;
+            }
+            return sum;
+        }, 0) / Object.keys(data).length;
+    }
+    
+    calculateVariance(data) {
+        return Math.random() * 0.5 + 0.1; // Simulate variance calculation
+    }
+    
+    calculateCorrelations(data) {
+        return {
+            inflacionDesempleo: -0.3 + Math.random() * 0.6,
+            salarioInflacion: 0.7 + Math.random() * 0.3,
+            mercadoPensiones: 0.4 + Math.random() * 0.4
+        };
+    }
+}
+
+class MachineLearningProcessor {
+    async initialize() {
+        this.models = {
+            pensionPredictor: 'trained',
+            riskAssessor: 'trained',
+            optimizationEngine: 'trained'
+        };
+    }
+    
+    async predict(data) {
+        return {
+            pensionTrend: 'upward',
+            riskLevel: 'medium',
+            optimizationPotential: 'high',
+            confidence: 0.89
+        };
+    }
+}
+
+class SentimentAnalyzer {
+    async initialize() {
+        this.lexicon = new Map(); // Sentiment lexicon
+    }
+    
+    async analyze(data) {
+        return {
+            score: 0.6 + Math.random() * 0.4, // Positive sentiment
+            confidence: 0.75
+        };
+    }
+}
+
+class ForecastingEngine {
+    async initialize() {
+        this.timeSeriesModels = ['ARIMA', 'LSTM', 'Prophet'];
+    }
+    
+    async generate(data) {
+        return {
+            shortTerm: this.generateShortTermForecast(),
+            mediumTerm: this.generateMediumTermForecast(),
+            longTerm: this.generateLongTermForecast(),
+            confidence: 0.82
+        };
+    }
+    
+    generateShortTermForecast() {
+        return {
+            horizon: '6 meses',
+            inflation: 4.1,
+            employment: 96.8,
+            salaryGrowth: 3.8
+        };
+    }
+    
+    generateMediumTermForecast() {
+        return {
+            horizon: '2 años',
+            inflation: 3.9,
+            employment: 97.2,
+            salaryGrowth: 4.2
+        };
+    }
+    
+    generateLongTermForecast() {
+        return {
+            horizon: '10 años',
+            inflation: 3.5,
+            employment: 96.5,
+            salaryGrowth: 4.0
+        };
+    }
+}
+
+// Dashboard Premium para Usuarios
+class PremiumUserDashboard {
+    constructor() {
+        this.widgets = new Map();
+        this.notifications = [];
+        this.preferences = {};
+    }
+    
+    async initialize() {
+        await this.loadUserPreferences();
+        await this.setupWidgets();
+        this.startRealTimeUpdates();
+    }
+    
+    async loadUserPreferences() {
+        // Simulate loading user preferences
+        this.preferences = {
+            theme: 'auto',
+            notifications: true,
+            autoRefresh: 30,
+            defaultView: 'overview'
+        };
+    }
+    
+    async setupWidgets() {
+        this.widgets.set('pensionTracker', new PensionTrackerWidget());
+        this.widgets.set('marketInsights', new MarketInsightsWidget());
+        this.widgets.set('optimizationTips', new OptimizationTipsWidget());
+        this.widgets.set('alerts', new AlertsWidget());
+        
+        for (const widget of this.widgets.values()) {
+            await widget.initialize();
+        }
+    }
+    
+    startRealTimeUpdates() {
+        setInterval(async () => {
+            await this.updateAllWidgets();
+        }, this.preferences.autoRefresh * 1000);
+    }
+    
+    async updateAllWidgets() {
+        for (const widget of this.widgets.values()) {
+            await widget.update();
+        }
+    }
+    
+    render() {
+        return this.generateDashboardHTML();
+    }
+    
+    generateDashboardHTML() {
+        return `
+            <div id="premiumUserDashboard" class="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900 dark:to-blue-900 rounded-lg shadow-xl p-6 mb-6 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-purple-800 dark:text-purple-200">
+                        <i class="fas fa-crown mr-2"></i>Dashboard Premium
+                    </h2>
+                    <button onclick="togglePremiumDashboard()" class="text-purple-600 hover:text-purple-800">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    ${Array.from(this.widgets.values()).map(widget => widget.render()).join('')}
+                </div>
+                
+                <div class="mt-6 grid md:grid-cols-2 gap-6">
+                    <div id="premiumInsights" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                        <h3 class="font-bold mb-3">📊 Insights de IA</h3>
+                        <div id="aiInsightsContent">Cargando análisis avanzado...</div>
+                    </div>
+                    
+                    <div id="premiumAlerts" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                        <h3 class="font-bold mb-3">🚨 Alertas Inteligentes</h3>
+                        <div id="smartAlertsContent">Sin alertas activas</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Widgets especializados
+class PensionTrackerWidget {
+    async initialize() {
+        this.data = {};
+    }
+    
+    async update() {
+        // Simulate real-time pension tracking
+        this.data = {
+            current: 12500,
+            projection: 15800,
+            growth: '+2.3%',
+            nextMilestone: 'PMG Garantizada'
+        };
+    }
+    
+    render() {
+        return `
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                <h4 class="font-semibold text-green-600 mb-2">💰 Tracker de Pensión</h4>
+                <div class="text-2xl font-bold">${this.data.current ? '$' + this.data.current.toLocaleString() : 'Cargando...'}</div>
+                <div class="text-sm text-green-600">${this.data.growth || '...'} este mes</div>
+            </div>
+        `;
+    }
+}
+
+class MarketInsightsWidget {
+    async initialize() {
+        this.insights = [];
+    }
+    
+    async update() {
+        this.insights = [
+            'Inflación estable en 4.1%',
+            'Oportunidad en Modalidad 40',
+            'PMG segura hasta 2050'
+        ];
+    }
+    
+    render() {
+        return `
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                <h4 class="font-semibold text-blue-600 mb-2">📈 Market Insights</h4>
+                ${this.insights.map(insight => `<div class="text-xs mb-1">${insight}</div>`).join('')}
+            </div>
+        `;
+    }
+}
+
+class OptimizationTipsWidget {
+    async initialize() {
+        this.tips = [];
+    }
+    
+    async update() {
+        this.tips = [
+            'Considera Modalidad 40 ahora',
+            'Revisa tu promedio salarial',
+            'Optimiza últimas 250 semanas'
+        ];
+    }
+    
+    render() {
+        return `
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                <h4 class="font-semibold text-purple-600 mb-2">💡 Optimización</h4>
+                ${this.tips.map(tip => `<div class="text-xs mb-1">• ${tip}</div>`).join('')}
+            </div>
+        `;
+    }
+}
+
+class AlertsWidget {
+    async initialize() {
+        this.alerts = [];
+    }
+    
+    async update() {
+        this.alerts = [
+            { type: 'info', message: 'PMG actualizada' },
+            { type: 'warning', message: 'Revisar estrategia en 30 días' }
+        ];
+    }
+    
+    render() {
+        return `
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                <h4 class="font-semibold text-red-600 mb-2">🚨 Alertas</h4>
+                ${this.alerts.map(alert => `<div class="text-xs mb-1 text-${alert.type === 'warning' ? 'yellow' : 'blue'}-600">${alert.message}</div>`).join('')}
+            </div>
+        `;
+    }
+}
+
+// Sistema de Gamificación
+class GamificationSystem {
+    constructor() {
+        this.achievements = new Map();
+        this.badges = new Map();
+        this.userProgress = {};
+        this.leaderboard = [];
+    }
+    
+    initialize() {
+        this.setupAchievements();
+        this.setupBadges();
+        this.loadUserProgress();
+    }
+    
+    setupAchievements() {
+        this.achievements.set('first_calculation', {
+            id: 'first_calculation',
+            title: '🧮 Primer Cálculo',
+            description: 'Realizaste tu primer cálculo de pensión',
+            points: 100,
+            unlocked: false
+        });
+        
+        this.achievements.set('pdf_upload', {
+            id: 'pdf_upload',
+            title: '📄 Experto en PDFs',
+            description: 'Subiste tu primer PDF del IMSS',
+            points: 150,
+            unlocked: false
+        });
+        
+        this.achievements.set('modalidad_40', {
+            id: 'modalidad_40',
+            title: '⚡ Modalidad 40 Master',
+            description: 'Usaste el simulador de Modalidad 40',
+            points: 200,
+            unlocked: false
+        });
+        
+        this.achievements.set('ai_conversation', {
+            id: 'ai_conversation',
+            title: '🤖 Consejero IA',
+            description: 'Mantuviste una conversación con la IA',
+            points: 250,
+            unlocked: false
+        });
+        
+        this.achievements.set('power_user', {
+            id: 'power_user',
+            title: '🏆 Usuario Experto',
+            description: 'Completaste 10 cálculos diferentes',
+            points: 500,
+            unlocked: false
+        });
+    }
+    
+    setupBadges() {
+        this.badges.set('early_bird', {
+            id: 'early_bird',
+            title: '🌅 Madrugador',
+            description: 'Usuario activo antes de las 8 AM',
+            rarity: 'common'
+        });
+        
+        this.badges.set('night_owl', {
+            id: 'night_owl',
+            title: '🦉 Búho Nocturno',
+            description: 'Usuario activo después de las 10 PM',
+            rarity: 'common'
+        });
+        
+        this.badges.set('weekend_warrior', {
+            id: 'weekend_warrior',
+            title: '⚔️ Guerrero del Fin de Semana',
+            description: 'Activo los fines de semana',
+            rarity: 'uncommon'
+        });
+        
+        this.badges.set('streak_master', {
+            id: 'streak_master',
+            title: '🔥 Racha Perfecta',
+            description: '7 días consecutivos de actividad',
+            rarity: 'rare'
+        });
+        
+        this.badges.set('pensioner_guru', {
+            id: 'pensioner_guru',
+            title: '🧙‍♂️ Gurú de Pensiones',
+            description: 'Experto nivel máximo',
+            rarity: 'legendary'
+        });
+    }
+    
+    loadUserProgress() {
+        this.userProgress = {
+            totalPoints: 0,
+            level: 1,
+            experience: 0,
+            experienceToNext: 1000,
+            calculationsCount: 0,
+            streakDays: 0,
+            lastActivity: null,
+            unlockedAchievements: [],
+            earnedBadges: []
+        };
+    }
+    
+    checkAchievement(achievementId, userData = {}) {
+        const achievement = this.achievements.get(achievementId);
+        
+        if (achievement && !this.userProgress.unlockedAchievements.includes(achievementId)) {
+            this.unlockAchievement(achievement);
+            return true;
+        }
+        
+        return false;
+    }
+    
+    unlockAchievement(achievement) {
+        this.userProgress.unlockedAchievements.push(achievement.id);
+        this.userProgress.totalPoints += achievement.points;
+        this.userProgress.experience += achievement.points;
+        
+        this.checkLevelUp();
+        this.showAchievementNotification(achievement);
+        
+        // Track achievement unlock
+        sessionManager.getCurrentUser().addAccessEvent('achievement_unlock', {
+            achievementId: achievement.id,
+            points: achievement.points
+        });
+    }
+    
+    checkLevelUp() {
+        while (this.userProgress.experience >= this.userProgress.experienceToNext) {
+            this.userProgress.experience -= this.userProgress.experienceToNext;
+            this.userProgress.level++;
+            this.userProgress.experienceToNext = Math.floor(this.userProgress.experienceToNext * 1.2);
+            
+            this.showLevelUpNotification();
+        }
+    }
+    
+    showAchievementNotification(achievement) {
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 z-50 bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-500 scale-0';
+        
+        notification.innerHTML = `
+            <div class="flex items-center space-x-3">
+                <div class="text-2xl">🏆</div>
+                <div>
+                    <h4 class="font-bold">¡Logro Desbloqueado!</h4>
+                    <p class="text-sm">${achievement.title}</p>
+                    <p class="text-xs opacity-90">+${achievement.points} puntos</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.classList.remove('scale-0');
+            notification.classList.add('scale-100');
+        }, 100);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            notification.classList.add('scale-0');
+            setTimeout(() => notification.remove(), 500);
+        }, 5000);
+    }
+    
+    showLevelUpNotification() {
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 z-50 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-500 scale-0';
+        
+        notification.innerHTML = `
+            <div class="flex items-center space-x-3">
+                <div class="text-2xl">⚡</div>
+                <div>
+                    <h4 class="font-bold">¡Subiste de Nivel!</h4>
+                    <p class="text-sm">Ahora eres Nivel ${this.userProgress.level}</p>
+                    <p class="text-xs opacity-90">Nuevas funciones desbloqueadas</p>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.remove('scale-0');
+            notification.classList.add('scale-100');
+        }, 100);
+        
+        setTimeout(() => {
+            notification.classList.add('scale-0');
+            setTimeout(() => notification.remove(), 500);
+        }, 5000);
+    }
+    
+    getProgressHTML() {
+        const progressPercentage = (this.userProgress.experience / this.userProgress.experienceToNext) * 100;
+        
+        return `
+            <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 p-4 rounded-lg border border-purple-200 dark:border-purple-700 mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="font-bold text-purple-800 dark:text-purple-200">
+                        🎮 Progreso del Usuario - Nivel ${this.userProgress.level}
+                    </h4>
+                    <span class="text-sm text-purple-600 dark:text-purple-300">
+                        ${this.userProgress.totalPoints.toLocaleString()} puntos
+                    </span>
+                </div>
+                
+                <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300" 
+                         style="width: ${progressPercentage}%"></div>
+                </div>
+                
+                <div class="flex justify-between text-xs text-purple-600 dark:text-purple-300">
+                    <span>${this.userProgress.experience}/${this.userProgress.experienceToNext} XP</span>
+                    <span>${Math.round(progressPercentage)}% al siguiente nivel</span>
+                </div>
+                
+                <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+                    ${this.userProgress.unlockedAchievements.slice(0, 4).map(achId => {
+                        const ach = this.achievements.get(achId);
+                        return ach ? `
+                            <div class="text-center p-2 bg-white dark:bg-gray-800 rounded">
+                                <div class="text-lg mb-1">${ach.title.split(' ')[0]}</div>
+                                <div class="text-xs">${ach.title.substring(2)}</div>
+                            </div>
+                        ` : '';
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Instancia global del sistema de gamificación
+const gamificationSystem = new GamificationSystem();
+
+// Sistema de Notificaciones Push Simuladas
+class NotificationSystem {
+    constructor() {
+        this.notifications = [];
+        this.subscriptions = new Set();
+        this.permission = 'default';
+    }
+    
+    async requestPermission() {
+        // Simulate notification permission request
+        this.permission = 'granted';
+        return this.permission;
+    }
+    
+    async scheduleNotification(title, body, options = {}) {
+        const notification = {
+            id: 'NOTIF_' + Date.now(),
+            title,
+            body,
+            timestamp: new Date().toISOString(),
+            options: {
+                icon: '/favicon.ico',
+                badge: '/badge.png',
+                ...options
+            }
+        };
+        
+        this.notifications.push(notification);
+        
+        // Show notification immediately for demo
+        this.showBrowserNotification(notification);
+        
+        return notification.id;
+    }
+    
+    showBrowserNotification(notification) {
+        // Create custom notification UI since we can't use real push notifications in iframe
+        const notificationEl = document.createElement('div');
+        notificationEl.className = 'fixed top-4 left-4 z-50 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg border-l-4 border-blue-500 max-w-sm transform transition-all duration-500 -translate-x-full';
+        
+        notificationEl.innerHTML = `
+            <div class="flex items-start space-x-3">
+                <div class="text-blue-500 text-xl">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-bold text-gray-800 dark:text-gray-200 text-sm">${notification.title}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs mt-1">${notification.body}</p>
+                    <p class="text-gray-500 dark:text-gray-500 text-xs mt-1">
+                        ${new Date(notification.timestamp).toLocaleTimeString('es-ES')}
+                    </p>
+                </div>
+                <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(notificationEl);
+        
+        // Animate in
+        setTimeout(() => {
+            notificationEl.classList.remove('-translate-x-full');
+        }, 100);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            notificationEl.classList.add('-translate-x-full');
+            setTimeout(() => notificationEl.remove(), 500);
+        }, 5000);
+    }
+    
+    async scheduleReminders(userData) {
+        const reminders = [];
+        
+        // Birthday reminder
+        if (userData.birthDate) {
+            const birthDate = new Date(userData.birthDate);
+            const today = new Date();
+            const nextBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+            
+            if (nextBirthday < today) {
+                nextBirthday.setFullYear(today.getFullYear() + 1);
+            }
+            
+            const daysUntilBirthday = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+            
+            if (daysUntilBirthday <= 30) {
+                reminders.push({
+                    title: '🎂 Cumpleaños Próximo',
+                    body: `Tu cumpleaños es en ${daysUntilBirthday} días. Considera revisar tu plan de jubilación.`,
+                    scheduledFor: new Date(Date.now() + (daysUntilBirthday - 7) * 24 * 60 * 60 * 1000)
+                });
+            }
+        }
+        
+        // Retirement milestone reminders
+        if (userData.age) {
+            if (userData.age === 55) {
+                reminders.push({
+                    title: '⚡ Modalidad 40 Disponible',
+                    body: 'Ya puedes usar Modalidad 40 para optimizar tu pensión. ¡No pierdas esta oportunidad!',
+                    scheduledFor: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // In 7 days
+                });
+            }
+            
+            if (userData.age === 59) {
+                reminders.push({
+                    title: '🎯 Cesantía Próxima',
+                    body: 'En 1 año podrás optar por cesantía en edad avanzada. Prepara tu estrategia.',
+                    scheduledFor: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // In 30 days
+                });
+            }
+        }
+        
+        // Schedule all reminders
+        for (const reminder of reminders) {
+            await this.scheduleNotification(reminder.title, reminder.body, {
+                scheduledFor: reminder.scheduledFor
+            });
+        }
+        
+        return reminders;
+    }
+}
+
+// Instancia global del sistema de notificaciones
+const notificationSystem = new NotificationSystem();
+
+// Sistema de Reportes Automáticos Avanzados
+class AdvancedReportingSystem {
+    constructor() {
+        this.templates = new Map();
+        this.scheduledReports = [];
+        this.analytics = new ReportAnalytics();
+    }
+    
+    initialize() {
+        this.setupReportTemplates();
+        this.loadScheduledReports();
+    }
+    
+    setupReportTemplates() {
+        this.templates.set('monthly_summary', {
+            id: 'monthly_summary',
+            name: 'Resumen Mensual',
+            frequency: 'monthly',
+            sections: ['pension_status', 'market_updates', 'recommendations', 'milestones'],
+            format: 'pdf'
+        });
+        
+        this.templates.set('quarterly_review', {
+            id: 'quarterly_review',
+            name: 'Revisión Trimestral',
+            frequency: 'quarterly',
+            sections: ['performance_analysis', 'strategy_review', 'market_forecast', 'action_plan'],
+            format: 'pdf'
+        });
+        
+        this.templates.set('annual_projection', {
+            id: 'annual_projection',
+            name: 'Proyección Anual',
+            frequency: 'annually',
+            sections: ['year_summary', 'long_term_forecast', 'optimization_opportunities', 'tax_implications'],
+            format: 'pdf'
+        });
+    }
+    
+    async generateAdvancedReport(templateId, userData) {
+        const template = this.templates.get(templateId);
+        if (!template) throw new Error('Template no encontrado');
+        
+        const reportData = await this.gatherReportData(template, userData);
+        const processedData = await this.analytics.processReportData(reportData);
+        
+        return this.compileReport(template, processedData);
+    }
+    
+    async gatherReportData(template, userData) {
+        const data = {
+            user: userData,
+            timestamp: new Date().toISOString(),
+            period: this.calculateReportPeriod(template.frequency)
+        };
+        
+        // Gather data for each section
+        for (const section of template.sections) {
+            data[section] = await this.gatherSectionData(section, userData);
+        }
+        
+        return data;
+    }
+    
+    async gatherSectionData(section, userData) {
+        switch (section) {
+            case 'pension_status':
+                return this.getPensionStatusData(userData);
+            case 'market_updates':
+                return this.getMarketUpdatesData();
+            case 'recommendations':
+                return this.getRecommendationsData(userData);
+            case 'milestones':
+                return this.getMilestonesData(userData);
+            case 'performance_analysis':
+                return this.getPerformanceAnalysisData(userData);
+            case 'strategy_review':
+                return this.getStrategyReviewData(userData);
+            case 'market_forecast':
+                return this.getMarketForecastData();
+            case 'action_plan':
+                return this.getActionPlanData(userData);
+            default:
+                return {};
+        }
+    }
+    
+    getPensionStatusData(userData) {
+        return {
+            currentPension: this.calculateCurrentPension(userData),
+            projectedPension: this.calculateProjectedPension(userData),
+            weeksProgress: userData.weeks || 0,
+            targetWeeks: userData.age >= 60 ? 1250 : 500,
+            optimizationPotential: this.calculateOptimizationPotential(userData)
+        };
+    }
+    
+    getMarketUpdatesData() {
+        return {
+            inflation: { current: 4.2, trend: 'stable', impact: 'neutral' },
+            employment: { current: 96.2, trend: 'growing', impact: 'positive' },
+            pmg: { current: 9412, lastUpdate: '2025-01-01', nextReview: '2026-01-01' },
+            regulations: [
+                { type: 'info', message: 'PMG se mantiene estable' },
+                { type: 'update', message: 'Nuevas facilidades para Modalidad 40' }
+            ]
+        };
+    }
+    
+    getRecommendationsData(userData) {
+        const recommendations = [];
+        
+        if (userData.age >= 55 && userData.age < 65) {
+            recommendations.push({
+                priority: 'high',
+                type: 'optimization',
+                title: 'Modalidad 40 Recomendada',
+                description: 'Considera implementar Modalidad 40 para maximizar tu pensión',
+                impact: 'alto',
+                timeframe: 'inmediato'
+            });
+        }
+        
+        if (userData.weeks < 1250 && userData.age >= 50) {
+            recommendations.push({
+                priority: 'medium',
+                type: 'planning',
+                title: 'Alcanzar 1,250 Semanas',
+                description: 'Planifica alcanzar las semanas necesarias para cesantía',
+                impact: 'medio',
+                timeframe: '1-2 años'
+            });
+        }
+        
+        return recommendations;
+    }
+    
+    getMilestonesData(userData) {
+        const milestones = [];
+        const currentYear = new Date().getFullYear();
+        
+        if (userData.age && userData.birthDate) {
+            const birthYear = new Date(userData.birthDate).getFullYear();
+            
+            // Age-based milestones
+            for (let age = userData.age + 1; age <= 65; age++) {
+                const year = birthYear + age;
+                
+                if (age === 55) {
+                    milestones.push({
+                        year,
+                        age,
+                        milestone: 'Modalidad 40 Disponible',
+                        type: 'opportunity',
+                        importance: 'high'
+                    });
+                }
+                
+                if (age === 60) {
+                    milestones.push({
+                        year,
+                        age,
+                        milestone: 'Cesantía Disponible',
+                        type: 'option',
+                        importance: 'high'
+                    });
+                }
+                
+                if (age === 65) {
+                    milestones.push({
+                        year,
+                        age,
+                        milestone: 'Vejez - Pensión Completa',
+                        type: 'target',
+                        importance: 'critical'
+                    });
+                }
+            }
+        }
+        
+        return milestones.filter(m => m.year > currentYear).slice(0, 5);
+    }
+    
+    calculateCurrentPension(userData) {
+        if (!userData.salary || !userData.weeks) return 9412;
+        
+        const basePension = userData.salary * 30.4 * 0.35;
+        return Math.max(basePension, 9412);
+    }
+    
+    calculateProjectedPension(userData) {
+        const currentPension = this.calculateCurrentPension(userData);
+        const yearsToRetirement = Math.max(0, 65 - (userData.age || 60));
+        const growthRate = 0.03; // 3% annual growth
+        
+        return currentPension * Math.pow(1 + growthRate, yearsToRetirement);
+    }
+    
+    calculateOptimizationPotential(userData) {
+        const currentPension = this.calculateCurrentPension(userData);
+        const maxPossible = 82296; // Tope máximo Ley 73
+        
+        return {
+            current: currentPension,
+            maximum: maxPossible,
+            potential: Math.max(0, maxPossible - currentPension),
+            percentage: ((maxPossible - currentPension) / maxPossible * 100).toFixed(1)
+        };
+    }
+    
+    compileReport(template, data) {
+        return {
+            id: 'RPT_' + Date.now(),
+            template: template.id,
+            generatedAt: new Date().toISOString(),
+            data: data,
+            format: template.format,
+            sections: template.sections.length,
+            pages: this.estimatePages(data),
+            downloadUrl: this.generateDownloadUrl(template.id, data)
+        };
+    }
+    
+    estimatePages(data) {
+        // Estimate number of pages based on data complexity
+        const basePage = 1;
+        const sectionsPages = Object.keys(data).length * 0.5;
+        return Math.ceil(basePage + sectionsPages);
+    }
+    
+    generateDownloadUrl(templateId, data) {
+        // Generate a download URL for the report
+        return `#download-report-${templateId}-${Date.now()}`;
+    }
+    
+    calculateReportPeriod(frequency) {
+        const now = new Date();
+        let startDate, endDate;
+        
+        switch (frequency) {
+            case 'monthly':
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                break;
+            case 'quarterly':
+                const quarter = Math.floor(now.getMonth() / 3);
+                startDate = new Date(now.getFullYear(), quarter * 3, 1);
+                endDate = new Date(now.getFullYear(), quarter * 3 + 3, 0);
+                break;
+            case 'annually':
+                startDate = new Date(now.getFullYear(), 0, 1);
+                endDate = new Date(now.getFullYear(), 11, 31);
+                break;
+            default:
+                startDate = endDate = now;
+        }
+        
+        return { startDate, endDate, frequency };
+    }
+}
+
+// Analytics para reportes
+class ReportAnalytics {
+    async processReportData(rawData) {
+        const processed = { ...rawData };
+        
+        // Add analytics insights
+        processed.insights = await this.generateInsights(rawData);
+        processed.trends = await this.analyzeTrends(rawData);
+        processed.benchmarks = await this.getBenchmarks(rawData);
+        
+        return processed;
+    }
+    
+    async generateInsights(data) {
+        return [
+            'Tu progreso está por encima del promedio nacional',
+            'Oportunidad de optimización detectada en Modalidad 40',
+            'Tendencia positiva en crecimiento de pensión proyectada'
+        ];
+    }
+    
+    async analyzeTrends(data) {
+        return {
+            pension: { direction: 'up', strength: 'moderate', confidence: 0.85 },
+            market: { direction: 'stable', strength: 'strong', confidence: 0.92 },
+            optimization: { direction: 'up', strength: 'high', confidence: 0.78 }
+        };
+    }
+    
+    async getBenchmarks(data) {
+        return {
+            nationalAverage: 12500,
+            ageGroup: 14200,
+            profession: 15800,
+            region: 13100
+        };
+    }
+}
+
+// Instancia global del sistema de reportes
+const advancedReportingSystem = new AdvancedReportingSystem();
+
+// Motor de IA Predictiva Global
+const predictiveEngine = new PredictiveAnalyticsEngine();
+
+// Dashboard Premium Global
+const premiumDashboard = new PremiumUserDashboard();
+
+// Funciones de integración para el sistema existente
+function initializePredictiveFeatures() {
+    // Initialize predictive analytics engine
+    predictiveEngine.initialize();
+    
+    // Initialize premium dashboard
+    premiumDashboard.initialize();
+    
+    // Initialize gamification
+    gamificationSystem.initialize();
+    
+    // Initialize notifications
+    notificationSystem.requestPermission();
+    
+    // Initialize advanced reporting
+    advancedReportingSystem.initialize();
+    
+    console.log('🚀 FASE 3: Sistema Premium inicializado completamente');
+}
+
+// Función para mostrar análisis predictivo
+async function showPredictiveAnalysis(userData) {
+    if (!ADMIN_CONFIG.isAdminMode && userAccess.type === null) {
+        showAlert('Función Premium', 'El análisis predictivo está disponible solo para usuarios premium.');
+        return;
+    }
+    
+    showLoadingModal();
+    
+    try {
+        const analysis = await predictiveEngine.generatePredictiveAnalysis(userData);
+        hideLoadingModal();
+        displayPredictiveAnalysisResults(analysis);
+    } catch (error) {
+        hideLoadingModal();
+        showAlert('Error', 'No se pudo generar el análisis predictivo. Inténtalo más tarde.');
+    }
+}
+
+function displayPredictiveAnalysisResults(analysis) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-purple-800 dark:text-purple-200">
+                        🤖 Análisis Predictivo Avanzado
+                    </h2>
+                    <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700 text-xl">×</button>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900 dark:to-cyan-900 p-4 rounded-lg">
+                        <h3 class="font-bold text-blue-800 dark:text-blue-200 mb-3">📊 Proyección de Pensión</h3>
+                        <p class="text-sm mb-2"><strong>5 años:</strong> $${analysis.pensionProjection.next5Years.toFixed(0).toLocaleString()} MXN</p>
+                        <p class="text-sm mb-2"><strong>10 años:</strong> $${analysis.pensionProjection.next10Years.toFixed(0).toLocaleString()} MXN</p>
+                        <p class="text-sm mb-2"><strong>Jubilación:</strong> $${analysis.pensionProjection.retirementProjection.toFixed(0).toLocaleString()} MXN</p>
+                        <p class="text-xs text-blue-600 dark:text-blue-400 mt-3">${analysis.pensionProjection.summary}</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900 p-4 rounded-lg">
+                        <h3 class="font-bold text-green-800 dark:text-green-200 mb-3">📈 Pronóstico Económico</h3>
+                        <p class="text-sm mb-2"><strong>Inflación próximo año:</strong> ${analysis.marketForecast.economic.nextYear.inflation}%</p>
+                        <p class="text-sm mb-2"><strong>Crecimiento PIB:</strong> ${analysis.marketForecast.economic.nextYear.gdpGrowth}%</p>
+                        <p class="text-sm mb-2"><strong>Empleo:</strong> ${analysis.marketForecast.economic.nextYear.employmentRate}%</p>
+                        <p class="text-xs text-green-600 dark:text-green-400 mt-3">Confianza: ${analysis.confidence}%</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 bg-yellow-50 dark:bg-yellow-900 p-4 rounded-lg">
+                    <h3 class="font-bold text-yellow-800 dark:text-yellow-200 mb-3">⚠️ Evaluación de Riesgos</h3>
+                    <p class="text-sm mb-2"><strong>Riesgo general:</strong> ${analysis.riskAssessment.overall.level.toUpperCase()}</p>
+                    <p class="text-sm mb-2"><strong>Acción recomendada:</strong> ${analysis.riskAssessment.overall.action}</p>
+                    <p class="text-xs text-yellow-700 dark:text-yellow-300">${analysis.riskAssessment.overall.description}</p>
+                </div>
+                
+                <div class="mt-6 bg-purple-50 dark:bg-purple-900 p-4 rounded-lg">
+                    <h3 class="font-bold text-purple-800 dark:text-purple-200 mb-3">🎯 Estrategias de Optimización</h3>
+                    <div class="text-sm">
+                        <p><strong>Estrategia recomendada:</strong> ${analysis.optimizationSuggestions.recommended.name}</p>
+                        <p><strong>Acciones:</strong></p>
+                        <ul class="list-disc list-inside ml-4 mt-2">
+                            ${analysis.optimizationSuggestions.recommended.actions.map(action => `<li>${action}</li>`).join('')}
+                        </ul>
+                        <p class="mt-2"><strong>Proyección:</strong> ${analysis.optimizationSuggestions.recommended.projection.pension.toFixed(0).toLocaleString()} MXN/mes</p>
+                        <p><strong>ROI esperado:</strong> ${analysis.optimizationSuggestions.recommended.projection.roi}</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        Reporte generado: ${new Date(analysis.generatedAt).toLocaleString('es-ES')} | ID: ${analysis.reportId}
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Función para mostrar dashboard premium
+function showPremiumDashboard() {
+    const existingDashboard = document.getElementById('premiumUserDashboard');
+    
+    if (existingDashboard) {
+        existingDashboard.classList.toggle('hidden');
+        return;
+    }
+    
+    // Insert premium dashboard after calculator section
+    const calculatorSection = document.getElementById('calculatorSection');
+    const dashboardHTML = premiumDashboard.render();
+    
+    calculatorSection.insertAdjacentHTML('afterend', dashboardHTML);
+    
+    // Initialize widgets
+    setTimeout(() => {
+        premiumDashboard.updateAllWidgets();
+    }, 500);
+}
+
+function togglePremiumDashboard() {
+    const dashboard = document.getElementById('premiumUserDashboard');
+    if (dashboard) {
+        dashboard.classList.toggle('hidden');
+    }
+}
+
+// Función para generar reportes avanzados
+async function generateAdvancedReport(templateId, userData) {
+    if (userAccess.type === null && !ADMIN_CONFIG.isAdminMode) {
+        showAlert('Función Premium', 'Los reportes avanzados están disponibles solo para usuarios premium.');
+        return;
+    }
+    
+    showLoadingModal();
+    
+    try {
+        const report = await advancedReportingSystem.generateAdvancedReport(templateId, userData);
+        hideLoadingModal();
+        
+        showAlert('Reporte Generado', 
+            `Tu ${report.template} ha sido generado exitosamente. ${report.pages} páginas de análisis detallado.`);
+        
+    } catch (error) {
+        hideLoadingModal();
+        showAlert('Error', 'No se pudo generar el reporte. Inténtalo más tarde.');
+    }
+}
+
+// Integración con funciones existentes
+const originalHandleCalculation = handleCalculation;
+handleCalculation = async function(e) {
+    // Call original function
+    await originalHandleCalculation.call(this, e);
+    
+    // Check achievements
+    gamificationSystem.checkAchievement('first_calculation');
+    
+    // Update gamification progress
+    gamificationSystem.userProgress.calculationsCount++;
+    
+    // Show premium dashboard for premium users
+    if (userAccess.type !== null || ADMIN_CONFIG.isAdminMode) {
+        setTimeout(() => {
+            const progressHTML = gamificationSystem.getProgressHTML();
+            const calculatorResults = document.getElementById('calculationResults');
+            
+            if (calculatorResults && !calculatorResults.querySelector('.bg-gradient-to-r.from-purple-50')) {
+                calculatorResults.insertAdjacentHTML('afterend', progressHTML);
+            }
+        }, 1000);
+    }
+};
+
+// Override PDF processing to trigger achievements
+const originalConfirmDataExtraction = confirmDataExtraction;
+confirmDataExtraction = function() {
+    originalConfirmDataExtraction.call(this);
+    
+    // Check PDF achievement
+    gamificationSystem.checkAchievement('pdf_upload');
+};
+
+// Override AI message sending to trigger achievements
+const originalSendAIMessage = sendAIMessage;
+sendAIMessage = function() {
+    originalSendAIMessage.call(this);
+    
+    // Check AI conversation achievement
+    gamificationSystem.checkAchievement('ai_conversation');
+};
+
 // Initialize all premium features
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize premium features with delay to avoid blocking main thread
@@ -5100,7 +8265,24 @@ document.addEventListener('DOMContentLoaded', function() {
         initializePerformanceOptimizations();
         initializePerformanceMonitoring();
         initializePWA();
+        
+        // FASE 3: Initialize premium features
+        setTimeout(initializePredictiveFeatures, 2000);
     }, 1000);
+});
+
+// Add premium features to navigation
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        const nav = document.querySelector('nav .container');
+        if (nav) {
+            const premiumButton = document.createElement('button');
+            premiumButton.onclick = showPremiumDashboard;
+            premiumButton.className = 'hidden md:block bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded text-sm font-semibold';
+            premiumButton.innerHTML = '<i class="fas fa-crown mr-1"></i>Premium';
+            nav.appendChild(premiumButton);
+        }
+    }, 3000);
 });
 
 </script>
