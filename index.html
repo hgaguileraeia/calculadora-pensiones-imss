@@ -223,7 +223,8 @@
         </div>
         <div class="flex items-center space-x-4">
             <span class="text-sm">📊 Valores Oficiales 2025</span>
-            <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded">Build 2025.65</span>
+            <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded">Build 2025.67</span>
+            <span class="text-xs bg-white bg-opacity-10 px-2 py-1 rounded">Vigente hasta: 31/Dic/2025</span>
         </div>
     </div>
 </nav>
@@ -3204,6 +3205,32 @@ function applyDiscount() {
     if (discountCodes[code]) {
         const codeData = discountCodes[code];
         const now = new Date();
+        
+        // VERIFICAR SI EL CÓDIGO YA FUE USADO Y AÚN ESTÁ ACTIVO
+        if (typeof codeData === 'object' && (codeData.acceso === 'gratuito' || codeData.acceso === 'admin')) {
+            // Verificar si ya tiene acceso activo de este tipo
+            if (userAccess.type === 'tiempo' && userAccess.expiry && userAccess.activatedAt) {
+                const expiryDate = new Date(userAccess.expiry);
+                const activatedDate = new Date(userAccess.activatedAt);
+                
+                if (expiryDate > now) {
+                    // Ya tiene acceso activo - mostrar tiempo restante
+                    const diasRestantes = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+                    
+                    document.getElementById('discountInfo').innerHTML = `
+                        ✅ <strong>Código Ya Activo</strong>: ${codeData.nombre}<br>
+                        ⏰ <strong>Tiempo restante:</strong> ${diasRestantes} días<br>
+                        📅 <strong>Expira:</strong> ${expiryDate.toLocaleString('es-ES')}<br>
+                        🎯 <strong>Activado:</strong> ${activatedDate.toLocaleString('es-ES')}<br>
+                        <small>💡 Tu acceso sigue activo, no necesitas reactivar el código</small>
+                    `;
+                    document.getElementById('discountInfo').classList.remove('hidden');
+                    showAlert('Código Ya Activo', 
+                        `Tu código ${code} sigue activo. Te quedan ${diasRestantes} días de acceso.`);
+                    return;
+                }
+            }
+        }
         
         // Marcar código como usado ANTES de procesarlo
         usedCodes.set(userCodeKey, {
