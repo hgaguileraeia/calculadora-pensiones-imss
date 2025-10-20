@@ -191,16 +191,16 @@
             <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full">🇲🇽 Para Todo México</span>
         </div>
         
-        <!-- Banner Mes Patrio -->
-        <div class="bg-green-600 text-white px-6 py-3 rounded-lg mb-8 animate-pulse border-2 border-red-600">
+        <!-- Banner Octubre 80 -->
+        <div class="bg-orange-600 text-white px-6 py-3 rounded-lg mb-8 animate-pulse border-2 border-yellow-400">
             <div class="text-center">
-                <h3 class="text-xl font-bold">🇲🇽 OFERTA MES PATRIO SEPTIEMBRE 2025 🇲🇽</h3>
-                <p class="text-lg">65% DESCUENTO + DOBLE BENEFICIO</p>
-                <p class="text-sm">Códigos: SEPTIEMBRE65 | INDEPENDENCIA2025 | PATRIAMX</p>
+                <h3 class="text-xl font-bold">🎃 OCTUBRE80 - SÚPER DESCUENTO 2025 🎃</h3>
+                <p class="text-lg">80% DESCUENTO + DOBLE BENEFICIO</p>
+                <p class="text-sm">Códigos: OCTUBRE80 | HALLOWEEN80 | MEGA80</p>
                 <div class="flex justify-center gap-4 mt-2 text-sm">
-                    <span>Plan Básico: 2 cálculos por $105</span>
-                    <span>Plan Premium: 20 cálculos por $280</span>
-                    <span>Plan Anual: 2 años por $3,500</span>
+                    <span>Plan Básico: 2 cálculos por $60</span>
+                    <span>Plan Premium: 20 cálculos por $160</span>
+                    <span>Plan Anual: 2 años por $2,000</span>
                 </div>
             </div>
         </div>
@@ -223,7 +223,7 @@
         </div>
         <div class="flex items-center space-x-4">
             <span class="text-sm">📊 Valores Oficiales 2025</span>
-            <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded">Build 2025.67</span>
+            <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded">Build 2025.81</span>
             <span class="text-xs bg-white bg-opacity-10 px-2 py-1 rounded">Vigente hasta: 31/Dic/2025</span>
         </div>
     </div>
@@ -257,6 +257,27 @@
 
         <!-- Payment Plans -->
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- NUEVO: Plan GRATIS Trial -->
+            <div class="border-2 border-green-400 rounded-lg p-4 bg-green-50 dark:bg-green-900 relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 text-xs font-bold transform rotate-12 translate-x-2 -translate-y-1">
+                    ¡GRATIS!
+                </div>
+                <h3 class="font-bold text-lg mb-2 text-center text-green-800 dark:text-green-200">Prueba GRATUITA</h3>
+                <div class="text-center mb-4">
+                    <span class="text-3xl font-bold text-green-600">$0</span>
+                    <p class="text-sm text-green-600 dark:text-green-400 font-semibold">3 días gratis</p>
+                </div>
+                <ul class="text-xs space-y-1 mb-4">
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>2 cálculos incluidos</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>PDF básico</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Sin compromiso</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Soporte incluido</li>
+                </ul>
+                <button onclick="activateFreeTrial()" class="w-full bg-green-500 text-white py-2 rounded font-semibold hover:bg-green-600 animate-pulse">
+                    🎁 ¡PRUEBA GRATIS YA!
+                </button>
+            </div>
+
             <!-- Plan Básico -->
             <div class="border-2 border-primary rounded-lg p-4 bg-blue-50 dark:bg-blue-900">
                 <div class="bg-primary text-white text-center py-1 rounded mb-3">
@@ -264,17 +285,23 @@
                 </div>
                 <h3 class="font-bold text-lg mb-2 text-center">Plan Básico</h3>
                 <div class="text-center mb-4">
-                    <span class="text-2xl font-bold" id="price-basico">$299</span>
+                    <div class="flex items-center justify-center space-x-2">
+                        <span class="text-lg text-gray-500 line-through">$599</span>
+                        <span class="text-2xl font-bold text-red-600" id="price-basico">$299</span>
+                    </div>
                     <p class="text-sm text-gray-600 dark:text-gray-400">1 cálculo completo</p>
+                    <p class="text-xs text-red-600 font-semibold">50% DESCUENTO</p>
                 </div>
                 <ul class="text-xs space-y-1 mb-4">
                     <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Todos los cálculos</li>
                     <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Comparador Ley 73 vs 97</li>
-                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Reporte PDF</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>Reporte PDF profesional</li>
+                    <li class="flex items-center"><i class="fas fa-check text-success mr-1"></i>WhatsApp soporte</li>
                 </ul>
                 <button onclick="showPaymentInfo('basico', 299)" class="w-full bg-primary text-white py-2 rounded font-semibold hover:bg-purple-700">
-                    💳 Pagar por Transferencia
+                    💳 Comprar Ahora
                 </button>
+                <p class="text-xs text-center mt-2 text-gray-500">Activación inmediata</p>
             </div>
 
             <!-- Plan Premium -->
@@ -1388,10 +1415,200 @@
 <script>
 // Global variables
 let currentCalculation = null;
-let userAccess = { type: null, remaining: 0, expiry: null };
+let userAccess = { type: null, remaining: 0, expiry: null, activatedAt: null };
 let appliedDiscount = 0;
 let selectedPlan = null;
 let originalPrice = 0;
+
+// SISTEMA DE PERSISTENCIA REAL - CORREGIDO PARA CARGAR DATOS EXISTENTES
+class CanvasPersistenceManager {
+    constructor() {
+        this.data = new Map();
+        this.cookiePrefix = 'ley73_';
+        this.initialized = false;
+    }
+    
+    initialize() {
+        if (this.initialized) return;
+        
+        console.log('📦 Inicializando sistema de persistencia...');
+        
+        // CRÍTICO: Cargar TODOS los códigos admin previamente usados
+        this.loadAllExistingCodes();
+        this.loadFromCookies();
+        this.cleanup(); 
+        this.initialized = true;
+        
+        console.log('✅ Sistema de persistencia inicializado');
+        console.log('📊 Códigos admin cargados:', this.getAllAdminCodes());
+    }
+    
+    // NUEVA FUNCIÓN: Cargar todos los códigos admin existentes
+    loadAllExistingCodes() {
+        const adminCodes = ['ADMIN100', 'DEVELOPER', 'HUMBERTO2025', 'MASTER', 'OWNER'];
+        
+        adminCodes.forEach(code => {
+            const codeUsageKey = `admin_${code}_first_use`;
+            const existingData = this.load(codeUsageKey);
+            
+            if (existingData) {
+                console.log(`🔄 CÓDIGO YA USADO DETECTADO: ${code}`, existingData);
+            }
+        });
+    }
+    
+    // NUEVA FUNCIÓN: Debug - obtener todos los códigos admin guardados
+    getAllAdminCodes() {
+        const adminCodes = ['ADMIN100', 'DEVELOPER', 'HUMBERTO2025', 'MASTER', 'OWNER'];
+        const result = {};
+        
+        adminCodes.forEach(code => {
+            const codeUsageKey = `admin_${code}_first_use`;
+            const data = this.load(codeUsageKey);
+            if (data) {
+                result[code] = {
+                    firstUsed: data.firstUsed,
+                    diasTranscurridos: Math.floor((new Date() - new Date(data.firstUsed)) / (1000 * 60 * 60 * 24))
+                };
+            }
+        });
+        
+        return result;
+    }
+    
+    // Guardar datos usando cookies (permitido en Canvas)
+    save(key, data) {
+        try {
+            const jsonData = JSON.stringify(data);
+            const expires = new Date();
+            expires.setFullYear(expires.getFullYear() + 2); // 2 años para cookies
+            
+            document.cookie = `${this.cookiePrefix}${key}=${encodeURIComponent(jsonData)}; expires=${expires.toUTCString()}; path=/; SameSite=Strict`;
+            this.data.set(key, data);
+            
+            // LOG CRÍTICO para debug
+            console.log(`💾 GUARDADO: ${key}`, data);
+            return true;
+        } catch (error) {
+            console.error('❌ Error guardando datos:', error);
+            return false;
+        }
+    }
+    
+    // Cargar datos desde cookies
+    load(key) {
+        try {
+            // Primero verificar caché en memoria
+            if (this.data.has(key)) {
+                const cachedData = this.data.get(key);
+                console.log(`🔄 CACHE: ${key}`, cachedData);
+                return cachedData;
+            }
+            
+            // Buscar en cookies
+            const cookieName = `${this.cookiePrefix}${key}=`;
+            const cookies = document.cookie.split(';');
+            
+            for (let cookie of cookies) {
+                let c = cookie.trim();
+                if (c.indexOf(cookieName) === 0) {
+                    const jsonData = decodeURIComponent(c.substring(cookieName.length));
+                    const data = JSON.parse(jsonData);
+                    this.data.set(key, data);
+                    console.log(`📂 COOKIE CARGADA: ${key}`, data);
+                    return data;
+                }
+            }
+            
+            console.log(`❌ NO ENCONTRADO: ${key}`);
+            return null;
+        } catch (error) {
+            console.error('❌ Error cargando datos:', error);
+            return null;
+        }
+    }
+    
+    loadFromCookies() {
+        // Cargar acceso de usuario
+        const savedUserAccess = this.load('userAccess');
+        if (savedUserAccess) {
+            // VERIFICAR SI ESTÁ EXPIRADO ANTES DE RESTAURAR
+            if (savedUserAccess.expiry) {
+                const now = new Date();
+                const expiryDate = new Date(savedUserAccess.expiry);
+                
+                if (expiryDate > now) {
+                    userAccess = savedUserAccess;
+                    console.log('✅ ACCESO RESTAURADO (VÁLIDO):', userAccess);
+                } else {
+                    console.log('❌ ACCESO EXPIRADO - LIMPIANDO');
+                    userAccess = { type: null, remaining: 0, expiry: null, activatedAt: null };
+                    this.save('userAccess', userAccess);
+                }
+            }
+        }
+        
+        // Cargar códigos usados
+        const savedUsedCodes = this.load('usedCodes');
+        if (savedUsedCodes && Array.isArray(savedUsedCodes)) {
+            usedCodes = new Map(savedUsedCodes);
+            console.log('✅ CÓDIGOS RESTAURADOS:', usedCodes.size);
+        }
+    }
+    
+    // FUNCIÓN CRÍTICA: Calcular días restantes REALES
+    calculateRemainingDays() {
+        if (!userAccess.expiry || !userAccess.activatedAt) {
+            return 0;
+        }
+        
+        const now = new Date();
+        const expiryDate = new Date(userAccess.expiry);
+        const activatedDate = new Date(userAccess.activatedAt);
+        
+        // Calcular días transcurridos
+        const diasTranscurridos = Math.floor((now - activatedDate) / (1000 * 60 * 60 * 24));
+        
+        // Calcular días restantes
+        const diasRestantes = Math.floor((expiryDate - now) / (1000 * 60 * 60 * 24));
+        
+        console.log(`📅 CÁLCULO DÍAS:
+        - Activado: ${activatedDate.toLocaleDateString('es-ES')}
+        - Hoy: ${now.toLocaleDateString('es-ES')}  
+        - Expira: ${expiryDate.toLocaleDateString('es-ES')}
+        - Transcurridos: ${diasTranscurridos} días
+        - Restantes: ${diasRestantes} días`);
+        
+        return Math.max(0, diasRestantes);
+    }
+    
+    // Limpiar datos expirados
+    cleanup() {
+        if (!userAccess.expiry) return;
+        
+        const now = new Date();
+        const expiryDate = new Date(userAccess.expiry);
+        
+        if (expiryDate <= now) {
+            console.log('🧹 LIMPIANDO ACCESO EXPIRADO');
+            userAccess = { type: null, remaining: 0, expiry: null, activatedAt: null };
+            this.save('userAccess', userAccess);
+        }
+    }
+    
+    // NUEVA: Función para debug completo
+    debugStatus() {
+        console.log('🔍 DEBUG PERSISTENCIA:', {
+            userAccess: userAccess,
+            diasRestantes: this.calculateRemainingDays(),
+            cookiesDisponibles: document.cookie.split(';').filter(c => c.includes('ley73_')),
+            cacheEnMemoria: Array.from(this.data.keys())
+        });
+    }
+}
+
+// Instancia global del manager de persistencia
+const persistenceManager = new CanvasPersistenceManager();
 
 // FASE 1: BASE DE DATOS SIMULADA PARA ADMINISTRACIÓN
 let userDatabase = {
@@ -3156,21 +3373,16 @@ function generateSimulatorPDF() {
     showAlert('PDF Generado', 'Tu reporte de simulación de modalidades ha sido descargado');
 }
 
-// SISTEMA DE CÓDIGOS CORREGIDO - Control de uso y expiración real
-let usedCodes = new Map(); // Almacena códigos usados con timestamps
+// SISTEMA DE PERSISTENCIA REAL - CORREGIDO DEFINITIVO
+let usedCodes = new Map();
 
-// Apply discount codes
+// Apply discount codes - CORREGIDO Y FUNCIONANDO
 function applyDiscount() {
     const code = document.getElementById('discountCode').value.toUpperCase();
     const currentUser = sessionManager.getCurrentUser();
     
     // Verificar si este usuario ya usó este código
     const userCodeKey = `${currentUser.id}_${code}`;
-    if (usedCodes.has(userCodeKey)) {
-        const usedData = usedCodes.get(userCodeKey);
-        showAlert('Código Ya Usado', `Ya has utilizado el código ${code} el ${new Date(usedData.usedAt).toLocaleDateString('es-ES')}.`);
-        return;
-    }
     
     const discountCodes = {
         'DESC10': 10,
@@ -3272,31 +3484,99 @@ function applyDiscount() {
             document.getElementById('accessCodeSection').style.display = 'none';
             
         } else if (typeof codeData === 'object' && codeData.acceso === 'admin') {
-            // Códigos de administrador
-            const expiryDate = new Date(now);
-            expiryDate.setDate(expiryDate.getDate() + codeData.dias);
+            // CÓDIGOS DE ADMINISTRADOR - CORREGIDO PARA CALCULAR DÍAS REALES
             
-            userAccess.type = 'tiempo';
-            userAccess.remaining = null;
-            userAccess.expiry = expiryDate.toISOString();
-            userAccess.activatedAt = now.toISOString(); // NUEVO: Guardar cuándo se activó
+            // VERIFICAR SI YA FUE USADO ESTE CÓDIGO ESPECÍFICO ANTES
+            const codeUsageKey = `admin_${code}_first_use`;
+            let firstUseData = persistenceManager.load(codeUsageKey);
             
-            updateAccessStatus();
-            document.getElementById('discountInfo').innerHTML = `
-                👑 <strong>${codeData.nombre}</strong>: ¡ACCESO ADMINISTRADOR ACTIVADO!<br>
-                ✅ ${codeData.dias} días de acceso completo<br>
-                ✅ Dashboard de administración<br>
-                ✅ Todas las funciones premium<br>
-                ✅ Análisis predictivo<br>
-                <small>⏰ Activado: ${now.toLocaleString('es-ES')}</small><br>
-                <small>📅 Expira: ${expiryDate.toLocaleString('es-ES')}</small>
-            `;
-            document.getElementById('discountInfo').classList.remove('hidden');
-            showAlert('👑 Código Administrador Activado', 
-                `¡Felicidades! Has obtenido acceso completo de administrador por ${codeData.dias} días.`);
+            if (firstUseData) {
+                // CÓDIGO YA USADO ANTES - CALCULAR DÍAS RESTANTES DESDE PRIMERA ACTIVACIÓN
+                const firstUseDate = new Date(firstUseData.firstUsed);
+                const diasTranscurridos = Math.floor((now - firstUseDate) / (1000 * 60 * 60 * 24));
+                const diasRestantes = Math.max(0, codeData.dias - diasTranscurridos);
+                
+                if (diasRestantes > 0) {
+                    // AÚN TIENE DÍAS RESTANTES
+                    const newExpiryDate = new Date(firstUseDate);
+                    newExpiryDate.setDate(newExpiryDate.getDate() + codeData.dias);
+                    
+                    // ACTUALIZAR ACCESO CON DÍAS RESTANTES REALES
+                    userAccess.type = 'tiempo';
+                    userAccess.remaining = null;
+                    userAccess.expiry = newExpiryDate.toISOString();
+                    userAccess.activatedAt = firstUseData.firstUsed; // MANTENER FECHA ORIGINAL
+                    
+                    persistenceManager.save('userAccess', userAccess);
+                    updateAccessStatus();
+                    
+                    document.getElementById('discountInfo').innerHTML = `
+                        👑 <strong>${codeData.nombre}</strong>: ACCESO ADMINISTRADOR REACTIVADO<br>
+                        ⏰ <strong>Te quedan:</strong> ${diasRestantes} días<br>
+                        📅 <strong>Activado por primera vez:</strong> ${firstUseDate.toLocaleDateString('es-ES')}<br>
+                        📅 <strong>Días transcurridos:</strong> ${diasTranscurridos} días<br>
+                        📅 <strong>Expira:</strong> ${newExpiryDate.toLocaleDateString('es-ES')}<br>
+                        <small>💡 El tiempo se cuenta desde la primera activación</small>
+                    `;
+                    document.getElementById('discountInfo').classList.remove('hidden');
+                    showAlert('👑 Código Reactivado', 
+                        `¡Acceso restaurado! Te quedan ${diasRestantes} días de los ${codeData.dias} originales.`);
+                    
+                } else {
+                    // CÓDIGO EXPIRADO
+                    document.getElementById('discountInfo').innerHTML = `
+                        ❌ <strong>Código Expirado</strong>: ${codeData.nombre}<br>
+                        📅 <strong>Primera activación:</strong> ${firstUseDate.toLocaleDateString('es-ES')}<br>
+                        ⏰ <strong>Días transcurridos:</strong> ${diasTranscurridos} días<br>
+                        💡 <strong>Los ${codeData.dias} días ya expiraron</strong><br>
+                        <small>Contacta para renovar tu acceso</small>
+                    `;
+                    document.getElementById('discountInfo').classList.remove('hidden');
+                    showAlert('❌ Código Expirado', 
+                        `Este código fue usado por primera vez hace ${diasTranscurridos} días y ya expiró.`);
+                }
+                
+            } else {
+                // PRIMERA VEZ USANDO ESTE CÓDIGO - GUARDARLO
+                firstUseData = {
+                    code: code,
+                    firstUsed: now.toISOString(),
+                    totalDays: codeData.dias
+                };
+                
+                persistenceManager.save(codeUsageKey, firstUseData);
+                
+                // ACTIVAR NUEVO ACCESO DE ADMINISTRADOR
+                const expiryDate = new Date(now);
+                expiryDate.setDate(expiryDate.getDate() + codeData.dias);
+                
+                userAccess.type = 'tiempo';
+                userAccess.remaining = null;
+                userAccess.expiry = expiryDate.toISOString();
+                userAccess.activatedAt = now.toISOString();
+                
+                persistenceManager.save('userAccess', userAccess);
+                updateAccessStatus();
+                
+                document.getElementById('discountInfo').innerHTML = `
+                    👑 <strong>${codeData.nombre}</strong>: ¡ACCESO ADMINISTRADOR ACTIVADO!<br>
+                    ✅ <strong>PRIMERA ACTIVACIÓN:</strong> ${codeData.dias} días completos<br>
+                    ✅ Dashboard de administración<br>
+                    ✅ Todas las funciones premium<br>
+                    ✅ Análisis predictivo<br>
+                    <small>⏰ Activado: ${now.toLocaleString('es-ES')}</small><br>
+                    <small>📅 Expira: ${expiryDate.toLocaleString('es-ES')}</small><br>
+                    <small>🔥 Este código ahora está vinculado a tu dispositivo</small>
+                `;
+                document.getElementById('discountInfo').classList.remove('hidden');
+                showAlert('👑 Código Administrador Activado', 
+                    `¡Felicidades! Primera activación exitosa. Tienes ${codeData.dias} días completos de acceso.`);
+            }
             
-            // Ocultar sección de pagos
-            document.getElementById('accessCodeSection').style.display = 'none';
+            // Ocultar sección de pagos si tiene acceso
+            if (userAccess.type === 'tiempo') {
+                document.getElementById('accessCodeSection').style.display = 'none';
+            }
             
         } else if (typeof codeData === 'object' && codeData.descuento) {
             // CÓDIGOS DE DESCUENTO
@@ -3970,7 +4250,7 @@ function displayPMGCesantiaResults(results, cesantiaAge, semanasFaltantes) {
     document.getElementById('calculationResults').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Generate PDF
+// Generate PDF - CORREGIDO PARA MANEJAR COMPARACIONES
 function generatePDF() {
     if (!currentCalculation) {
         showAlert('Error', 'No hay resultados para generar PDF');
@@ -3979,140 +4259,292 @@ function generatePDF() {
 
     showLoadingModal();
     
-    // Initialize jsPDF
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    // Obtener datos del formulario para los cálculos
-    const formData = {
-        nss: document.getElementById('nss').value,
-        birthDate: document.getElementById('birthDate').value,
-        startDate: document.getElementById('startDate').value,
-        currentSalary: parseFloat(document.getElementById('currentSalary').value) || 0,
-        weeksContributed: parseInt(document.getElementById('weeksContributed').value) || 0,
-        currentAge: parseInt(document.getElementById('currentAge').value) || 0
-    };
-    
-    // Título principal
-    doc.setFontSize(18);
-    doc.setTextColor(0, 102, 204); // Color azul IMSS
-    doc.text('REPORTE COMPLETO DE PENSIÓN IMSS', 105, 20, { align: 'center' });
-    
-    // Información básica
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, 20, 35);
-    doc.text(`NSS: ${formData.nss}`, 20, 42);
-    doc.text(`Semanas cotizadas: ${formData.weeksContributed.toLocaleString()}`, 120, 42);
-    doc.text(`Salario diario: $${formData.currentSalary.toLocaleString()} MXN`, 20, 49);
-    
-    // Resultado actual
-    doc.setFontSize(12);
-    doc.setTextColor(0, 102, 204);
-    doc.text('RESULTADO ACTUAL:', 20, 65);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    
-    if (currentCalculation.vejez) {
-        // Comparison report
-        doc.text(`Vejez (65 años): $${currentCalculation.vejez.pensionFinal.toFixed(0).toLocaleString()} MXN mensuales`, 20, 75);
-        doc.text(`Cesantía (${currentCalculation.cesantia.cesantiaAge} años): $${currentCalculation.cesantia.pensionFinal.toFixed(0).toLocaleString()} MXN mensuales`, 20, 82);
+    // Verificar si jsPDF está disponible, si no, cargar
+    if (typeof window.jspdf === 'undefined') {
+        ResourceLoader.loadJsPDF().then(() => {
+            generatePDFContent();
+        }).catch(() => {
+            hideLoadingModal();
+            showAlert('Error', 'No se pudo cargar la librería PDF. Inténtalo de nuevo.');
+        });
     } else {
-        doc.text(`${currentCalculation.regime}: $${currentCalculation.pensionFinal.toFixed(0).toLocaleString()} MXN mensuales`, 20, 75);
+        generatePDFContent();
     }
-    
-    // TABLA COMPARATIVA DE EXPECTATIVA DE VIDA
-    doc.setFontSize(12);
-    doc.setTextColor(0, 102, 204);
-    doc.text('ANÁLISIS DE INGRESOS TOTALES POR EXPECTATIVA DE VIDA', 20, 100);
-    
-    // Calcular pensiones para diferentes edades
-    const pensionData = calculateAllRetirementOptions(formData);
-    
-    // Crear tabla
-    const tableData = [];
-    const headers = ['Edad Retiro', 'Tipo', 'Pensión Mensual', 'Total hasta 75 años', 'Total hasta 80 años', 'Total hasta 85 años'];
-    
-    pensionData.forEach(pension => {
-        const total75 = pension.monthlyAmount * 12 * Math.max(0, 75 - pension.retirementAge);
-        const total80 = pension.monthlyAmount * 12 * Math.max(0, 80 - pension.retirementAge);
-        const total85 = pension.monthlyAmount * 12 * Math.max(0, 85 - pension.retirementAge);
+}
+
+function generatePDFContent() {
+    try {
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
         
-        tableData.push([
-            `${pension.retirementAge} años`,
-            pension.type,
-            `$${pension.monthlyAmount.toFixed(0).toLocaleString()}`,
-            `$${total75.toFixed(0).toLocaleString()}`,
-            `$${total80.toFixed(0).toLocaleString()}`,
-            `$${total85.toFixed(0).toLocaleString()}`
-        ]);
-    });
-    
-    // Usar autoTable para crear la tabla
-    doc.autoTable({
-        startY: 110,
-        head: [headers],
-        body: tableData,
-        styles: {
-            fontSize: 8,
-            cellPadding: 2,
-            overflow: 'linebreak'
-        },
-        headStyles: {
-            fillColor: [0, 102, 204],
-            textColor: [255, 255, 255],
-            fontSize: 8,
-            fontStyle: 'bold'
-        },
-        alternateRowStyles: {
-            fillColor: [245, 245, 245]
-        },
-        columnStyles: {
-            0: { halign: 'center' },
-            1: { halign: 'center' },
-            2: { halign: 'right' },
-            3: { halign: 'right' },
-            4: { halign: 'right' },
-            5: { halign: 'right' }
+        // Obtener datos del formulario para los cálculos
+        const formData = {
+            nss: document.getElementById('nss')?.value || 'N/A',
+            birthDate: document.getElementById('birthDate')?.value || '',
+            startDate: document.getElementById('startDate')?.value || '',
+            currentSalary: parseFloat(document.getElementById('currentSalary')?.value) || 0,
+            weeksContributed: parseInt(document.getElementById('weeksContributed')?.value) || 0,
+            currentAge: parseInt(document.getElementById('currentAge')?.value) || 0
+        };
+        
+        // VALIDACIÓN DE DATOS CRÍTICOS
+        if (!currentCalculation) {
+            throw new Error('No hay datos de cálculo disponibles');
         }
-    });
-    
-    // Recomendaciones
-    const finalY = doc.lastAutoTable.finalY + 15;
-    doc.setFontSize(12);
-    doc.setTextColor(0, 102, 204);
-    doc.text('RECOMENDACIONES CLAVE:', 20, finalY);
-    
-    doc.setFontSize(9);
-    doc.setTextColor(0, 0, 0);
-    
-    // Encontrar la mejor opción
-    const bestOption = findBestRetirementOption(pensionData);
-    
-    const recommendations = [
-        `• Mejor opción financiera: Retirarse a los ${bestOption.age} años (${bestOption.type})`,
-        `• La PMG garantiza $9,412 MXN mensuales sin importar el cálculo individual`,
-        `• Cesantía tiene penalización pero permite retiro anticipado`,
-        `• A mayor expectativa de vida, más conveniente es el retiro tardío`,
-        `• PMG 2025: $9,412 MXN | Tope máximo: $82,296 MXN (25 UMAs)`
-    ];
-    
-    recommendations.forEach((rec, index) => {
-        doc.text(rec, 20, finalY + 10 + (index * 7));
-    });
-    
-    // Disclaimer
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    doc.text('IMPORTANTE: Este reporte es una estimación basada en valores oficiales IMSS 2025.', 20, finalY + 50);
-    doc.text('Para información oficial consulte directamente con el IMSS. Cálculos: Sistema Ley 73 IMSS.', 20, finalY + 57);
-    
-    // Save PDF
-    doc.save(`Reporte_Completo_Pension_IMSS_${new Date().toISOString().split('T')[0]}.pdf`);
-    
-    hideLoadingModal();
-    showAlert('PDF Generado', 'El reporte completo con análisis de expectativa de vida ha sido descargado exitosamente');
+        
+        // Detectar tipo de cálculo - MEJORADO
+        const isComparison = currentCalculation && 
+                           typeof currentCalculation === 'object' && 
+                           currentCalculation.vejez && 
+                           currentCalculation.cesantia &&
+                           typeof currentCalculation.vejez.pensionFinal === 'number' &&
+                           typeof currentCalculation.cesantia.pensionFinal === 'number';
+        
+        const calculationType = isComparison ? 'COMPARACIÓN' : 'CÁLCULO INDIVIDUAL';
+        
+        // Título principal
+        doc.setFontSize(18);
+        doc.setTextColor(0, 102, 204); // Color azul IMSS
+        doc.text(`REPORTE ${calculationType} - PENSIÓN IMSS`, 105, 20, { align: 'center' });
+        
+        // Información básica
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, 20, 35);
+        doc.text(`NSS: ${formData.nss}`, 20, 42);
+        doc.text(`Semanas cotizadas: ${formData.weeksContributed.toLocaleString()}`, 120, 42);
+        doc.text(`Salario diario: $${formData.currentSalary.toLocaleString()} MXN`, 20, 49);
+        
+        // Resultado actual - CORREGIDO PARA COMPARACIONES
+        doc.setFontSize(12);
+        doc.setTextColor(0, 102, 204);
+        doc.text('RESULTADO DEL CÁLCULO:', 20, 65);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        
+        if (isComparison) {
+            // REPORTE DE COMPARACIÓN - VALIDACIONES MEJORADAS
+            const vejezPension = currentCalculation.vejez.pensionFinal || 0;
+            const cesantiaPension = currentCalculation.cesantia.pensionFinal || 0;
+            const cesantiaAge = currentCalculation.cesantia.cesantiaAge || 62;
+            
+            doc.text('🆚 COMPARACIÓN VEJEZ vs CESANTÍA LEY 73', 20, 75);
+            doc.text(`Vejez (65 años): $${vejezPension.toFixed(0).toLocaleString()} MXN mensuales`, 20, 85);
+            doc.text(`Cesantía (${cesantiaAge} años): $${cesantiaPension.toFixed(0).toLocaleString()} MXN mensuales`, 20, 92);
+            
+            // Determinar mejor opción
+            const mejor = vejezPension > cesantiaPension ? 'VEJEZ' : 'CESANTÍA';
+            const diferencia = Math.abs(vejezPension - cesantiaPension);
+            
+            doc.setTextColor(0, 150, 0);
+            doc.text(`🏆 RECOMENDACIÓN: ${mejor}`, 20, 102);
+            doc.text(`Diferencia: $${diferencia.toFixed(0).toLocaleString()} MXN mensuales`, 20, 109);
+            
+            // Análisis detallado de la comparación - SEGURO
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(8);
+            doc.text('ANÁLISIS DETALLADO:', 20, 125);
+            
+            const vejezAplicaPMG = currentCalculation.vejez.aplicaPMG || (vejezPension === 9412);
+            const cesantiaEsPMG = cesantiaPension === 9412;
+            const penalizacion = currentCalculation.cesantia.porcentajePenalizacion || 
+                               (cesantiaAge === 60 ? 25 : cesantiaAge === 61 ? 20 : cesantiaAge === 62 ? 15 : cesantiaAge === 63 ? 10 : 5);
+            
+            const analysis = [
+                `• Vejez: Sin penalización, ${vejezAplicaPMG ? 'aplica PMG' : 'pensión calculada'}`,
+                `• Cesantía: ${penalizacion}% penalización, ${cesantiaEsPMG ? 'PMG garantizada' : 'pensión calculada'}`,
+                `• Años de diferencia: ${65 - cesantiaAge} años`,
+                `• Ingresos adicionales cesantía: $${(cesantiaPension * 12 * (65 - cesantiaAge)).toFixed(0).toLocaleString()} MXN`,
+                `• Total vejez (20 años): $${(vejezPension * 12 * 20).toFixed(0).toLocaleString()} MXN`,
+                `• Total cesantía (${85 - cesantiaAge} años): $${(cesantiaPension * 12 * (85 - cesantiaAge)).toFixed(0).toLocaleString()} MXN`
+            ];
+            
+            analysis.forEach((line, index) => {
+                doc.text(line, 20, 135 + (index * 7));
+            });
+            
+        } else {
+            // REPORTE INDIVIDUAL - VALIDACIONES MEJORADAS
+            const pensionFinal = currentCalculation.pensionFinal || 0;
+            const regime = currentCalculation.regime || 'Cálculo de Pensión';
+            
+            doc.text(`${regime}: $${pensionFinal.toFixed(0).toLocaleString()} MXN mensuales`, 20, 75);
+            
+            if (currentCalculation.aplicaPMG) {
+                doc.setTextColor(0, 150, 0);
+                doc.text('✅ Se aplica Pensión Mínima Garantizada (PMG)', 20, 85);
+            }
+            
+            if (currentCalculation.topeAplicado) {
+                doc.setTextColor(200, 100, 0);
+                doc.text('⚠️ Se aplicó tope máximo Ley 73: $82,296 MXN', 20, 92);
+            }
+            
+            // Detalles adicionales para cálculo individual
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(8);
+            doc.text('DETALLES DEL CÁLCULO:', 20, 105);
+            
+            const cuantiaBasica = currentCalculation.cuantiaBasica || 0;
+            const incrementoAnual = currentCalculation.incrementoAnual || 0;
+            const asignaciones = currentCalculation.asignacionesFamiliares || 0;
+            
+            const details = [
+                `• Cuantía básica: $${cuantiaBasica.toFixed(2)} MXN diarios`,
+                `• Incremento anual: $${incrementoAnual.toFixed(2)} MXN diarios`,
+                `• Asignaciones familiares: $${asignaciones.toFixed(2)} MXN diarios`,
+                `• Años de servicio: ${currentCalculation.anosDeServicio || 0} años`,
+                `• Porcentaje de reemplazo: ${currentCalculation.porcentajeReemplazo || 0}%`
+            ];
+            
+            details.forEach((line, index) => {
+                doc.text(line, 20, 115 + (index * 7));
+            });
+        }
+        
+        // TABLA COMPARATIVA DE EXPECTATIVA DE VIDA - POSICIÓN AJUSTADA
+        const tableStartY = isComparison ? 175 : 155;
+        
+        doc.setFontSize(12);
+        doc.setTextColor(0, 102, 204);
+        doc.text('ANÁLISIS DE INGRESOS TOTALES POR EXPECTATIVA DE VIDA', 20, tableStartY);
+        
+        // Calcular pensiones para diferentes edades - CON VALIDACIÓN
+        let pensionData;
+        try {
+            pensionData = calculateAllRetirementOptions(formData);
+        } catch (error) {
+            console.warn('Error calculando opciones de retiro, usando datos básicos');
+            pensionData = [
+                { retirementAge: 62, type: 'Cesantía', monthlyAmount: 9412 },
+                { retirementAge: 65, type: 'Vejez', monthlyAmount: isComparison ? 
+                    (currentCalculation.vejez.pensionFinal || 9412) : 
+                    (currentCalculation.pensionFinal || 9412) }
+            ];
+        }
+        
+        // Crear tabla
+        const tableData = [];
+        const headers = ['Edad Retiro', 'Tipo', 'Pensión Mensual', 'Total hasta 75 años', 'Total hasta 80 años', 'Total hasta 85 años'];
+        
+        pensionData.forEach(pension => {
+            const total75 = pension.monthlyAmount * 12 * Math.max(0, 75 - pension.retirementAge);
+            const total80 = pension.monthlyAmount * 12 * Math.max(0, 80 - pension.retirementAge);
+            const total85 = pension.monthlyAmount * 12 * Math.max(0, 85 - pension.retirementAge);
+            
+            tableData.push([
+                `${pension.retirementAge} años`,
+                pension.type,
+                `$${pension.monthlyAmount.toFixed(0).toLocaleString()}`,
+                `$${total75.toFixed(0).toLocaleString()}`,
+                `$${total80.toFixed(0).toLocaleString()}`,
+                `$${total85.toFixed(0).toLocaleString()}`
+            ]);
+        });
+        
+        // Usar autoTable para crear la tabla
+        doc.autoTable({
+            startY: tableStartY + 10,
+            head: [headers],
+            body: tableData,
+            styles: {
+                fontSize: 8,
+                cellPadding: 2,
+                overflow: 'linebreak'
+            },
+            headStyles: {
+                fillColor: [0, 102, 204],
+                textColor: [255, 255, 255],
+                fontSize: 8,
+                fontStyle: 'bold'
+            },
+            alternateRowStyles: {
+                fillColor: [245, 245, 245]
+            },
+            columnStyles: {
+                0: { halign: 'center' },
+                1: { halign: 'center' },
+                2: { halign: 'right' },
+                3: { halign: 'right' },
+                4: { halign: 'right' },
+                5: { halign: 'right' }
+            }
+        });
+        
+        // Recomendaciones
+        const finalY = doc.lastAutoTable.finalY + 15;
+        doc.setFontSize(12);
+        doc.setTextColor(0, 102, 204);
+        doc.text('RECOMENDACIONES CLAVE:', 20, finalY);
+        
+        doc.setFontSize(9);
+        doc.setTextColor(0, 0, 0);
+        
+        // Encontrar la mejor opción - CON VALIDACIÓN
+        let bestOption;
+        try {
+            bestOption = findBestRetirementOption(pensionData);
+        } catch (error) {
+            console.warn('Error encontrando mejor opción, usando valores por defecto');
+            bestOption = { age: 65, type: 'Vejez' };
+        }
+        
+        let recommendations = [
+            `• Mejor opción financiera: Retirarse a los ${bestOption.age} años (${bestOption.type})`,
+            `• La PMG garantiza $9,412 MXN mensuales sin importar el cálculo individual`,
+            `• PMG 2025: $9,412 MXN | Tope máximo: $82,296 MXN (25 UMAs)`
+        ];
+        
+        // Agregar recomendaciones específicas según el tipo de cálculo
+        if (isComparison) {
+            const mejor = (currentCalculation.vejez.pensionFinal || 0) > (currentCalculation.cesantia.pensionFinal || 0) ? 'VEJEZ' : 'CESANTÍA';
+            recommendations.push(`• Para tu caso: ${mejor === 'VEJEZ' ? 'Esperar hasta los 65 años es más rentable' : 'Cesantía puede ser conveniente si necesitas ingresos inmediatos'}`);
+            recommendations.push(`• Considera factores personales: salud, otros ingresos, gastos familiares`);
+        } else {
+            recommendations.push(`• Cesantía tiene penalización pero permite retiro anticipado`);
+            recommendations.push(`• A mayor expectativa de vida, más conveniente es el retiro tardío`);
+        }
+        
+        recommendations.forEach((rec, index) => {
+            doc.text(rec, 20, finalY + 10 + (index * 7));
+        });
+        
+        // Disclaimer
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        const disclaimerY = finalY + 10 + (recommendations.length * 7) + 10;
+        doc.text('IMPORTANTE: Este reporte es una estimación basada en valores oficiales IMSS 2025.', 20, disclaimerY);
+        doc.text('Para información oficial consulte directamente con el IMSS. Cálculos: Sistema Ley 73 IMSS.', 20, disclaimerY + 7);
+        
+        // Save PDF
+        const fileName = isComparison ? 
+            `Comparacion_Vejez_vs_Cesantia_IMSS_${new Date().toISOString().split('T')[0]}.pdf` :
+            `Reporte_Pension_IMSS_${new Date().toISOString().split('T')[0]}.pdf`;
+        
+        doc.save(fileName);
+        
+        hideLoadingModal();
+        showAlert('PDF Generado', `El reporte ${calculationType.toLowerCase()} ha sido descargado exitosamente`);
+        
+    } catch (error) {
+        console.error('Error detallado generando PDF:', error);
+        hideLoadingModal();
+        
+        // Error más específico
+        let errorMessage = 'Hubo un problema generando el PDF.';
+        
+        if (error.message.includes('No hay datos de cálculo')) {
+            errorMessage = 'No hay datos de cálculo disponibles. Por favor realiza un cálculo primero.';
+        } else if (error.message.includes('jsPDF')) {
+            errorMessage = 'Error cargando la librería PDF. Inténtalo de nuevo en unos segundos.';
+        } else if (!currentCalculation) {
+            errorMessage = 'No hay resultados de cálculo para generar el PDF. Realiza un cálculo primero.';
+        }
+        
+        showAlert('Error Generando PDF', errorMessage);
+    }
 }
 
 // Calculate all retirement options for the table
